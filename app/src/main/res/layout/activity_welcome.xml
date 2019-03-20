@@ -35,14 +35,14 @@
         android:layout_marginBottom="24dp"
         android:text="If you're offered a set on a rocket ship, don't ask what seat! Just get on."
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintBottom_toTopOf="@+id/button_welcome_next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_goneMarginBottom="16dp" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button_welcome_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
