@@ -5,23 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
-    tools:context=".UserTypeSelectionActivity">
+    tools:context=".RequestRideActivity">
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="48dp"
-        android:text="Are you a:"
+        android:layout_marginBottom="150dp"
+        android:text="Do you \nwant to:"
         android:textColor="@android:color/white"
         android:textSize="36sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/button_usertype_selection_driver"
+        app:layout_constraintBottom_toTopOf="@+id/button_requestride_request"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_usertype_selection_mom"
+        android:id="@+id/button_requestride_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -29,10 +29,9 @@
         android:layout_marginBottom="32dp"
         android:background="@drawable/button_background"
         android:padding="10dp"
-        android:text="PREGNANT MOM"
+        android:text="REQUEST RIDE"
         android:textColor="@android:color/white"
         android:textSize="36sp"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -40,39 +39,21 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_usertype_selection_driver"
+        android:id="@+id/button_requestride_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/button_background"
-        android:padding="10dp"
-        android:text="DRIVER"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
-
-        app:layout_constraintBottom_toTopOf="@id/button_usertype_selection_mom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button_usertype_selection_caregiver"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="64dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/button_background"
-
         android:padding="10dp"
-        android:text="CAREGIVER"
+        android:text="SEARCH DRIVERS"
         android:textColor="@android:color/white"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_usertype_selection_mom" />
+        app:layout_constraintTop_toBottomOf="@+id/button_requestride_request" />
+
 
 </android.support.constraint.ConstraintLayout>
