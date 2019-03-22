@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        startActivity(Intent(this, EditAccountDetailsActivity::class.java))
+        startActivity(Intent(this, DriverSearchActivity::class.java))
 
 //        setSupportActionBar(toolbar)
 
