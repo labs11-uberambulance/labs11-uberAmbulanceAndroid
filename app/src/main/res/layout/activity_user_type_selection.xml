@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_usertype_selection_mom"
+        android:id="@+id/button_usertype_selection_mother"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -52,7 +52,7 @@
         android:textColor="@android:color/white"
         android:textSize="36sp"
 
-        app:layout_constraintBottom_toTopOf="@id/button_usertype_selection_mom"
+        app:layout_constraintBottom_toTopOf="@id/button_usertype_selection_mother"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
@@ -73,6 +73,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_usertype_selection_mom" />
+        app:layout_constraintTop_toBottomOf="@id/button_usertype_selection_mother" />
 
 </android.support.constraint.ConstraintLayout>

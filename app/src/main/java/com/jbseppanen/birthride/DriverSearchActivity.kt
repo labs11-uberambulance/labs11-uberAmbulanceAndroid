@@ -36,8 +36,8 @@ class DriverSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val mapStartCenter = LatLng(.0324, 32.5)
+        mMap.addMarker(MarkerOptions().position(mapStartCenter).title("Marker in Uganda"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(mapStartCenter))
     }
 }
