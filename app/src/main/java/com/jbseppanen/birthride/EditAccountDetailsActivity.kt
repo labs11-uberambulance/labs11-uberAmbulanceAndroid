@@ -1,17 +1,31 @@
 package com.jbseppanen.birthride
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
 
 class EditAccountDetailsActivity : AppCompatActivity() {
 
+    private lateinit var auth: FirebaseAuth
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_account_details)
+        val context: Context = this
+        FirebaseApp.initializeApp(context)
+        AuthUI.getInstance().signOut(context).addOnCompleteListener { onStart() } //TODO remove this line after testing.  Currently forces login each time.
+        auth = FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, FirebaseOauthActivity::class.java))
+        }
 
         val parent = findViewById<ViewGroup>(R.id.layout_edituser)
         val userType = intent.getStringExtra(UserTypeSelectionActivity.USER_TYPE_KEY)
