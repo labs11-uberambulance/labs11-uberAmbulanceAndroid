@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RideStatusActivity">
+
+    <TextView
+        android:id="@+id/text_ridestatus_statuslabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="Status"
+        android:textSize="36sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text_ridestatus_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="Status"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/text_ridestatus_statuslabel" />
+
+    <TextView
+        android:id="@+id/text_ridestatus_etalabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="ETA"
+        android:textSize="36sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/text_ridestatus_status" />
+
+    <TextView
+        android:id="@+id/text_ridestatus_eta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="Eta"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/text_ridestatus_etalabel" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="Status"
+        android:textSize="36sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_ridestatus_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:text="CANCEL"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.75" />
+</android.support.constraint.ConstraintLayout>
