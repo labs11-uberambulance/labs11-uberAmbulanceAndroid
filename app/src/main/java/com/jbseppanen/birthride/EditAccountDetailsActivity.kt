@@ -18,7 +18,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
 
         for (i in 0 until parent.childCount) {
             val childView = parent.getChildAt(i)
-            if (childView.tag!=null) {
+            if (childView.tag != null) {
                 when {
                     childView.tag.toString().contains(userType, ignoreCase = true) -> {
                         childView.visibility = View.VISIBLE
@@ -27,7 +27,13 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             }
         }
 
-        button_edituser_save.setOnClickListener { startActivity(Intent(this, RequestRideActivity::class.java)) }
+        button_edituser_save.setOnClickListener {
+            if (userType.equals("driver", true)) {
+                startActivity(Intent(this, DriverViewRequestsActivity::class.java))
+            } else {
+                startActivity(Intent(this, RequestRideActivity::class.java))
+            }
+        }
     }
 }
 
