@@ -11,7 +11,7 @@ class RequestRideActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_request_ride)
 
-//        button_requestride_request.setOnClickListener { startActivity(Intent(this, WelcomeActivity::class.java)) }
+        button_requestride_request.setOnClickListener { startActivity(Intent(this, ConfirmRequestActivity::class.java)) }
         button_requestride_search.setOnClickListener { startActivity(Intent(this, DriverSearchActivity::class.java)) }
 
     }
