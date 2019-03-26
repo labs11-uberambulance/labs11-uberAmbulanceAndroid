@@ -1,13 +1,11 @@
 package com.jbseppanen.birthride
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-
+import android.support.v7.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
 class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -34,10 +32,7 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
-        // Add a marker in Sydney and move the camera
-        val mapStartCenter = LatLng(.0324, 32.5)
-        mMap.addMarker(MarkerOptions().position(mapStartCenter).title("Marker in Uganda"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(mapStartCenter))
+        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
     }
 }
