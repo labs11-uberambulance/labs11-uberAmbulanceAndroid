@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
+import com.firebase.ui.auth.AuthUI
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
@@ -18,8 +19,9 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_account_details)
-        val context:Context = this
+        val context: Context = this
         FirebaseApp.initializeApp(context)
+        AuthUI.getInstance().signOut(context).addOnCompleteListener { onStart() } //TODO remove this line after testing.  Currently forces login each time.
         auth = FirebaseAuth.getInstance()
         if (auth.currentUser == null) {
             startActivity(Intent(this, FirebaseOauthActivity::class.java))

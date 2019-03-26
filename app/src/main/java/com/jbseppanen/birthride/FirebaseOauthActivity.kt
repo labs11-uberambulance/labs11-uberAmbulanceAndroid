@@ -25,7 +25,8 @@ class FirebaseOauthActivity : AppCompatActivity() {
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.PhoneBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build())
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
 
 // Create and launch sign-in intent
         startActivityForResult(
@@ -33,7 +34,8 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .build(),
-            RC_SIGN_IN)
+            RC_SIGN_IN
+        )
 
     }
 
@@ -47,13 +49,11 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 // Successfully signed in
                 val user = FirebaseAuth.getInstance().currentUser
                 if (user != null) {
-                    Toast.makeText(this, user.displayName.toString(),Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, user.uid, Toast.LENGTH_LONG).show()
+                    finish()
                 }
             } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
+                Toast.makeText(this, "Sign-in Failed. Try Again", Toast.LENGTH_LONG).show()
             }
         }
     }

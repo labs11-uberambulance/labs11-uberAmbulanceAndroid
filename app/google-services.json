@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "211505911643",
+    "firebase_url": "https://birth-ride.firebaseio.com",
+    "project_id": "birth-ride",
+    "storage_bucket": "birth-ride.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211505911643:android:fff298b40f323752",
+        "android_client_info": {
+          "package_name": "com.jbseppanen.birthride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211505911643-409t3rlvtvqhsquduo2p4vt4ddk84nj3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jbseppanen.birthride",
+            "certificate_hash": "2bb43055c2f42f948ec3c1b52090af09633fe443"
+          }
+        },
+        {
+          "client_id": "211505911643-q9h2sdtij38hmueht3e7106ucenkgm8b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8JpHYYhDDhyOC6WAbsijwuXfa49GR7pc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211505911643-q9h2sdtij38hmueht3e7106ucenkgm8b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
