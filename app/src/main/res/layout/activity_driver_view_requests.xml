@@ -4,18 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DriverSearchActivity">
+    tools:context=".DriverViewRequestsActivity">
 
     <fragment
-        android:id="@+id/map_driversearch"
+        android:id="@+id/map_driverview"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        map:layout_constraintBottom_toTopOf="@+id/recycler_driversearch"
+        map:layout_constraintBottom_toTopOf="@+id/recycler_driverview"
         tools:context=".MapsActivity" />
 
     <EditText
-        android:id="@+id/edit_driversearch_locationsearch"
+        android:id="@+id/edit_driverview_locationsearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -27,11 +27,11 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:src="@android:drawable/ic_menu_compass"
-        map:layout_constraintBottom_toBottomOf="@id/map_driversearch"
+        map:layout_constraintBottom_toBottomOf="@id/map_driverview"
         map:layout_constraintStart_toStartOf="parent" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_driversearch"
+        android:id="@+id/recycler_driverview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
