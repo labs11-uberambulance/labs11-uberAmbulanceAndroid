@@ -85,6 +85,7 @@ obj/
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 .idea/assetWizardSettings.xml
+app/src/debug/
 
 # OS-specific files
 .DS_Store
