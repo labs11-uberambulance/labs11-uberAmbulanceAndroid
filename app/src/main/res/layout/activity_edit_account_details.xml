@@ -123,6 +123,16 @@
                 android:hint="Phone Number"
                 android:inputType="phone" />
 
+            <EditText
+                android:id="@+id/edit_edituser_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:hint="Email Address"
+                android:inputType="textEmailAddress" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -198,6 +208,18 @@
                 android:layout_marginRight="16dp"
                 android:hint="Price"
                 android:inputType="numberDecimal"
+                android:tag="driver"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/edit_edituser_driverbio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:hint="Brief biography/description.  500 characters max."
+                android:inputType="textMultiLine"
                 android:tag="driver"
                 android:visibility="gone" />
 
