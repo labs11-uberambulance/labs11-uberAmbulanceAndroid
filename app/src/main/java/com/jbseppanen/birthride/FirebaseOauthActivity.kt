@@ -54,8 +54,8 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 }
             } else {
                 Toast.makeText(this, "Sign-in Failed. Try Again", Toast.LENGTH_LONG).show()
+                recreate()
             }
         }
     }
-
 }

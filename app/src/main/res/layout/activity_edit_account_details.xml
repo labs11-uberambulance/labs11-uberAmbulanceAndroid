@@ -124,6 +124,25 @@
                 android:inputType="phone" />
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:tag="mother,caretaker"
+                android:text="Due Date"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
+            <DatePicker
+                android:id="@+id/date_edituser_duedate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="mother,caretaker"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/text_edituser_facilitylabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
