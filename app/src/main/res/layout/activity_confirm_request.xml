@@ -76,29 +76,25 @@
             android:id="@+id/text_requestconfirm_pickuptime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="16dp"
-            android:textColor="@color/colorPrimary"
             android:text="Estimated Pickup Time:"
-            android:textAlignment="center" />
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/text_requestconfirm_fare"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="$?"
+            android:text="Fare Estimate $?"
             android:textColor="@color/colorPrimary"
-            android:textAlignment="center"
-            android:textSize="28sp" />
+            android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/text_requestconfirm_farelabel"
+            android:id="@+id/text_requestconfirm_waittime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fare Estimate"
+            android:text="Time to wait for response:"
             android:textColor="@color/colorPrimary"
-            android:textAlignment="center"
-            android:textSize="16sp" />
+            android:textSize="24sp" />
 
         <Button
             android:id="@+id/button_requestconfirm_send"

@@ -29,8 +29,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         val context: Context = this
         activity = this
         FirebaseApp.initializeApp(context)
-        AuthUI.getInstance().signOut(context)
-            .addOnCompleteListener { onStart() } //TODO remove this line after testing.  Currently forces login each time.
+//        AuthUI.getInstance().signOut(context).addOnCompleteListener { onStart() } //TODO remove this line after testing.  Currently forces login each time.
         auth = FirebaseAuth.getInstance()
         if (auth.currentUser == null) {
             startActivity(Intent(this, FirebaseOauthActivity::class.java))
