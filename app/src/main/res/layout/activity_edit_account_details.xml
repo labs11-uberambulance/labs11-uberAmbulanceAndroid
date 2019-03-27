@@ -123,6 +123,35 @@
                 android:hint="Phone Number"
                 android:inputType="phone" />
 
+            <EditText
+                android:id="@+id/edit_edituser_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:hint="Email Address"
+                android:inputType="textEmailAddress" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:tag="mother,caretaker"
+                android:text="Due Date"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
+            <DatePicker
+                android:id="@+id/date_edituser_duedate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="mother,caretaker"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/text_edituser_facilitylabel"
                 android:layout_width="match_parent"
@@ -180,6 +209,41 @@
                 android:hint="Price"
                 android:inputType="numberDecimal"
                 android:tag="driver"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/edit_edituser_driverbio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:hint="Brief biography/description.  500 characters max."
+                android:inputType="textMultiLine"
+                android:maxLength="500"
+                android:tag="driver"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:tag="driver"
+                android:text="Photo"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/image_edituser_driverimage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="driver"
+                android:textSize="24sp"
+                android:text="\nTap to pick a photo\n"
+                android:textAlignment="center"
                 android:visibility="gone" />
 
             <Button

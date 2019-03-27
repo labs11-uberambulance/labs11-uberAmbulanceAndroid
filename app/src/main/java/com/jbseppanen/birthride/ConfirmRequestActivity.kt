@@ -2,7 +2,12 @@ package com.jbseppanen.birthride
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.DialogFragment
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.NumberPicker
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -21,7 +26,18 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map_requestconfirm) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        button_requestconfirm_send.setOnClickListener { startActivity(Intent(this, RideStatusActivity::class.java)) }
+        button_requestconfirm_send.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    RideStatusActivity::class.java
+                )
+            )
+        }
+        text_requestconfirm_waittime.setOnClickListener {
+            val fragment = MinutesPicker()
+            fragment.show(supportFragmentManager, "Minutes To Wait")
+        }
     }
 
     /**
@@ -38,4 +54,20 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
     }
+
+
+    class MinutesPicker : DialogFragment() {
+
+        override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val view: NumberPicker = NumberPicker(context)
+            view.minValue = 0
+            view.maxValue = 60
+            return view
+        }
+    }
+
+
 }
