@@ -38,7 +38,6 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             val fragment = MinutesPicker()
             fragment.show(supportFragmentManager, "Minutes To Wait")
         }
-
     }
 
     /**
