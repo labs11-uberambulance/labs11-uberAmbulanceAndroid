@@ -220,6 +220,7 @@
                 android:layout_marginRight="16dp"
                 android:hint="Brief biography/description.  500 characters max."
                 android:inputType="textMultiLine"
+                android:maxLength="500"
                 android:tag="driver"
                 android:visibility="gone" />
 
