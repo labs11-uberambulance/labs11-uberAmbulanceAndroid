@@ -201,6 +201,28 @@
                 android:tag="driver"
                 android:visibility="gone" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:tag="driver"
+                android:text="Photo"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/image_edituser_driverimage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="driver"
+                android:textSize="24sp"
+                android:text="\nTap to pick a photo\n"
+                android:textAlignment="center"
+                android:visibility="gone" />
+
             <Button
                 android:id="@+id/button_edituser_save"
                 android:layout_width="match_parent"
