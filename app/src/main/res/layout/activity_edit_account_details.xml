@@ -101,7 +101,7 @@
                 android:inputType="textPostalAddress" />
 
 
-            <EditText
+<!--            <EditText
                 android:id="@+id/edit_edituser_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
                 android:hint="Description of location (If needed)"
                 android:inputType="textMultiLine"
                 android:tag="mother,caretaker"
-                android:visibility="gone" />
+                android:visibility="gone" />-->
 
             <EditText
                 android:id="@+id/edit_edituser_phone"

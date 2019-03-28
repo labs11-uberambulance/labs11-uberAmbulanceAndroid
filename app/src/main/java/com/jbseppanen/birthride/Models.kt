@@ -1,7 +1,75 @@
 package com.jbseppanen.birthride
 
-abstract class User(
+import kotlinx.serialization.Optional
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class User(
+    @SerialName("user")
+    val userData: UserData,
+
+    @Optional
+    val motherData: MotherData? = null,
+
+    @Optional
+    val driverData: DriverData? = null
+)
+
+@Serializable
+data class UserData(
+    val address: String,
+    val created_at: String,
+    val email: String,
+    val firebase_id: String,
+    val id: Int,
+    val latitude: String,
+    val longitude: String,
+    val name: String,
+    val phone: String,
+    val updated_at: String,
+    val user_type: String,
+    val village: String
+)
+
+@Serializable
+data class MotherData(
+    val id: Int,
+    val firebase_id: String,
+    val caretaker_name: String,
+    val due_date: String,
+    val hospital: String,
+    val created_at: String,
+    val updated_at: String
+)
+
+@Serializable
+data class DriverData(
+    val active: Boolean,
+    val bio: String,
+    val created_at: String,
+    val firebase_id: String,
+    val id: Int,
+    val photo_url: String,
+    val price: Int,
+    val updated_at: String
+)
+
+@Serializable
+class Ride(
     val id: Long?,
+    val driver_id: Long?,
+    val mother_id: Long?,
+    val wait_min: Int? = 0,
+    val start_village: String? = "",
+    val start_address: String? = "",
+    val destination: String? = "", //500 char limit.  Required.
+    val destination_address: String? = "",
+    val ride_status: String? = ""
+)
+
+/*abstract class User(
+   val id: Long?,
     val name: String? = "",
     val firebase_id: String,
     val phone: String? = "",
@@ -50,16 +118,4 @@ class Driver(
     val bio: String? = "",
     val photo_url: String? = ""
 
-) : User(id, name, firebase_id, phone, email, user_type, address, village, latitude, longitude)
-
-class Ride(
-    val id: Long?,
-    val driver_id: Long?,
-    val mother_id: Long?,
-    val wait_min: Int? = 0,
-    val start_village: String? = "",
-    val start_address: String? = "",
-    val destination: String? = "", //500 char limit.  Required.
-    val destination_address: String? = "",
-    val ride_status: String? = ""
-)
+) : User(id, name, firebase_id, phone, email, user_type, address, village, latitude, longitude)*/

@@ -52,7 +52,7 @@ object NetworkAdapter {
                     outputStream.close()
                 }
             }
-            val code = connection.responseCode
+            connection.responseCode
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
                 stream = connection.inputStream
                 if (stream != null) {

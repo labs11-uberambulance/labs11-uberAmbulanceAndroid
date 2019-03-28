@@ -34,17 +34,20 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         val context: Context = this
         activity = this
         FirebaseApp.initializeApp(context)
-        AuthUI.getInstance().signOut(context).addOnCompleteListener {
-            auth = FirebaseAuth.getInstance()
-            if (auth.currentUser == null) {
-                startActivityForResult(
-                    Intent(this, FirebaseOauthActivity::class.java),
-                    AUTH_REQUEST_CODE
-                )
-            }
-        } //TODO remove this line after testing.  Currently forces login each time.
-
-
+        auth = FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            AuthUI.getInstance().signOut(context).addOnCompleteListener {
+                auth = FirebaseAuth.getInstance()
+                if (auth.currentUser == null) {
+                    startActivityForResult(
+                        Intent(this, FirebaseOauthActivity::class.java),
+                        AUTH_REQUEST_CODE
+                    )
+                }
+            } //TODO remove this line after testing.  Currently forces login each time.
+        } else {
+            getUserInfo()
+        }
 
 
         val parent = findViewById<ViewGroup>(R.id.layout_edituser)
@@ -78,6 +81,21 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
     }
 
+    fun getUserInfo() {
+
+        val dataJob = Job()
+        val dataScope = CoroutineScope(Dispatchers.IO + dataJob)
+        dataScope.launch {
+            val user = ApiDao.getCurrentUser()
+            edit_edituser_name.setText(user?.userData?.name)
+            edit_edituser_city.setText(user?.userData?.village)
+            edit_edituser_address.setText(user?.userData?.address)
+            edit_edituser_phone.setText(user?.userData?.phone)
+            edit_edituser_email.setText(user?.userData?.email)
+            edit_edituser_email.setText(user?.userData?.email)
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -91,15 +109,8 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     image_edituser_driverimage.text = ""
                 }
             } else if (requestCode == AUTH_REQUEST_CODE) {
-                auth = FirebaseAuth.getInstance()
-                val tokenResult = auth.getAccessToken(false).result
-                val tokenString = tokenResult?.token
-
-
-                val dataJob = Job()
-                val dataScope = CoroutineScope(Dispatchers.IO + dataJob)
-                dataScope.launch {
-                    val result = NetworkAdapter.httpRequest(
+                getUserInfo()
+/*                    val result = NetworkAdapter.httpRequest(
                         stringUrl = "https://birthrider-backend.herokuapp.com/api/users",
                         requestType = NetworkAdapter.GET,
                         jsonBody = null,
@@ -108,11 +119,10 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                             "Content-Type" to "application/json",
                             "Accept" to "application/json"
                         )
-                    )
-                    println(result)
-                }
+                    )*/
             }
         }
     }
 }
+
 
