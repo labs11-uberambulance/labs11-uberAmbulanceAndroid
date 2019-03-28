@@ -3,6 +3,8 @@ package com.jbseppanen.birthride
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.FirebaseApp
 import kotlinx.android.synthetic.main.activity_user_type_selection.*
 
 class UserTypeSelectionActivity : AppCompatActivity() {

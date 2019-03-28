@@ -12,6 +12,10 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class EditAccountDetailsActivity : AppCompatActivity() {
 
@@ -19,7 +23,8 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     private lateinit var activity: Activity
 
     companion object {
-        const val IMAGE_REQUEST_CODE = 47
+        const val IMAGE_REQUEST_CODE = 3
+        const val AUTH_REQUEST_CODE = 4
     }
 
 
@@ -29,11 +34,18 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         val context: Context = this
         activity = this
         FirebaseApp.initializeApp(context)
-//        AuthUI.getInstance().signOut(context).addOnCompleteListener { onStart() } //TODO remove this line after testing.  Currently forces login each time.
-        auth = FirebaseAuth.getInstance()
-        if (auth.currentUser == null) {
-            startActivity(Intent(this, FirebaseOauthActivity::class.java))
-        }
+        AuthUI.getInstance().signOut(context).addOnCompleteListener {
+            auth = FirebaseAuth.getInstance()
+            if (auth.currentUser == null) {
+                startActivityForResult(
+                    Intent(this, FirebaseOauthActivity::class.java),
+                    AUTH_REQUEST_CODE
+                )
+            }
+        } //TODO remove this line after testing.  Currently forces login each time.
+
+
+
 
         val parent = findViewById<ViewGroup>(R.id.layout_edituser)
         val userType = intent.getStringExtra(UserTypeSelectionActivity.USER_TYPE_KEY)
@@ -66,6 +78,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
@@ -76,6 +89,27 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     val drawable = Drawable.createFromStream(inputStream, imageUri.toString())
                     image_edituser_driverimage.background = drawable
                     image_edituser_driverimage.text = ""
+                }
+            } else if (requestCode == AUTH_REQUEST_CODE) {
+                auth = FirebaseAuth.getInstance()
+                val tokenResult = auth.getAccessToken(false).result
+                val tokenString = tokenResult?.token
+
+
+                val dataJob = Job()
+                val dataScope = CoroutineScope(Dispatchers.IO + dataJob)
+                dataScope.launch {
+                    val result = NetworkAdapter.httpRequest(
+                        stringUrl = "https://birthrider-backend.herokuapp.com/api/users",
+                        requestType = NetworkAdapter.GET,
+                        jsonBody = null,
+                        headerProperties = mapOf(
+                            "Authorization" to "$tokenString",
+                            "Content-Type" to "application/json",
+                            "Accept" to "application/json"
+                        )
+                    )
+                    println(result)
                 }
             }
         }
