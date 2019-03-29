@@ -49,15 +49,15 @@
             android:paddingBottom="50dp">
 
             <EditText
-                android:id="@+id/edit_edituser_caretakername"
+                android:id="@+id/edit_edituser_caregivername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
-                android:hint="Caretaker Name"
+                android:hint="caregiver Name"
                 android:inputType="textPersonName"
-                android:tag="caretaker"
+                android:tag="caregiver"
                 android:visibility="gone" />
 
             <TextView
@@ -110,7 +110,7 @@
                 android:layout_marginRight="16dp"
                 android:hint="Description of location (If needed)"
                 android:inputType="textMultiLine"
-                android:tag="mother,caretaker"
+                android:tag="mothers,caregiver"
                 android:visibility="gone" />-->
 
             <EditText
@@ -139,7 +139,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
-                android:tag="mother,caretaker"
+                android:tag="mothers,caregiver"
                 android:text="Due Date"
                 android:textAlignment="center"
                 android:textSize="24sp"
@@ -149,7 +149,7 @@
                 android:id="@+id/date_edituser_duedate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:tag="mother,caretaker"
+                android:tag="mothers,caregiver"
                 android:visibility="gone" />
 
             <TextView
@@ -157,14 +157,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:tag="mother,caretaker"
+                android:tag="mothers,caregiver"
                 android:text="Healthcare Facility"
                 android:textAlignment="center"
                 android:textSize="24sp"
                 android:visibility="gone" />
 
             <EditText
-                android:id="@+id/edit_edituser_endname"
+                android:id="@+id/edit_edituser_hospitalname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
@@ -172,10 +172,10 @@
                 android:layout_marginRight="16dp"
                 android:hint="Name of facility"
                 android:inputType="textCapWords"
-                android:tag="mother,caretaker"
+                android:tag="mothers,caregiver"
                 android:visibility="gone" />
 
-            <EditText
+<!--            <EditText
                 android:id="@+id/edit_edituser_endcity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -184,7 +184,7 @@
                 android:layout_marginRight="16dp"
                 android:hint="City/Village"
                 android:inputType="textCapWords"
-                android:tag="mother,caretaker"
+                android:tag="mothers,caregiver"
                 android:visibility="gone" />
 
             <EditText
@@ -196,8 +196,8 @@
                 android:layout_marginRight="16dp"
                 android:hint="Address"
                 android:inputType="textPostalAddress"
-                android:tag="mother,caretaker"
-                android:visibility="gone" />
+                android:tag="mothers,caregiver"
+                android:visibility="gone" />-->
 
             <EditText
                 android:id="@+id/edit_edituser_driverprice"
@@ -208,7 +208,7 @@
                 android:layout_marginRight="16dp"
                 android:hint="Price"
                 android:inputType="numberDecimal"
-                android:tag="driver"
+                android:tag="drivers"
                 android:visibility="gone" />
 
             <EditText
@@ -221,7 +221,7 @@
                 android:hint="Brief biography/description.  500 characters max."
                 android:inputType="textMultiLine"
                 android:maxLength="500"
-                android:tag="driver"
+                android:tag="drivers"
                 android:visibility="gone" />
 
             <TextView
@@ -230,7 +230,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
-                android:tag="driver"
+                android:tag="drivers"
                 android:text="Photo"
                 android:textAlignment="center"
                 android:textSize="24sp"
@@ -240,7 +240,7 @@
                 android:id="@+id/image_edituser_driverimage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:tag="driver"
+                android:tag="drivers"
                 android:textSize="24sp"
                 android:text="\nTap to pick a photo\n"
                 android:textAlignment="center"

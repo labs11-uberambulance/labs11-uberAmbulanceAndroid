@@ -18,48 +18,48 @@ data class User(
 
 @Serializable
 data class UserData(
-    val address: String,
-    val created_at: String,
-    val email: String,
+    val address: String? = "",
+    val created_at: String? = null,
+    val email: String? = "",
     val firebase_id: String,
     val id: Int,
-    val latitude: String,
-    val longitude: String,
-    val name: String,
-    val phone: String,
-    val updated_at: String,
-    val user_type: String,
-    val village: String
+    val latitude: String? = null,
+    val longitude: String? = null,
+    val name: String? = "",
+    val phone: String? = "",
+    val updated_at: String? = null,
+    var user_type: String? = null,
+    val village: String? = ""
 )
 
 @Serializable
 data class MotherData(
     val id: Int,
     val firebase_id: String,
-    val caretaker_name: String,
-    val due_date: String,
-    val hospital: String,
-    val created_at: String,
-    val updated_at: String
+    val caretaker_name: String? = "",
+    val due_date: String? = null,
+    val hospital: String? = "",
+    val created_at: String? = null,
+    val updated_at: String? = null
 )
 
 @Serializable
 data class DriverData(
-    val active: Boolean,
-    val bio: String,
-    val created_at: String,
+    val active: Boolean? = false,
+    val bio: String? = "",
+    val created_at: String? = null,
     val firebase_id: String,
     val id: Int,
-    val photo_url: String,
-    val price: Int,
-    val updated_at: String
+    val photo_url: String? = null,
+    val price: Double? = 0.0,
+    val updated_at: String? = null
 )
 
 @Serializable
 class Ride(
     val id: Long?,
-    val driver_id: Long?,
-    val mother_id: Long?,
+    val driver_id: Int?,
+    val mother_id: Int?,
     val wait_min: Int? = 0,
     val start_village: String? = "",
     val start_address: String? = "",
