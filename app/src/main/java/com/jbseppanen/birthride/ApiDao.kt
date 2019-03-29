@@ -3,7 +3,6 @@ package com.jbseppanen.birthride
 import android.support.annotation.WorkerThread
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.json.Json
-import org.json.JSONObject
 
 const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
 
@@ -38,4 +37,22 @@ object ApiDao {
         return FirebaseAuth.getInstance().getAccessToken(false).result?.token
     }
 
+    fun postMotherDriverData() {
+
+    }
+
+    fun putCurrentUser(user:User):Boolean {
+        val tokenString = getToken()
+        val (success, result) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/users/update/${user.userData.id}",
+            requestType = NetworkAdapter.PUT,
+            jsonBody = Json.stringify(User.serializer(), user),
+            headerProperties = mapOf(
+                "Authorization" to "$tokenString",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        return success
+    }
 }

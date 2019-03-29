@@ -10,112 +10,60 @@ data class User(
     val userData: UserData,
 
     @Optional
-    val motherData: MotherData? = null,
+    var motherData: MotherData? = null,
 
     @Optional
-    val driverData: DriverData? = null
+    var driverData: DriverData? = null
 )
 
 @Serializable
 data class UserData(
-    val address: String? = "",
+    var address: String? = "",
     val created_at: String? = null,
-    val email: String? = "",
+    var email: String? = "",
     val firebase_id: String,
     val id: Int,
-    val latitude: String? = null,
-    val longitude: String? = null,
-    val name: String? = "",
-    val phone: String? = "",
-    val updated_at: String? = null,
+    var latitude: String? = null,
+    var longitude: String? = null,
+    var name: String? = "",
+    var phone: String? = "",
+    var updated_at: String? = null,
     var user_type: String? = null,
-    val village: String? = ""
+    var village: String? = ""
 )
 
 @Serializable
 data class MotherData(
-    val id: Int,
+    val id: Int? = null,
     val firebase_id: String,
-    val caretaker_name: String? = "",
-    val due_date: String? = null,
-    val hospital: String? = "",
+    var caretaker_name: String? = "",
+    var due_date: String? = null,
+    var hospital: String? = "",
     val created_at: String? = null,
-    val updated_at: String? = null
+    var updated_at: String? = null
 )
 
 @Serializable
 data class DriverData(
-    val active: Boolean? = false,
-    val bio: String? = "",
+    var active: Boolean? = false,
+    var bio: String? = "",
     val created_at: String? = null,
     val firebase_id: String,
-    val id: Int,
-    val photo_url: String? = null,
-    val price: Double? = 0.0,
-    val updated_at: String? = null
+    val id: Int? = null,
+    var photo_url: String? = null,
+    var price: Double? = 0.0,
+    var updated_at: String? = null
 )
 
 @Serializable
 class Ride(
     val id: Long?,
-    val driver_id: Int?,
-    val mother_id: Int?,
-    val wait_min: Int? = 0,
-    val start_village: String? = "",
-    val start_address: String? = "",
-    val destination: String? = "", //500 char limit.  Required.
-    val destination_address: String? = "",
-    val ride_status: String? = ""
+    var driver_id: Int?,
+    val mother_id: Int,
+    var wait_min: Int? = 5,
+    var start_village: String? = "",
+    var start_address: String? = "",
+    var destination: String? = "", //500 char limit.  Required.
+    var destination_address: String? = "",
+    var ride_status: String? = ""
 )
-
-/*abstract class User(
-   val id: Long?,
-    val name: String? = "",
-    val firebase_id: String,
-    val phone: String? = "",
-    val email: String? = "",
-    val user_type: String? = "",
-    val address: String? = "",
-    val village: String? = "",
-    val latitude: Double? = 0.0,
-    val longitude: Double? = 0.0
-)
-
-class Mother(
-    id: Long?,
-    name: String? = "",
-    firebase_id: String,
-    phone: String? = "",
-    email: String? = "",
-    user_type: String? = "",
-    address: String? = "",
-    village: String? = "",
-    latitude: Double? = 0.0,
-    longitude: Double? = 0.0,
-
-    val motherId: Long?,
-    val caretaker_name: String,
-    val due_date: String  //Check out DatePickerDialog.  https://stackoverflow.com/questions/45842167/how-to-use-datepickerdialog-in-kotlin
-
-) : User(id, name, firebase_id, phone, email, user_type, address, village, latitude, longitude)
-
-
-class Driver(
-    id: Long?,
-    name: String? = "",
-    firebase_id: String,
-    phone: String? = "",
-    email: String? = "",
-    user_type: String? = "",
-    address: String? = "",
-    village: String? = "",
-    latitude: Double? = 0.0,
-    longitude: Double? = 0.0,
-
-    val driverId: Long?,
-    val price: Double? = 0.0,
-    val active: Boolean? = false,
-    val bio: String? = "",
-    val photo_url: String? = ""
-
-) : User(id, name, firebase_id, phone, email, user_type, address, village, latitude, longitude)*/
