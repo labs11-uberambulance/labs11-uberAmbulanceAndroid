@@ -7,6 +7,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -14,9 +15,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        startActivity(Intent(this, WelcomeActivity::class.java))
-
-
+        AuthUI.getInstance().signOut(this).addOnCompleteListener {
+            //TODO remove this line after testing.  Currently forces login each time.
+            startActivity(Intent(this, WelcomeActivity::class.java))
+        }
 
 //        setSupportActionBar(toolbar)
 

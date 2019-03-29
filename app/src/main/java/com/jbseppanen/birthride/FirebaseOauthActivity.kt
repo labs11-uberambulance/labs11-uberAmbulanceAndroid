@@ -32,6 +32,7 @@ class FirebaseOauthActivity : AppCompatActivity() {
         startActivityForResult(
             AuthUI.getInstance()
                 .createSignInIntentBuilder()
+                .setIsSmartLockEnabled(false)
                 .setAvailableProviders(providers)
                 .build(),
             RC_SIGN_IN
@@ -48,7 +49,6 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 // Successfully signed in
                 val user = FirebaseAuth.getInstance().currentUser
                 if (user != null) {
-                    Toast.makeText(this, user.uid, Toast.LENGTH_LONG).show()
                     setResult(Activity.RESULT_OK)
                     finish()
                 }
