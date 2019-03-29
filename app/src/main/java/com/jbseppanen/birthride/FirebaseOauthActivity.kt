@@ -36,7 +36,6 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 .build(),
             RC_SIGN_IN
         )
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -50,6 +49,7 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 val user = FirebaseAuth.getInstance().currentUser
                 if (user != null) {
                     Toast.makeText(this, user.uid, Toast.LENGTH_LONG).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
             } else {
