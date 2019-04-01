@@ -33,7 +33,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
-        android:text="If you're offered a set on a rocket ship, don't ask what seat! Just get on."
+        android:text="If you're offered a seat on a rocket ship, don't ask what seat! Just get on."
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/button_welcome_next"
         app:layout_constraintEnd_toEndOf="parent"

@@ -124,7 +124,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             val dataJob = Job()
             val dataScope = CoroutineScope(Dispatchers.IO + dataJob)
             dataScope.launch {
-                val success = ApiDao.putCurrentUser(user)
+                val success = ApiDao.updateCurrentUser(user)
                 if (success) {
                     when (user.userData.user_type) {
                         UserTypeSelectionActivity.MOTHER -> {

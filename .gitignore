@@ -85,7 +85,7 @@ obj/
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 .idea/assetWizardSettings.xml
-app/src/debug/
+app/src/debug/res/values/google_maps_api.xml
 
 # OS-specific files
 .DS_Store
