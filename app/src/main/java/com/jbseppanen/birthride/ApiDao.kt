@@ -1,9 +1,10 @@
 package com.jbseppanen.birthride
 
+import android.graphics.Bitmap
 import android.support.annotation.WorkerThread
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.json.Json
-import org.json.JSONObject
+
 
 const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
 
@@ -24,18 +25,69 @@ object ApiDao {
         )
         var user: User? = null
         if (success) {
-/*            val json = JSONObject(result)
-            val userJson: JSONObject = json.getJSONObject("user")
-            userType = userJson["user_type"] as String?
-            if (userType == "mothers") {*/
-                user = Json.nonstrict.parse(User.serializer(), result)
-//            }
+            user = Json.nonstrict.parse(User.serializer(), result)
         }
         return user
     }
 
-    fun getToken(): String? {
+    fun updateCurrentUser(user: User, newUser: Boolean): Boolean {
+        var success = true
+        if (newUser) {
+            success = postNewUser(user)
+        }
+        if (success) {
+            success = putCurrentUser(user)
+        }
+        return success
+    }
+
+    private fun getToken(): String? {
         return FirebaseAuth.getInstance().getAccessToken(false).result?.token
     }
 
+    private fun postNewUser(user: User): Boolean {
+        val tokenString = getToken()
+        val json = when (user.userData.user_type) {
+            UserTypeSelectionActivity.MOTHER -> "{\"user_type\":\"mother\",\"motherData\":${Json.stringify(
+                MotherData.serializer(),
+                user.motherData!!
+            )}}"
+            UserTypeSelectionActivity.DRIVER -> "{\"user_type\":\"driver\",\"driverData\":${Json.stringify(
+                DriverData.serializer(),
+                user.driverData!!
+            )}}"
+            else -> ""
+        }
+        val (success, result) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/users/onboard/${user.userData.id}",
+            requestType = NetworkAdapter.POST,
+            jsonBody = json,
+            headerProperties = mapOf(
+                "Authorization" to "$tokenString",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        return success
+    }
+
+    private fun putCurrentUser(user: User): Boolean {
+        val tokenString = getToken()
+        val json = Json.stringify(User.serializer(), user).replace("motherData","mother").replace("driverData", "driver")
+        val (success, result) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/users/update/${user.userData.id}",
+            requestType = NetworkAdapter.PUT,
+            jsonBody = json,
+            headerProperties = mapOf(
+                "Authorization" to "$tokenString",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        return success
+    }
+
+    private fun uploadDriverPhoto(bitmap: Bitmap): String {
+        return "url"
+    }
 }
