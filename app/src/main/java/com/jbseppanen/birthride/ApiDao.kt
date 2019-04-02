@@ -2,6 +2,7 @@ package com.jbseppanen.birthride
 
 import android.graphics.Bitmap
 import android.support.annotation.WorkerThread
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.json.Json
 
@@ -85,6 +86,22 @@ object ApiDao {
             )
         )
         return success
+    }
+
+    fun getDrivers(location:LatLng) {
+        val tokenString = getToken()
+        val json = "{\"latitude\":${location.latitude}, \"longitude\":${location.longitude}"
+        val (success, result) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/drivers",
+            requestType = NetworkAdapter.POST,
+            jsonBody = json,
+            headerProperties = mapOf(
+                "Authorization" to "$tokenString",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        println(result)
     }
 
     private fun uploadDriverPhoto(bitmap: Bitmap): String {

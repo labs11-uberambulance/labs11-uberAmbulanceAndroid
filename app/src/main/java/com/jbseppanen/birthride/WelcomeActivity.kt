@@ -1,10 +1,15 @@
 package com.jbseppanen.birthride
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_welcome.*
@@ -21,6 +26,8 @@ class WelcomeActivity : AppCompatActivity() {
         const val AUTH_REQUEST_CODE = 4
         const val USER_TYPE_REQUEST_CODE = 5
         const val USER_KEY = "User Type"
+        const val LOCATION_REQUEST_CODE = 1
+
     }
 
     private lateinit var user: User
@@ -30,6 +37,24 @@ class WelcomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_welcome)
 
         val context: Context = this
+
+
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
+                .show()
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_REQUEST_CODE
+            )
+        } else {
+            Toast.makeText(context, "Location permission was granted", Toast.LENGTH_SHORT).show()
+        }
+
 
         FirebaseApp.initializeApp(context)
         if (FirebaseAuth.getInstance().currentUser != null) {
