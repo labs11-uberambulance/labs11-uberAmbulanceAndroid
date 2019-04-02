@@ -22,9 +22,9 @@ data class UserData(
     val created_at: String? = null,
     var email: String? = "",
     val firebase_id: String,
-    val id: Int,
-    var latitude: String? = null,
-    var longitude: String? = null,
+    val id: Long,
+    var latitude: Double? = null,
+    var longitude: Double? = null,
     var name: String? = "",
     var phone: String? = "",
     var updated_at: String? = null,
@@ -34,29 +34,31 @@ data class UserData(
 
 @Serializable
 data class MotherData(
-    val id: Int? = null,
+/*    @Optional
+    var id: Int? = null,*/
     val firebase_id: String,
     var caretaker_name: String? = "",
     var due_date: String? = null,
-    var hospital: String? = "",
-    val created_at: String? = null,
-    var updated_at: String? = null
+    var hospital: String? = ""
+//    val created_at: String? = null,
+//    var updated_at: String? = null
 )
 
 @Serializable
 data class DriverData(
     var active: Boolean? = false,
     var bio: String? = "",
-    val created_at: String? = null,
+//    val created_at: String? = null,
     val firebase_id: String,
-    val id: Int? = null,
+/*    @Optional
+    var id: Int? = null,*/
     var photo_url: String? = null,
-    var price: Double? = 0.0,
-    var updated_at: String? = null
+    var price: Int? = 0
+//    var updated_at: String? = null
 )
 
 @Serializable
-class Ride(
+data class Ride(
     val id: Long?,
     var driver_id: Int?,
     val mother_id: Int,
@@ -67,3 +69,14 @@ class Ride(
     var destination_address: String? = "",
     var ride_status: String? = ""
 )
+
+/*@Serializable
+data class JsonBodyWrapper(
+    val user_type:String,
+
+    @Optional
+    val motherData: MotherData,
+
+    @Optional
+    val driverData: DriverData
+)*/

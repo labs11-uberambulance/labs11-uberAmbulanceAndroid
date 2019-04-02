@@ -10,10 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 
 class EditAccountDetailsActivity : AppCompatActivity() {
@@ -38,10 +35,9 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         var userType = user.userData.user_type
         if (userType.equals(UserTypeSelectionActivity.CAREGIVER)) {
             user.userData.user_type = UserTypeSelectionActivity.MOTHER
-        }
-        else if(user.userData.user_type == UserTypeSelectionActivity.MOTHER) {
-            if (user.motherData!=null) {
-                if (user.motherData!!.caretaker_name!="") {
+        } else if (user.userData.user_type == UserTypeSelectionActivity.MOTHER) {
+            if (user.motherData != null) {
+                if (user.motherData!!.caretaker_name != "") {
                     userType = UserTypeSelectionActivity.CAREGIVER
                 }
             }
@@ -58,19 +54,18 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             }
         }
 
-        button_edituser_save.setOnClickListener {
-            if (userType!!.contains("driver", true)) {
-                startActivity(Intent(this, DriverViewRequestsActivity::class.java))
-            } else {
-                startActivity(Intent(this, RequestRideActivity::class.java))
-            }
-        }
 
         image_edituser_driverimage.setOnClickListener {
             val imageIntent = Intent(Intent.ACTION_GET_CONTENT)
             imageIntent.type = "image/*"
             startActivityForResult(imageIntent, IMAGE_REQUEST_CODE)
         }
+
+        var newUser = false
+        if (user.motherData == null && user.driverData == null) {
+            newUser = true
+        }
+
 
         edit_edituser_name.setText(user.userData.name)
         edit_edituser_city.setText(user.userData.village)
@@ -84,20 +79,24 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                 }
                 edit_edituser_caregivername.setText(user.motherData?.caretaker_name)
                 edit_edituser_hospitalname.setText(user.motherData?.hospital)
-                val dateArray = user.motherData?.due_date!!.split("-")
-                if (dateArray.size >= 3) {
-                    date_edituser_duedate.updateDate(
-                        dateArray[0].toInt(),
-                        dateArray[1].toInt() - 1,
-                        dateArray[2].substring(0, 2).toInt()
-                    )
+                val dateArray = user.motherData?.due_date?.split("-")
+                if (dateArray != null) {
+                    if (dateArray.size >= 3) {
+                        date_edituser_duedate.updateDate(
+                            dateArray[0].toInt(),
+                            dateArray[1].toInt() - 1,
+                            dateArray[2].substring(0, 2).toInt()
+                        )
+                    }
                 }
             }
             UserTypeSelectionActivity.DRIVER -> {
                 if (user.driverData == null) {
                     user.driverData = DriverData(firebase_id = user.userData.firebase_id)
                 }
-                edit_edituser_driverprice.setText(user.driverData?.price.toString())
+                if (user.driverData?.price.toString() != "0") {
+                    edit_edituser_driverprice.setText(user.driverData?.price.toString())
+                }
                 edit_edituser_driverbio.setText(user.driverData?.bio)
             }
         }
@@ -106,17 +105,17 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             user.userData.address = edit_edituser_address.text.toString()
             user.userData.email = edit_edituser_email.text.toString()
             user.userData.name = edit_edituser_name.text.toString()
-            user.userData.phone = edit_edituser_name.text.toString()
+            user.userData.phone = edit_edituser_phone.text.toString()
             user.userData.village = edit_edituser_city.text.toString()
             when (user.userData.user_type) {
                 UserTypeSelectionActivity.MOTHER -> {
                     user.motherData?.caretaker_name = edit_edituser_caregivername.text.toString()
                     user.motherData?.due_date =
-                        "${date_edituser_duedate.year}-${date_edituser_duedate.month}-${date_edituser_duedate.dayOfMonth}"
-
+                        "${date_edituser_duedate.year}-${date_edituser_duedate.month + 1}-${date_edituser_duedate.dayOfMonth}"
+                    user.motherData?.hospital = edit_edituser_hospitalname.text.toString()
                 }
                 UserTypeSelectionActivity.DRIVER -> {
-                    user.driverData?.price = edit_edituser_driverprice.text.toString().toDouble()
+                    user.driverData?.price = edit_edituser_driverprice.text.toString().toDouble().toInt()
                     user.driverData?.bio = edit_edituser_driverbio.text.toString()
                 }
             }
@@ -124,7 +123,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             val dataJob = Job()
             val dataScope = CoroutineScope(Dispatchers.IO + dataJob)
             dataScope.launch {
-                val success = ApiDao.updateCurrentUser(user)
+                val success = ApiDao.updateCurrentUser(user, newUser)
                 if (success) {
                     when (user.userData.user_type) {
                         UserTypeSelectionActivity.MOTHER -> {
@@ -135,7 +134,13 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    Toast.makeText(context, "Failed to save. Go back and try log in again.", Toast.LENGTH_LONG).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "Failed to save. Go back and try log in again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }
