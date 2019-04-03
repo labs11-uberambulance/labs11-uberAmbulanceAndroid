@@ -126,7 +126,8 @@ object ApiDao {
 
     fun getDirections(activity:Activity, start: LatLng, end: LatLng): MutableList<List<LatLng>> {
         val path: MutableList<List<LatLng>> = ArrayList()
-        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
+//        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
+        val key = activity.applicationContext.resources.getString(R.string.gKey)
         val url =
             "https://maps.googleapis.com/maps/api/directions/json?origin=10.3181466,123.9029382&destination=10.311795,123.915864&key=$key"
         val (success, response) = NetworkAdapter.httpRequest(url, NetworkAdapter.GET, null, null)

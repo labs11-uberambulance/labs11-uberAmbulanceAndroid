@@ -33,13 +33,13 @@
         android:textColor="@android:color/white"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_edituser_signin"
+        app:layout_constraintStart_toEndOf="@id/button_edituser_signin"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/button_edituser_signin">
+        app:layout_constraintTop_toBottomOf="@id/button_edituser_signin">
 
         <LinearLayout
             android:id="@+id/layout_edituser"
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="UserType Information"
+                android:text="User Information"
                 android:textAlignment="center"
                 android:textSize="24sp" />
 
@@ -80,7 +80,7 @@
                 android:hint="Name"
                 android:inputType="textPersonName" />
 
-            <EditText
+<!--            <EditText
                 android:id="@+id/edit_edituser_city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -98,20 +98,20 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
                 android:hint="Description of location (if needed)"
-                android:inputType="textPostalAddress" />
+                android:inputType="textPostalAddress" />-->
 
 
-<!--            <EditText
-                android:id="@+id/edit_edituser_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="Description of location (If needed)"
-                android:inputType="textMultiLine"
-                android:tag="mothers,caregiver"
-                android:visibility="gone" />-->
+            <!--            <EditText
+                            android:id="@+id/edit_edituser_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginRight="16dp"
+                            android:hint="Description of location (If needed)"
+                            android:inputType="textMultiLine"
+                            android:tag="mothers,caregiver"
+                            android:visibility="gone" />-->
 
             <EditText
                 android:id="@+id/edit_edituser_phone"
@@ -123,81 +123,95 @@
                 android:hint="Phone Number"
                 android:inputType="phone" />
 
-<!--            <EditText
-                android:id="@+id/edit_edituser_email"
+            <Button
+                android:id="@+id/button_edituser_pick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="Email Address"
-                android:inputType="textEmailAddress" />-->
-
-<!--            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/radiused_rectangle_background"
+                android:backgroundTint="@color/colorAccent"
                 android:tag="mothers,caregiver"
-                android:text="Due Date"
-                android:textAlignment="center"
-                android:textSize="24sp"
-                android:visibility="gone" />-->
-
-<!--            <DatePicker
-                android:id="@+id/date_edituser_duedate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="mothers,caregiver"
-                android:visibility="gone" />-->
-
-            <TextView
-                android:id="@+id/text_edituser_facilitylabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:tag="mothers,caregiver"
-                android:text="Healthcare Facility"
-                android:textAlignment="center"
+                android:text="Pick Location &amp; Destination"
+                android:textColor="@android:color/white"
                 android:textSize="24sp"
                 android:visibility="gone" />
 
-            <EditText
-                android:id="@+id/edit_edituser_hospitalname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="Name of facility"
-                android:inputType="textCapWords"
-                android:tag="mothers,caregiver"
-                android:visibility="gone" />
+            <!--                        <EditText
+                                        android:id="@+id/edit_edituser_email"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="16dp"
+                                        android:layout_marginTop="16dp"
+                                        android:layout_marginRight="16dp"
+                                        android:hint="Email Address"
+                                        android:inputType="textEmailAddress" />
 
-<!--            <EditText
-                android:id="@+id/edit_edituser_endcity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="City/Village"
-                android:inputType="textCapWords"
-                android:tag="mothers,caregiver"
-                android:visibility="gone" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="16dp"
+                                        android:layout_marginTop="16dp"
+                                        android:layout_marginRight="16dp"
+                                        android:tag="mothers,caregiver"
+                                        android:text="Due Date"
+                                        android:textAlignment="center"
+                                        android:textSize="24sp"
+                                        android:visibility="gone" />
 
-            <EditText
-                android:id="@+id/edit_edituser_endaddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="Address"
-                android:inputType="textPostalAddress"
-                android:tag="mothers,caregiver"
-                android:visibility="gone" />-->
+                                    <DatePicker
+                                        android:id="@+id/date_edituser_duedate"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:tag="mothers,caregiver"
+                                        android:visibility="gone" />
+                                    <TextView
+                                        android:id="@+id/text_edituser_facilitylabel"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="16dp"
+                                        android:tag="mothers,caregiver"
+                                        android:text="Healthcare Facility"
+                                        android:textAlignment="center"
+                                        android:textSize="24sp"
+                                        android:visibility="gone" />
+
+                                    <EditText
+                                        android:id="@+id/edit_edituser_hospitalname"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="16dp"
+                                        android:layout_marginTop="16dp"
+                                        android:layout_marginRight="16dp"
+                                        android:hint="Name of facility"
+                                        android:inputType="textCapWords"
+                                        android:tag="mothers,caregiver"
+                                        android:visibility="gone" />
+
+                                    <EditText
+                                        android:id="@+id/edit_edituser_endcity"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="16dp"
+                                        android:layout_marginTop="16dp"
+                                        android:layout_marginRight="16dp"
+                                        android:hint="City/Village"
+                                        android:inputType="textCapWords"
+                                        android:tag="mothers,caregiver"
+                                        android:visibility="gone" />
+
+                                    <EditText
+                                        android:id="@+id/edit_edituser_endaddress"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="16dp"
+                                        android:layout_marginTop="16dp"
+                                        android:layout_marginRight="16dp"
+                                        android:hint="Address"
+                                        android:inputType="textPostalAddress"
+                                        android:tag="mothers,caregiver"
+                                        android:visibility="gone" />-->
 
             <EditText
                 android:id="@+id/edit_edituser_driverprice"
@@ -241,9 +255,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:tag="drivers"
-                android:textSize="24sp"
                 android:text="\nTap to pick a photo\n"
                 android:textAlignment="center"
+                android:textSize="24sp"
                 android:visibility="gone" />
 
             <Button

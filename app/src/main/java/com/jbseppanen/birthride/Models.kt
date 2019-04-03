@@ -18,46 +18,48 @@ data class User(
 
 @Serializable
 data class UserData(
-    var address: String? = "",
-    val created_at: String? = null,
-//    var email: String? = "",
-    val firebase_id: String,
     val id: Long,
-    var latitude: Double? = null,
-    var longitude: Double? = null,
     var name: String? = "",
     var phone: String? = "",
-//    var updated_at: String? = null,
-    var user_type: String? = null
-//    var village: String? = ""
+    val firebase_id: String,
+    var user_type: String? = null,
+    var location:Location? = null,
+    var email: String? = ""
+//    val created_at: String? = null,
+//    var updated_at: String? = null
 )
 
 @Serializable
 data class MotherData(
-/*    @Optional
-    var id: Int? = null,*/
+//    val id: Long,
     val firebase_id: String,
     var caretaker_name: String? = "",
-    @Optional  // Todo remove this tag later when back end set up.
-    var destination_address: LatLngJson = LatLngJson(Constants.defaultMapCenter.latitude, Constants.defaultMapCenter.longitude)
-/*    var due_date: String? = null,
-    var hospital: String? = ""*/
+    val start:Location? = null,
+    var destination:Location? = null
 //    val created_at: String? = null,
 //    var updated_at: String? = null
 )
 
 @Serializable
 data class DriverData(
+    //    val id: Long,
+    val firebase_id: String,
+    var price: Int? = 0,
     var active: Boolean? = false,
     var bio: String? = "",
+    var photo_url: String? = null
 //    val created_at: String? = null,
-    val firebase_id: String,
-/*    @Optional
-    var id: Int? = null,*/
-    var photo_url: String? = null,
-    var price: Int? = 0
 //    var updated_at: String? = null
 )
+
+@Serializable
+data class Location(
+    val descr: String?,
+    val latlng: String,
+    val name: String?
+)
+
+
 
 @Serializable
 data class Ride(

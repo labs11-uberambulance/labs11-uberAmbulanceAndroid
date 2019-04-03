@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LocationSelectionActivity">
+
+    <fragment
+        android:id="@+id/map_locationselection"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".LocationSelectionActivity" />
+
+    <TextView
+        android:id="@+id/text_locationselection_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="Tap to set pickup location.  Tap again set destination.  Tapping a third time will start over."
+        android:textSize="20sp"
+        map:layout_constraintTop_toTopOf="parent" />
+
+    <!--    <EditText
+            android:id="@+id/edit_locationselection_locationsearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            map:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--    <ImageButton
+            android:id="@+id/button_locationselection_center_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:src="@android:drawable/ic_menu_compass"
+            map:layout_constraintBottom_toBottomOf="@id/map_driversearch"
+            map:layout_constraintStart_toStartOf="parent" />-->
+
+    <Button
+        android:id="@+id/button_locationselection_setlocations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorAccent"
+        android:enabled="false"
+        android:text="Set Locations"
+        map:layout_constraintBottom_toBottomOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
