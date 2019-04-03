@@ -39,16 +39,21 @@ class WelcomeActivity : AppCompatActivity() {
         val context: Context = this
 
 
-        if (ContextCompat.checkSelfPermission(
+        if ((ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        ) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_DENIED) {
             Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
                 .show()
             ActivityCompat.requestPermissions(
                 context as Activity,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_REQUEST_CODE
+            )
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
                 LOCATION_REQUEST_CODE
             )
         } else {
@@ -72,20 +77,20 @@ class WelcomeActivity : AppCompatActivity() {
                             )
                         }
 
-                        else ->  gotoEditUser() //TODO remove this line of coded and uncomment out code below.  For demo purposes.
+//                        else ->  gotoEditUser() //TODO remove this line of coded and uncomment out code below.  For demo purposes.
 
-/*                        user.userData.user_type == "mothers" -> startActivity(
+                        user.userData.user_type == UserTypeSelectionActivity.MOTHER -> startActivity(
                             Intent(
                                 context,
                                 RequestRideActivity::class.java
                             )
                         )
-                        user.userData.user_type == "drivers" -> startActivity(
+                        user.userData.user_type == UserTypeSelectionActivity.DRIVER -> startActivity(
                             Intent(
                                 context,
                                 DriverViewRequestsActivity::class.java
                             )
-                        )*/
+                        )
                     }
                 }
             }

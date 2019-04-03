@@ -68,18 +68,18 @@ class EditAccountDetailsActivity : AppCompatActivity() {
 
 
         edit_edituser_name.setText(user.userData.name)
-        edit_edituser_city.setText(user.userData.village)
+//        edit_edituser_city.setText(user.userData.village)
         edit_edituser_address.setText(user.userData.address)
         edit_edituser_phone.setText(user.userData.phone)
-        edit_edituser_email.setText(user.userData.email)
+//        edit_edituser_email.setText(user.userData.email)
         when (user.userData.user_type) {
             UserTypeSelectionActivity.MOTHER -> {
                 if (user.motherData == null) {
                     user.motherData = MotherData(firebase_id = user.userData.firebase_id)
                 }
                 edit_edituser_caregivername.setText(user.motherData?.caretaker_name)
-                edit_edituser_hospitalname.setText(user.motherData?.hospital)
-                val dateArray = user.motherData?.due_date?.split("-")
+//                edit_edituser_hospitalname.setText(user.motherData?.hospital)
+/*                val dateArray = user.motherData?.due_date?.split("-")
                 if (dateArray != null) {
                     if (dateArray.size >= 3) {
                         date_edituser_duedate.updateDate(
@@ -88,7 +88,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                             dateArray[2].substring(0, 2).toInt()
                         )
                     }
-                }
+                }*/
             }
             UserTypeSelectionActivity.DRIVER -> {
                 if (user.driverData == null) {
@@ -103,16 +103,15 @@ class EditAccountDetailsActivity : AppCompatActivity() {
 
         button_edituser_save.setOnClickListener {
             user.userData.address = edit_edituser_address.text.toString()
-            user.userData.email = edit_edituser_email.text.toString()
+//            user.userData.email = edit_edituser_email.text.toString()
             user.userData.name = edit_edituser_name.text.toString()
             user.userData.phone = edit_edituser_phone.text.toString()
-            user.userData.village = edit_edituser_city.text.toString()
+//            user.userData.village = edit_edituser_city.text.toString()
             when (user.userData.user_type) {
                 UserTypeSelectionActivity.MOTHER -> {
                     user.motherData?.caretaker_name = edit_edituser_caregivername.text.toString()
-                    user.motherData?.due_date =
-                        "${date_edituser_duedate.year}-${date_edituser_duedate.month + 1}-${date_edituser_duedate.dayOfMonth}"
-                    user.motherData?.hospital = edit_edituser_hospitalname.text.toString()
+//                    user.motherData?.due_date = "${date_edituser_duedate.year}-${date_edituser_duedate.month + 1}-${date_edituser_duedate.dayOfMonth}"
+//                    user.motherData?.hospital = edit_edituser_hospitalname.text.toString()
                 }
                 UserTypeSelectionActivity.DRIVER -> {
                     user.driverData?.price = edit_edituser_driverprice.text.toString().toDouble().toInt()

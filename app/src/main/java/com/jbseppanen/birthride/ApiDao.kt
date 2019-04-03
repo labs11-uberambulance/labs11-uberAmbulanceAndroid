@@ -1,10 +1,14 @@
 package com.jbseppanen.birthride
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.support.annotation.WorkerThread
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
+import com.google.maps.android.PolyUtil
 import kotlinx.serialization.json.Json
+import org.json.JSONArray
+import org.json.JSONObject
 
 
 const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
@@ -74,7 +78,8 @@ object ApiDao {
 
     private fun putCurrentUser(user: User): Boolean {
         val tokenString = getToken()
-        val json = Json.stringify(User.serializer(), user).replace("motherData","mother").replace("driverData", "driver")
+        val json = Json.stringify(User.serializer(), user).replace("motherData", "mother")
+            .replace("driverData", "driver")
         val (success, result) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/users/update/${user.userData.id}",
             requestType = NetworkAdapter.PUT,
@@ -88,11 +93,13 @@ object ApiDao {
         return success
     }
 
-    fun getDrivers(location:LatLng) {
+    fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
-        val json = "{\"latitude\":${location.latitude}, \"longitude\":${location.longitude}"
+//        val json = "{\"lat\":${location.latitude}, \"long\":${location.longitude}}"
+        val json =
+            "{\"lat\":1.079695, \"long\":33.366965}" //Todo Uncomment out line above and remove this line to use current location rather than a hard-coded location.
         val (success, result) = NetworkAdapter.httpRequest(
-            stringUrl = "$baseUrl/drivers",
+            stringUrl = "$baseUrl/rides/drivers",
             requestType = NetworkAdapter.POST,
             jsonBody = json,
             headerProperties = mapOf(
@@ -101,7 +108,40 @@ object ApiDao {
                 "Accept" to "application/json"
             )
         )
-        println(result)
+        val drivers = ArrayList<RequestedDriver>()
+        if (success) {
+            val jsonArray = JSONArray(result)
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                drivers.add(
+                    Json.nonstrict.parse(
+                        RequestedDriver.serializer(),
+                        jsonObject.toString()
+                    )
+                )
+            }
+        }
+        return drivers
+    }
+
+    fun getDirections(activity:Activity, start: LatLng, end: LatLng): MutableList<List<LatLng>> {
+        val path: MutableList<List<LatLng>> = ArrayList()
+        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
+        val url =
+            "https://maps.googleapis.com/maps/api/directions/json?origin=10.3181466,123.9029382&destination=10.311795,123.915864&key=$key"
+        val (success, response) = NetworkAdapter.httpRequest(url, NetworkAdapter.GET, null, null)
+        if (success) {
+            val jsonResponse = JSONObject(response)
+            // Get routes
+            val routes = jsonResponse.getJSONArray("routes")
+            val legs = routes.getJSONObject(0).getJSONArray("legs")
+            val steps = legs.getJSONObject(0).getJSONArray("steps")
+            for (i in 0 until steps.length()) {
+                val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+                path.add(PolyUtil.decode(points))
+            }
+        }
+        return path
     }
 
     private fun uploadDriverPhoto(bitmap: Bitmap): String {

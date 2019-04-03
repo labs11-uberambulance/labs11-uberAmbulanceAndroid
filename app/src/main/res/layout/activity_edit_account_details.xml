@@ -97,7 +97,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
-                android:hint="Address (If available)"
+                android:hint="Description of location (if needed)"
                 android:inputType="textPostalAddress" />
 
 
@@ -123,7 +123,7 @@
                 android:hint="Phone Number"
                 android:inputType="phone" />
 
-            <EditText
+<!--            <EditText
                 android:id="@+id/edit_edituser_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,9 +131,9 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
                 android:hint="Email Address"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress" />-->
 
-            <TextView
+<!--            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
@@ -143,14 +143,14 @@
                 android:text="Due Date"
                 android:textAlignment="center"
                 android:textSize="24sp"
-                android:visibility="gone" />
+                android:visibility="gone" />-->
 
-            <DatePicker
+<!--            <DatePicker
                 android:id="@+id/date_edituser_duedate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:tag="mothers,caregiver"
-                android:visibility="gone" />
+                android:visibility="gone" />-->
 
             <TextView
                 android:id="@+id/text_edituser_facilitylabel"

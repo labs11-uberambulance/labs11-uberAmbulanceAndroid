@@ -14,7 +14,7 @@ object NetworkAdapter {
     const val POST = "POST"
     const val PUT = "PUT"
     const val DELETE = "DELETE"
-    const val TIMEOUT = 3000
+    const val TIMEOUT = 10000
 
 
     @WorkerThread
@@ -52,9 +52,9 @@ object NetworkAdapter {
                     outputStream.close()
                 }
             }
-/*            val message = connection.responseMessage
-            val temp = connection.responseCode*/
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+            val message = connection.responseMessage
+            val temp = connection.responseCode
+            if (connection.responseCode == HttpURLConnection.HTTP_OK || connection.responseCode == HttpURLConnection.HTTP_CREATED) {
                 stream = connection.inputStream
                 if (stream != null) {
                     val reader = BufferedReader(InputStreamReader(stream))
@@ -69,7 +69,7 @@ object NetworkAdapter {
                 }
             }
 
-        } catch (e: MalformedURLException) {
+        } catch (e: Throwable) {
             e.printStackTrace()
             result = e.message.toString()
         } catch (e: IOException) {

@@ -1,16 +1,29 @@
 package com.jbseppanen.birthride
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class DriverSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +33,50 @@ class DriverSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map_driversearch) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        val context: Context = this
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) run {
+            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
+                .show()
+            return
+        } else {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(
+                    LatLng(
+                        location.latitude,
+                        location.longitude
+                    )
+                ), 2000, object : GoogleMap.CancelableCallback {
+                    override fun onFinish() {
+                        mMap.animateCamera(
+                            CameraUpdateFactory.zoomTo(10f),
+                            2000,
+                            object : GoogleMap.CancelableCallback {
+
+                                override fun onFinish() {
+
+                                }
+
+                                override fun onCancel() {
+
+                                }
+                            })
+                    }
+
+                    override fun onCancel() {
+                    }
+                })
+                val dataScope = CoroutineScope(Dispatchers.IO + Job())
+                dataScope.launch {
+                    ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
+                }
+            }
+        }
     }
 
     /**
