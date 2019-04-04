@@ -15,12 +15,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        startActivity(Intent(this, WelcomeActivity::class.java))
 
-/*        AuthUI.getInstance().signOut(this).addOnCompleteListener {
+ /*       AuthUI.getInstance().signOut(this).addOnCompleteListener {
             //TODO remove this line after testing.  Currently forces login each time.
             startActivity(Intent(this, WelcomeActivity::class.java))
         }*/
+        startActivity(Intent(this, WelcomeActivity::class.java))
 
 //        setSupportActionBar(toolbar)
 

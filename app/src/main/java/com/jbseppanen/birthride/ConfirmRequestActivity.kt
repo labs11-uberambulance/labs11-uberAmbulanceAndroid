@@ -69,11 +69,8 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                     override fun onCancel() {
                     }
                 })
-                val dataScope = CoroutineScope(Dispatchers.IO + Job())
-                dataScope.launch {
-                    ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
-                }
             }
+
         }
 
         button_requestconfirm_send.setOnClickListener {
@@ -89,45 +86,85 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 //        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
-
-        mMap.setOnMapClickListener { latLng ->
-            if (markerPoints.size > 1) {
-                markerPoints.clear()
-                mMap.clear()
-            }
-
-            // Adding new item to the ArrayList
-            markerPoints.add(latLng)
-
-            // Creating MarkerOptions
-            val options = MarkerOptions()
-
-            // Setting the position of the marker
-
-
-            if (markerPoints.size == 1) {
-                options.position(latLng).title("Start")
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-            } else if (markerPoints.size == 2) {
-                options.position(latLng).title("End")
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-            }
-
-            // Add new marker to the Google Map Android API V2
-            mMap.addMarker(options)
-
-            // Checks, whether start and end locations are captured
-            if (markerPoints.size >= 2) {
-                val origin = markerPoints[0] as LatLng
-                val dest = markerPoints[1] as LatLng
-                CoroutineScope(Dispatchers.IO + Job()).launch {
-                    val path = ApiDao.getDirections(activity, origin, dest)
-                    withContext(Dispatchers.Main) {
-                        for (i in 0 until path.size) {
-                            mMap.addPolyline(PolylineOptions().addAll(path[i]).width(5f).color(Color.RED))
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val user = ApiDao.getCurrentUser()
+            if (user?.userData?.location != null) {
+                var split: List<String>? = user.userData.location?.latlng?.split(",")
+                if (split != null && split.size == 2) {
+                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
+                    if (userLatLng != null) {
+                        withContext(Dispatchers.Main) {
+                            setPoint(userLatLng)
                         }
                     }
+                }
+                split = user.motherData?.destination?.latlng?.split(",")
+                if (split != null && split.size == 2) {
+                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
+                    if (userLatLng != null) {
+                        withContext(Dispatchers.Main) {
+                            setPoint(userLatLng)
+                        }
+                    }
+                }
+            }
+        }
+
+        mMap.setOnMapClickListener { latLng ->
+            setPoint(latLng)
+        }
+    }
+
+    private fun setPoint(latLng: LatLng) {
+
+        if (markerPoints.size > 1) {
+            markerPoints.clear()
+            mMap.clear()
+        }
+        markerPoints.add(latLng)
+
+        // Creating MarkerOptions
+        val options = MarkerOptions()
+
+        // Setting the position of the marker
+        if (markerPoints.size == 1) {
+            options.position(latLng).title("Start")
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+            updateDrivers(latLng)
+        } else if (markerPoints.size == 2) {
+            options.position(latLng).title("End")
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+        }
+
+        // Add new marker to the Google Map Android API V2
+        mMap.addMarker(options)
+
+        // Checks, whether start and end locations are captured
+        if (markerPoints.size >= 2) {
+            val origin = markerPoints[0]
+            val dest = markerPoints[1]
+            CoroutineScope(Dispatchers.IO + Job()).launch {
+                val path = ApiDao.getDirections(activity, origin, dest)
+                withContext(Dispatchers.Main) {
+                    for (i in 0 until path.size) {
+                        mMap.addPolyline(PolylineOptions().addAll(path[i]).width(5f).color(Color.RED))
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateDrivers(location: LatLng) {
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val drivers: ArrayList<RequestedDriver> =
+                ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
+            if (drivers.size > 0) {
+                val driver = drivers[0]
+                withContext(Dispatchers.Main) {
+                    text_requestconfirm_pickuptime.text = driver.duration.time
+                    text_requestconfirm_fare.text = "${driver.driver.price.toString()} USh"
+                    text_requestconfirm_waittime.text = "10 mins"
                 }
             }
         }

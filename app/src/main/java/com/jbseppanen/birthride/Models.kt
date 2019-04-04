@@ -96,22 +96,19 @@ data class Duration(
 
 @Serializable
 data class Driver(
-    val active: Boolean,
-    val address: String,
-    val bio: String,
-//    val created_at: String,
-//    val email: String,
-//    val firebase_id: String,
     val id: Long,
-    val latitude: String,
-    val longitude: String,
     val name: String,
+    val firebase_id: String,
     val phone: String,
-    val photo_url: String,
-    val price: Int
-//    val updated_at: String,
-//    val user_type: String,
-//    val village: String
+//    var user_type: String,
+    var location:Location,
+//    val email: String?=null,
+//    val created_at: String? = null,
+//    var updated_at: String? = null
+    val price: Int? = 0,
+    val active: Boolean,
+    val bio: String?=null,
+    val photo_url: String
 )
 
 @Serializable

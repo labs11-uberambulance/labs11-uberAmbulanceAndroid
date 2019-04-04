@@ -57,12 +57,11 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-
             android:inputType="textPostalAddress" />
     </LinearLayout>
 
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_requestconfirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,31 +69,69 @@
         android:orientation="vertical"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintTop_toTopOf="parent"
-        map:layout_constraintVertical_bias="1.0">
+        map:layout_constraintVertical_bias="1">
+
+        <TextView
+            android:id="@+id/text_requestconfirm_pickuptime_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Est. Pickup Time: "
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_requestconfirm_fare_label"
+            map:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/text_requestconfirm_pickuptime"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Estimated Pickup Time:"
+            android:text="-"
             android:textColor="@color/colorPrimary"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_requestconfirm_fare_label"
+            map:layout_constraintStart_toEndOf="@id/text_requestconfirm_pickuptime_label" />
+
+
+        <TextView
+            android:id="@+id/text_requestconfirm_fare_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Est. Fare: $"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_waittime_label"
+            map:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/text_requestconfirm_fare"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fare Estimate $?"
+            android:text=" -"
             android:textColor="@color/colorPrimary"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_waittime_label"
+            map:layout_constraintStart_toEndOf="@id/text_requestconfirm_fare_label" />
+
+        <TextView
+            android:id="@+id/text_requestconfirm_waittime_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wait for response: "
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/text_requestconfirm_waittime"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time to wait for response:"
+            android:text="-"
             android:textColor="@color/colorPrimary"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintStart_toEndOf="@id/text_requestconfirm_waittime_label" />
 
         <Button
             android:id="@+id/button_requestconfirm_send"
@@ -105,8 +142,9 @@
             android:backgroundTint="@color/colorButtonBrown"
             android:text="Send Request"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            map:layout_constraintBottom_toBottomOf="parent" />
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

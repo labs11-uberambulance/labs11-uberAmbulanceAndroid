@@ -6,6 +6,7 @@ import android.support.annotation.WorkerThread
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.maps.android.PolyUtil
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import org.json.JSONObject
@@ -95,9 +96,8 @@ object ApiDao {
 
     fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
-//        val json = "{\"lat\":${location.latitude}, \"long\":${location.longitude}}"
-        val json =
-            "{\"lat\":1.079695, \"long\":33.366965}" //Todo Uncomment out line above and remove this line to use current location rather than a hard-coded location.
+        val json = "{\"location\":\"${location.latitude},${location.longitude}\"}"
+//        val json = "{\"lat\":1.079695, \"long\":33.366965}" //Todo Uncomment out line above and remove this line to use current location rather than a hard-coded location.
         val (success, result) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/drivers",
             requestType = NetworkAdapter.POST,
@@ -113,18 +113,23 @@ object ApiDao {
             val jsonArray = JSONArray(result)
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
-                drivers.add(
-                    Json.nonstrict.parse(
-                        RequestedDriver.serializer(),
-                        jsonObject.toString()
+                try {
+                    drivers.add(
+                        Json.nonstrict.parse(
+                            RequestedDriver.serializer(),
+                            jsonObject.toString()
+                        )
                     )
-                )
+                } catch (e: SerializationException) {
+                    e.printStackTrace()
+                }
+
             }
         }
         return drivers
     }
 
-    fun getDirections(activity:Activity, start: LatLng, end: LatLng): MutableList<List<LatLng>> {
+    fun getDirections(activity: Activity, start: LatLng, end: LatLng): MutableList<List<LatLng>> {
         val path: MutableList<List<LatLng>> = ArrayList()
 //        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
         val key = activity.applicationContext.resources.getString(R.string.gKey)
