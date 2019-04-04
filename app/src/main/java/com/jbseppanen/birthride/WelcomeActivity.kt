@@ -60,8 +60,6 @@ class WelcomeActivity : AppCompatActivity() {
             Toast.makeText(context, "Location permission was granted", Toast.LENGTH_SHORT).show()
         }
 
-
-        FirebaseApp.initializeApp(context)
         if (FirebaseAuth.getInstance().currentUser != null) {
             val dataJob = Job()
             val dataScope = CoroutineScope(Dispatchers.IO + dataJob)

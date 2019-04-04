@@ -53,7 +53,7 @@ object NetworkAdapter {
                 }
             }
             val message = connection.responseMessage
-            val temp = connection.responseCode
+            val response = connection.responseCode
             if (connection.responseCode == HttpURLConnection.HTTP_OK || connection.responseCode == HttpURLConnection.HTTP_CREATED) {
                 stream = connection.inputStream
                 if (stream != null) {

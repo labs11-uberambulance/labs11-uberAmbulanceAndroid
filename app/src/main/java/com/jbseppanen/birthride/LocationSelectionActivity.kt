@@ -99,21 +99,22 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 markerPoints.clear()
                 mMap.clear()
                 button_locationselection_setlocations.isEnabled = false
+            } else {
+                markerPoints.add(latLng)
+
+                val options = MarkerOptions()
+
+                if (markerPoints.size == 1) {
+                    options.position(latLng).title("Start")
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                } else if (markerPoints.size == 2) {
+                    options.position(latLng).title("End")
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    button_locationselection_setlocations.isEnabled = true
+                }
+
+                mMap.addMarker(options)
             }
-
-            markerPoints.add(latLng)
-            val options = MarkerOptions()
-
-            if (markerPoints.size == 1) {
-                options.position(latLng).title("Start")
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-            } else if (markerPoints.size == 2) {
-                options.position(latLng).title("End")
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                button_locationselection_setlocations.isEnabled = true
-            }
-
-            mMap.addMarker(options)
 
             // Checks, whether start and end locations are captured
             if (markerPoints.size >= 2) {
