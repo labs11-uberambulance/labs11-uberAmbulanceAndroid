@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         map:layout_constraintBottom_toTopOf="@+id/layout_requestconfirm"
-        tools:context=".MapsActivity" />
+        tools:context=".LocationSelectionActivity" />
 
     <LinearLayout
         android:layout_width="match_parent"

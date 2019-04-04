@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         map:layout_constraintBottom_toTopOf="@+id/recycler_driverview"
-        tools:context=".MapsActivity" />
+        tools:context=".LocationSelectionActivity" />
 
     <EditText
         android:id="@+id/edit_driverview_locationsearch"

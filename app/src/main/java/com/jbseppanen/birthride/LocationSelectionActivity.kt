@@ -1,6 +1,7 @@
 package com.jbseppanen.birthride
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,23 +20,26 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
-import kotlinx.android.synthetic.main.activity_confirm_request.*
+import kotlinx.android.synthetic.main.activity_location_selection.*
 import kotlinx.coroutines.*
 
-
-class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
+class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
-    private lateinit var activity: ConfirmRequestActivity
+    private lateinit var activity: LocationSelectionActivity
 
+    companion object {
+        const val LOCATIONS_KEY = "locations_key"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_confirm_request)
+        setContentView(R.layout.activity_location_selection)
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map_requestconfirm) as SupportMapFragment
+            .findFragmentById(R.id.map_locationselection) as SupportMapFragment
         mapFragment.getMapAsync(this)
         activity = this
         val context: Context = this
@@ -71,18 +75,17 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                 })
                 val dataScope = CoroutineScope(Dispatchers.IO + Job())
                 dataScope.launch {
-                    ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
+                    ApiDao.getDrivers(Constants.defaultMapCenter)//Todo remove this hardcoded location
+//                    ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
                 }
             }
         }
 
-        button_requestconfirm_send.setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    RideStatusActivity::class.java
-                )
-            )
+        button_locationselection_setlocations.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra(LOCATIONS_KEY, markerPoints)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
         }
     }
 
@@ -95,16 +98,11 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             if (markerPoints.size > 1) {
                 markerPoints.clear()
                 mMap.clear()
+                button_locationselection_setlocations.isEnabled = false
             }
 
-            // Adding new item to the ArrayList
             markerPoints.add(latLng)
-
-            // Creating MarkerOptions
             val options = MarkerOptions()
-
-            // Setting the position of the marker
-
 
             if (markerPoints.size == 1) {
                 options.position(latLng).title("Start")
@@ -112,9 +110,9 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             } else if (markerPoints.size == 2) {
                 options.position(latLng).title("End")
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                button_locationselection_setlocations.isEnabled = true
             }
 
-            // Add new marker to the Google Map Android API V2
             mMap.addMarker(options)
 
             // Checks, whether start and end locations are captured
@@ -132,23 +130,4 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
-
-/*    class MinutesPicker : DialogFragment() {
-      text_requestconfirm_waittime.setOnClickListener {
-            val fragment = MinutesPicker()
-            fragment.show(supportFragmentManager, "Minutes To Wait")
-        }
-
-        override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View? {
-            val view: NumberPicker = NumberPicker(context)
-            view.minValue = 0
-            view.maxValue = 60
-            return view
-        }
-    }*/
-
 }

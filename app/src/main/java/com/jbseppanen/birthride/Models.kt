@@ -18,65 +18,104 @@ data class User(
 
 @Serializable
 data class UserData(
-    var address: String? = "",
-    val created_at: String? = null,
-    var email: String? = "",
-    val firebase_id: String,
     val id: Long,
-    var latitude: Double? = null,
-    var longitude: Double? = null,
     var name: String? = "",
     var phone: String? = "",
-    var updated_at: String? = null,
+    val firebase_id: String,
     var user_type: String? = null,
-    var village: String? = ""
+    var location:Location? = null,
+    var email: String? = ""
+//    val created_at: String? = null,
+//    var updated_at: String? = null
 )
 
 @Serializable
 data class MotherData(
-/*    @Optional
-    var id: Int? = null,*/
+//    val id: Long,
     val firebase_id: String,
     var caretaker_name: String? = "",
-    var due_date: String? = null,
-    var hospital: String? = ""
+    val start:Location? = null,
+    var destination:Location? = null
 //    val created_at: String? = null,
 //    var updated_at: String? = null
 )
 
 @Serializable
 data class DriverData(
+    //    val id: Long,
+    val firebase_id: String,
+    var price: Int? = 0,
     var active: Boolean? = false,
     var bio: String? = "",
+    var photo_url: String? = null
 //    val created_at: String? = null,
-    val firebase_id: String,
-/*    @Optional
-    var id: Int? = null,*/
-    var photo_url: String? = null,
-    var price: Int? = 0
 //    var updated_at: String? = null
 )
+
+@Serializable
+data class Location(
+    val descr: String?,
+    val latlng: String,
+    val name: String?
+)
+
+
 
 @Serializable
 data class Ride(
     val id: Long?,
     var driver_id: Int?,
     val mother_id: Int,
-    var wait_min: Int? = 5,
-    var start_village: String? = "",
-    var start_address: String? = "",
-    var destination: String? = "", //500 char limit.  Required.
-    var destination_address: String? = "",
+//    var wait_min: Int? = 5,
+//    var start_village: String? = "",
+    var start_address: LatLngJson,
+//    var destination: String? = "", //500 char limit.  Required.
+    var destination_address: LatLngJson,
     var ride_status: String? = ""
 )
 
-/*@Serializable
-data class JsonBodyWrapper(
-    val user_type:String,
+@Serializable
+data class RequestedDriver(
+    val distance: Distance,
+    val driver: Driver,
+    val duration: Duration,
+    val id: Long
+)
 
-    @Optional
-    val motherData: MotherData,
+@Serializable
+data class Distance(
+    @SerialName("text")
+    val length: String
+)
 
-    @Optional
-    val driverData: DriverData
-)*/
+@Serializable
+data class Duration(
+    @SerialName("text")
+    val time: String
+)
+
+@Serializable
+data class Driver(
+    val active: Boolean,
+    val address: String,
+    val bio: String,
+//    val created_at: String,
+//    val email: String,
+//    val firebase_id: String,
+    val id: Long,
+    val latitude: String,
+    val longitude: String,
+    val name: String,
+    val phone: String,
+    val photo_url: String,
+    val price: Int
+//    val updated_at: String,
+//    val user_type: String,
+//    val village: String
+)
+
+@Serializable
+data class LatLngJson(
+    val lat: Double,
+    val long: Double
+)
