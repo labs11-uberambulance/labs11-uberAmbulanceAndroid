@@ -34,7 +34,7 @@ data class MotherData(
 //    val id: Long,
     val firebase_id: String,
     var caretaker_name: String? = "",
-    val start:Location? = null,
+    var start:Location? = null,
     var destination:Location? = null
 //    val created_at: String? = null,
 //    var updated_at: String? = null
@@ -54,9 +54,9 @@ data class DriverData(
 
 @Serializable
 data class Location(
-    val descr: String?,
-    val latlng: String,
-    val name: String?
+    var descr: String?,
+    var latlng: String,
+    var name: String?
 )
 
 
