@@ -29,6 +29,8 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
+    private var user: User? = null
+    private var requestedDriver: RequestedDriver? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,13 +75,53 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
 
         }
 
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            user = ApiDao.getCurrentUser()
+        }
+
         button_requestconfirm_send.setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    RideStatusActivity::class.java
+            if (markerPoints.size != 2) {
+                Toast.makeText(context, "Select start and end points on map.", Toast.LENGTH_LONG)
+                    .show()
+            } else if (user == null) {
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    val user = ApiDao.getCurrentUser()
+                }
+                Toast.makeText(
+                    context,
+                    "User info not found.  Try again or restart the app and try again.",
+                    Toast.LENGTH_LONG
                 )
-            )
+                    .show()
+            } else {
+                user!!.motherData?.start?.latlng =
+                    "${markerPoints[0].latitude},${markerPoints[0].longitude}"
+                user!!.motherData?.destination?.latlng =
+                    "${markerPoints[1].latitude},${markerPoints[1].longitude}"
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    val success =
+                        ApiDao.postRideRequest(user!!, requestedDriver?.driver?.firebase_id!!)
+                    if(success) {
+                        withContext(Dispatchers.Main) {
+                            startActivity(
+                                Intent(
+                                    context,
+                                    RideStatusActivity::class.java
+                                )
+                            )
+                            finish()
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                "Ride was not able to be requested.  That's all we know.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -88,9 +130,8 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
 //        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            val user = ApiDao.getCurrentUser()
             if (user?.userData?.location != null) {
-                var split: List<String>? = user.userData.location?.latlng?.split(",")
+                var split: List<String>? = user!!.userData.location?.latlng?.split(",")
                 if (split != null && split.size == 2) {
                     val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
                     if (userLatLng != null) {
@@ -99,7 +140,7 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
                     }
                 }
-                split = user.motherData?.destination?.latlng?.split(",")
+                split = user!!.motherData?.destination?.latlng?.split(",")
                 if (split != null && split.size == 2) {
                     val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
                     if (userLatLng != null) {
@@ -160,10 +201,11 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             val drivers: ArrayList<RequestedDriver> =
                 ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
             if (drivers.size > 0) {
-                val driver = drivers[0]
+                requestedDriver = drivers[0]
                 withContext(Dispatchers.Main) {
-                    text_requestconfirm_pickuptime.text = driver.duration.time
-                    text_requestconfirm_fare.text = "${driver.driver.price.toString()} USh"
+                    text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
+                    text_requestconfirm_fare.text =
+                        "${requestedDriver!!.driver.price.toString()} USh"
                     text_requestconfirm_waittime.text = "10 mins"
                 }
             }

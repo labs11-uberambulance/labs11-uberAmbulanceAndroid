@@ -150,6 +150,36 @@ object ApiDao {
         return path
     }
 
+    fun getRideById(id: Int) {
+        val (success, response) = NetworkAdapter.httpRequest(
+            stringUrl = "https://birthrider-backend.herokuapp.com/api/rides",
+            requestType = NetworkAdapter.GET,
+            jsonBody = "{\"rideId\": $id}",
+            headerProperties = mapOf(
+                "Authorization" to "${getToken()}",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        println(response)
+    }
+
+    fun postRideRequest(user: User, driverFbaseId: String): Boolean {
+        val json =
+            "{\"end\":\"${user.motherData?.destination?.latlng}\", \"start\":\"${user.motherData?.start?.latlng}\", \"name\":\"${user.userData.name}\", \"phone\":\"${user.userData.phone}\"}"
+        val (success, response) = NetworkAdapter.httpRequest(
+            stringUrl = "https://birthrider-backend.herokuapp.com/api/rides/request/driver/$driverFbaseId",
+            requestType = NetworkAdapter.POST,
+            jsonBody = json,
+            headerProperties = mapOf(
+                "Authorization" to "${getToken()}",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        return success
+    }
+
     private fun uploadDriverPhoto(bitmap: Bitmap): String {
         return "url"
     }
