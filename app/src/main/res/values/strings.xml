@@ -9,4 +9,7 @@
     <string name="title_activity_driver_search">Driver Search</string>
     <string name="title_activity_driver_view_requests">Map</string>
     <string name="title_activity_maps">Map</string>
+    <string name="fcm_message">Ride Request Notification</string>
+    <string name="request_default_channel_id">request_default_channel</string>
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
 </resources>
