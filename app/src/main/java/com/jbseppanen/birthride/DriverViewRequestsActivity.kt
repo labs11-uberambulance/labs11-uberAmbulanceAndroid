@@ -137,6 +137,17 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
             })
 
         button_driverview_togglestatus.setOnClickListener {
+            if (user != null) {
+                var status = user!!.driverData?.active
+                if (status != null) {
+                    status = !status
+                    setStatusButton(status, context)
+                    user?.driverData?.active = status
+                    CoroutineScope(Dispatchers.IO + Job()).launch {
+                        ApiDao.updateCurrentUser(user!!, false)
+                    }
+                }
+            }
         }
     }
 
