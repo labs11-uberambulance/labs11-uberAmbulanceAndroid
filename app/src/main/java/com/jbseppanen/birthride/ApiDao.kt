@@ -182,5 +182,21 @@ object ApiDao {
     private fun uploadDriverPhoto(bitmap: Bitmap): String {
         return "url"
     }
-
+    fun acceptRejectRide(rideId: Long, accept: Boolean) :Boolean {
+        val urlParam = when (accept) {
+            true -> "accepts"
+            false -> "rejects"
+        }
+        val (success, response) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/rides/driver/$urlParam/$rideId",
+            requestType = NetworkAdapter.POST,
+            jsonBody = null,
+            headerProperties = mapOf(
+                "Authorization" to "${getToken()}",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        return success
+    }
 }
