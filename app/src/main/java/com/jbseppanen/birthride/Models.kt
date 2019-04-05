@@ -125,5 +125,5 @@ data class RideRequestData(
     val name: String,
     val phone: String,
     val price: Int,
-    val ride_id: Int
+    val ride_id: Long
 )
