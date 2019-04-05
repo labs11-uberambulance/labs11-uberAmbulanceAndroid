@@ -11,33 +11,161 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        map:layout_constraintBottom_toTopOf="@+id/recycler_driverview"
-        tools:context=".LocationSelectionActivity" />
+        map:layout_constraintBottom_toTopOf="@+id/layout_driverview"
+        tools:context=".DriverViewRequestsActivity" />
 
-    <EditText
-        android:id="@+id/edit_driverview_locationsearch"
+    <Button
+        android:id="@+id/button_driverview_togglestatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        map:layout_constraintTop_toTopOf="parent" />
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:text="Toggle Status"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+       map:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/button_driverview_center_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:src="@android:drawable/ic_menu_compass"
-        map:layout_constraintBottom_toBottomOf="@id/map_driverview"
-        map:layout_constraintStart_toStartOf="parent" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_driverview"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/layout_driverview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        map:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintTop_toTopOf="parent"
-        map:layout_constraintVertical_bias=".75" />
+        map:layout_constraintVertical_bias="1">
+
+        <TextView
+            android:id="@+id/text_driverview_name_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name: "
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_driverview_phone_label"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/text_driverview_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_driverview_phone_label"
+            map:layout_constraintStart_toEndOf="@id/text_driverview_name_label" />
+
+        <TextView
+            android:id="@+id/text_driverview_phone_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone: "
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_driverview_pickuptime_label"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/text_driverview_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_driverview_pickuptime_label"
+            map:layout_constraintStart_toEndOf="@id/text_driverview_name_label" />
+
+        <TextView
+            android:id="@+id/text_driverview_pickuptime_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Est.Time to Pickup Point: "
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_driverview_fare_label"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/text_driverview_pickuptime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/text_driverview_fare_label"
+            map:layout_constraintStart_toEndOf="@id/text_driverview_pickuptime_label" />
+
+
+        <TextView
+            android:id="@+id/text_driverview_fare_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Est. Fare: $"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/text_driverview_waittime_label"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/text_driverview_fare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" -"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/text_driverview_waittime_label"
+            map:layout_constraintStart_toEndOf="@id/text_driverview_fare_label" />
+
+        <TextView
+            android:id="@+id/text_driverview_waittime_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wait for response: "
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_driverview_accept"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/text_driverview_waittime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_driverview_accept"
+            map:layout_constraintStart_toEndOf="@id/text_driverview_waittime_label" />
+
+        <Button
+            android:id="@+id/button_driverview_accept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonGreen"
+            android:padding="12dp"
+            android:text="Accept"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toBottomOf="parent"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_driverview_reject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonRed"
+            android:padding="12dp"
+            android:text="Reject"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toBottomOf="parent"
+            map:layout_constraintEnd_toEndOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -8,12 +8,22 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
 
 class PushNotificationService : FirebaseMessagingService() {
+
+    private lateinit var broadcaster:LocalBroadcastManager
+
+
+    override fun onCreate() {
+        super.onCreate()
+        broadcaster = LocalBroadcastManager.getInstance(this)
+    }
+
     /**
      * Called when message is received.
      *
@@ -44,7 +54,12 @@ class PushNotificationService : FirebaseMessagingService() {
                 scheduleJob()
             } else {*/
                 // Handle message within 10 seconds
-                handleNow()
+//                handleNow()
+            if (remoteMessage.data!=null) {
+                val intent = Intent(SERVICE_BROADCAST_KEY)
+                intent.putExtra(SERVICE_MESSAGE_KEY, remoteMessage.data.toString())
+                broadcaster.sendBroadcast(intent)
+            }
 //            }
         }
 
@@ -88,9 +103,9 @@ class PushNotificationService : FirebaseMessagingService() {
     /**
      * Handle time allotted to BroadcastReceivers.
      */
-    private fun handleNow() {
+/*    private fun handleNow() {
         Log.d(TAG, "Short lived task is done.")
-    }
+    }*/
 
     /**
      * Persist token to third-party servers.
@@ -139,7 +154,8 @@ class PushNotificationService : FirebaseMessagingService() {
     }
 
     companion object {
-
         private const val TAG = "FirebaseMsgService"
+        const val SERVICE_BROADCAST_KEY = "BirthRide Service Key"
+        const val SERVICE_MESSAGE_KEY = "BirthRide Service Message Key"
     }
 }

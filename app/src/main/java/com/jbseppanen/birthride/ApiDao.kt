@@ -123,7 +123,6 @@ object ApiDao {
                 } catch (e: SerializationException) {
                     e.printStackTrace()
                 }
-
             }
         }
         return drivers

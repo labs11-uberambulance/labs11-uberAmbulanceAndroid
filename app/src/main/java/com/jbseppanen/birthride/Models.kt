@@ -116,3 +116,14 @@ data class LatLngJson(
     val lat: Double,
     val long: Double
 )
+
+
+@Serializable
+@SerialName("data")
+data class RideRequestData(
+    val distance: String,
+    val name: String,
+    val phone: String,
+    val price: Int,
+    val ride_id: Int
+)
