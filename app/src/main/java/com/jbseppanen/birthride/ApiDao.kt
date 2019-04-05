@@ -127,7 +127,7 @@ object ApiDao {
         return drivers
     }
 
-    //Todo upadte this to use start and end points in url
+    //Todo update this to use start and end points in url
     fun getDirections(activity: Activity, start: LatLng, end: LatLng): MutableList<List<LatLng>> {
         val path: MutableList<List<LatLng>> = ArrayList()
 //        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
@@ -189,7 +189,7 @@ object ApiDao {
         }
         val (success, response) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/driver/$urlParam/$rideId",
-            requestType = NetworkAdapter.POST,
+            requestType = NetworkAdapter.GET,
             jsonBody = null,
             headerProperties = mapOf(
                 "Authorization" to "${getToken()}",
