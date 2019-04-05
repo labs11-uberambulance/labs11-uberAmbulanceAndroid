@@ -155,13 +155,42 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         button_driverview_accept.setOnClickListener {
             if (rideRequest != null) {
-                ApiDao.acceptRejectRide(rideRequest!!.ride_id, true)
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    val success = ApiDao.acceptRejectRide(rideRequest!!.ride_id, true)
+                    val message = if (success) {
+                        "Ride Accepted!"
+                    } else {
+                        "Failed to accept ride."
+                    }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context,message, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+
+            //Temp lines below
+            CoroutineScope(Dispatchers.IO + Job()).launch {
+                ApiDao.getRideById(0)
+            }
+
+            }
+
+        button_driverview_reject.setOnClickListener {
+            if (rideRequest != null) {
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    val success = ApiDao.acceptRejectRide(rideRequest!!.ride_id, false)
+                    val message = if (success) {
+                        "Ride Rejected!"
+                    } else {
+                        "Failed to reject ride."
+                    }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context,message, Toast.LENGTH_LONG).show()
+                    }
+                }
             }
         }
 
-        button_driverview_accept.setOnClickListener {
-            ApiDao.acceptRejectRide(rideRequest!!.ride_id, false)
-        }
 
     }
 
