@@ -97,7 +97,6 @@ object ApiDao {
     fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
         val json = "{\"location\":\"${location.latitude},${location.longitude}\"}"
-//        val json = "{\"lat\":1.079695, \"long\":33.366965}" //Todo Uncomment out line above and remove this line to use current location rather than a hard-coded location.
         val (success, result) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/drivers",
             requestType = NetworkAdapter.POST,
@@ -133,7 +132,7 @@ object ApiDao {
 //        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
         val key = activity.applicationContext.resources.getString(R.string.gKey)
         val url =
-            "https://maps.googleapis.com/maps/api/directions/json?origin=10.3181466,123.9029382&destination=10.311795,123.915864&key=$key"
+            "https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}4&key=$key"
         val (success, response) = NetworkAdapter.httpRequest(url, NetworkAdapter.GET, null, null)
         if (success) {
             val jsonResponse = JSONObject(response)
@@ -151,7 +150,7 @@ object ApiDao {
 
     fun getRideById(id: Int) {
         val (success, response) = NetworkAdapter.httpRequest(
-            stringUrl = "https://birthrider-backend.herokuapp.com/api/rides",
+            stringUrl = "$baseUrl/rides",
             requestType = NetworkAdapter.GET,
             jsonBody = "{\"rideId\": $id}",
             headerProperties = mapOf(
@@ -167,7 +166,7 @@ object ApiDao {
         val json =
             "{\"end\":\"${user.motherData?.destination?.latlng}\", \"start\":\"${user.motherData?.start?.latlng}\", \"name\":\"${user.userData.name}\", \"phone\":\"${user.userData.phone}\"}"
         val (success, response) = NetworkAdapter.httpRequest(
-            stringUrl = "https://birthrider-backend.herokuapp.com/api/rides/request/driver/$driverFbaseId",
+            stringUrl = "$baseUrl/rides/request/driver/$driverFbaseId",
             requestType = NetworkAdapter.POST,
             jsonBody = json,
             headerProperties = mapOf(
@@ -181,5 +180,22 @@ object ApiDao {
 
     private fun uploadDriverPhoto(bitmap: Bitmap): String {
         return "url"
+    }
+    fun acceptRejectRide(rideId: Long, accept: Boolean) :Boolean {
+        val urlParam = when (accept) {
+            true -> "accepts"
+            false -> "rejects"
+        }
+        val (success, response) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/rides/driver/$urlParam/$rideId",
+            requestType = NetworkAdapter.GET,
+            jsonBody = null,
+            headerProperties = mapOf(
+                "Authorization" to "${getToken()}",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        return success
     }
 }
