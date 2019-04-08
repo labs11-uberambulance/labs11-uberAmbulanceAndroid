@@ -47,20 +47,19 @@ dependencies {
     //Coroutine dependencies
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
+
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+//    implementation 'com.github.bumptech.glide:compiler:4.9.0'
 }
 
-//Glide implementation
-/*
-repositories {
-    mavenCentral()
-    google()
-}
-*/
+/*apply plugin: 'kotlin-kapt'
 
 dependencies {
+    //Glide implementation
+    implementation 'com.github.bumptech.glide:annotations:4.9.0'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
-}
+    kapt 'com.github.bumptech.glide:compiler:4.9.0'
+}*/
 
 //code below required for kotlin serialization
 buildscript {

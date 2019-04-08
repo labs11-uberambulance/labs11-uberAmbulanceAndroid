@@ -10,18 +10,27 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
+import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.module.AppGlideModule;
+
 
 class EditAccountDetailsActivity : AppCompatActivity() {
 
     private lateinit var activity: Activity
     private lateinit var context: Context
     private lateinit var user: User
+    var updatePhoto = false
 
     companion object {
         const val IMAGE_REQUEST_CODE = 3
@@ -96,13 +105,32 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             UserTypeSelectionActivity.DRIVER -> {
                 if (user.driverData == null) {
                     user.driverData = DriverData(firebase_id = user.userData.firebase_id)
+                } else {
+                    edit_edituser_driverbio.setText(user.driverData?.bio)
+                   val photoUrl = user.driverData?.photo_url
+                    if (photoUrl !=null) {
+                        Glide
+                            .with(this)
+                            .load(photoUrl)
+                            .apply(RequestOptions().centerCrop())
+                            .listener(object: RequestListener<Drawable> {
+                                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+//                                    Toast.makeText(applicationContext, e?.localizedMessage, Toast.LENGTH_LONG).show()
+                                    return false
+                                }
+                                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                    return false
+                                }
+                            })
+                            .into(image_edituser_driverimage)
+                        image_edituser_driverimage.visibility = View.VISIBLE
+                        image_edituser_driverimagetext.visibility = View.GONE
+                    }
                 }
                 if (user.driverData?.price.toString() != "0") {
                     edit_edituser_driverprice.setText(user.driverData?.price.toString())
                 }
-                edit_edituser_driverbio.setText(user.driverData?.bio)
 
-                //Glide.with(this).load("http://goo.gl/gEgYUd").into(imageView);
             }
         }
 
@@ -131,14 +159,18 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     user.driverData?.price =
                         edit_edituser_driverprice.text.toString().toDouble().toInt()
                     user.driverData?.bio = edit_edituser_driverbio.text.toString()
-                    val imageView: ImageView = image_edituser_driverimage
-                    val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                    ApiDao.uploadDriverPhoto(bitmap, object : UploadImageCallback {
-                        override fun returnResult(url: String) {
-                            user.driverData?.photo_url = url
-                            updateUser()
-                        }
-                    })
+                    if (updatePhoto) {
+                        val imageView: ImageView = image_edituser_driverimage
+                        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+                        ApiDao.uploadDriverPhoto(bitmap, object : UploadImageCallback {
+                            override fun returnResult(url: String) {
+                                user.driverData?.photo_url = url
+                                updateUser()
+                            }
+                        })
+                    } else {
+                        updateUser()
+                    }
                 }
             }
         }
@@ -155,6 +187,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     image_edituser_driverimage.setImageDrawable(drawable)
                     image_edituser_driverimage.visibility = View.VISIBLE
                     image_edituser_driverimagetext.visibility = View.GONE
+                    updatePhoto = true
                 }
             } else if (requestCode == LOCATION_REQUEST_CODE) {
                 val locations =
@@ -176,7 +209,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     }
 
     fun updateUser() {
-        val newUser =  (user.motherData == null && user.driverData == null)
+        val newUser = (user.motherData == null && user.driverData == null)
         CoroutineScope(Dispatchers.IO + Job()).launch {
             val success = ApiDao.updateCurrentUser(user, newUser)
             if (success) {
