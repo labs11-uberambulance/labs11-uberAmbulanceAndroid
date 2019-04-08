@@ -4,10 +4,9 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.support.annotation.WorkerThread
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GetTokenResult
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import com.google.maps.android.PolyUtil
 import kotlinx.io.ByteArrayOutputStream
@@ -15,6 +14,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.*
 
 
 const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
@@ -53,7 +53,9 @@ object ApiDao {
     }
 
     private fun getToken(): String? {
-        return FirebaseAuth.getInstance().getAccessToken(false).result?.token
+//        return FirebaseAuth.getInstance().getAccessToken(false).result?.token
+        val firebaseAuth = FirebaseAuth.getInstance()
+        return firebaseAuth.getAccessToken(false).result?.token
     }
 
     private fun postNewUser(user: User): Boolean {
@@ -201,31 +203,64 @@ object ApiDao {
         return success
     }
 
-    fun uploadDriverPhoto(bitmap: Bitmap,callback: UploadImageCallback) {
+    //TODO change to not repeat so much code.
+    fun uploadDriverPhoto(bitmap: Bitmap, url: String? = null, callback: UploadImageCallback) {
         val imagesRef = FirebaseStorage.getInstance().reference
         val currentUser = FirebaseAuth.getInstance().currentUser
-        val uid: String? = currentUser?.uid
-        val profileImage = imagesRef.child("profile_images/$uid.jpg")
-        profileImage.downloadUrl.addOnSuccessListener {
-            profileImage.delete()
-        }
 
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos)
         val data = baos.toByteArray()
+        val profileImage =
+            imagesRef.child("profile_images/${currentUser?.uid}${System.currentTimeMillis()}.jpg")
 
-        val uploadTask:UploadTask = profileImage.putBytes(data)
-        uploadTask.addOnSuccessListener {
-            profileImage.downloadUrl.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    callback.returnResult(task.result.toString())
-                } else {
-                    callback.returnResult("")
+        if (url != null) {
+            val referenceFromUrl: Task<Void>? =
+                FirebaseStorage.getInstance().getReferenceFromUrl(url).delete()
+            referenceFromUrl?.addOnSuccessListener {
+                val uploadTask: UploadTask = profileImage.putBytes(data)
+                uploadTask.addOnSuccessListener {
+                    profileImage.downloadUrl.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            callback.returnResult(task.result.toString())
+                        } else {
+                            callback.returnResult("")
+                        }
+                    }
+                }
+                uploadTask.addOnFailureListener {
+                    println("Failed to upload")
                 }
             }
-        }
-        uploadTask.addOnFailureListener {
-           println("Failed to upload")
+            referenceFromUrl?.addOnFailureListener {
+                val uploadTask: UploadTask = profileImage.putBytes(data)
+                uploadTask.addOnSuccessListener {
+                    profileImage.downloadUrl.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            callback.returnResult(task.result.toString())
+                        } else {
+                            callback.returnResult("")
+                        }
+                    }
+                }
+                uploadTask.addOnFailureListener {
+                    println("Failed to upload")
+                }
+            }
+        } else {
+            val uploadTask: UploadTask = profileImage.putBytes(data)
+            uploadTask.addOnSuccessListener {
+                profileImage.downloadUrl.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        callback.returnResult(task.result.toString())
+                    } else {
+                        callback.returnResult("")
+                    }
+                }
+            }
+            uploadTask.addOnFailureListener {
+                println("Failed to upload")
+            }
         }
     }
 }
