@@ -127,3 +127,7 @@ data class RideRequestData(
     val price: Int,
     val ride_id: Long
 )
+
+interface UploadImageCallback {
+    fun returnResult(url: String)
+}

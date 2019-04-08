@@ -80,25 +80,25 @@
                 android:hint="Name"
                 android:inputType="textPersonName" />
 
-<!--            <EditText
-                android:id="@+id/edit_edituser_city"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="City/Village"
-                android:inputType="textCapWords" />
+            <!--            <EditText
+                            android:id="@+id/edit_edituser_city"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginRight="16dp"
+                            android:hint="City/Village"
+                            android:inputType="textCapWords" />
 
-            <EditText
-                android:id="@+id/edit_edituser_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="Description of location (if needed)"
-                android:inputType="textPostalAddress" />-->
+                        <EditText
+                            android:id="@+id/edit_edituser_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginRight="16dp"
+                            android:hint="Description of location (if needed)"
+                            android:inputType="textPostalAddress" />-->
 
 
             <!--            <EditText
@@ -251,11 +251,19 @@
                 android:visibility="gone" />
 
             <TextView
-                android:id="@+id/image_edituser_driverimage"
+                android:id="@+id/image_edituser_driverimagetext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:tag="drivers"
                 android:text="\nTap to pick a photo\n"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image_edituser_driverimage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:textSize="24sp"
                 android:visibility="gone" />

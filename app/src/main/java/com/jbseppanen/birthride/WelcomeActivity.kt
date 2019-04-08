@@ -56,8 +56,6 @@ class WelcomeActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
                 LOCATION_REQUEST_CODE
             )
-        } else {
-            Toast.makeText(context, "Location permission was granted", Toast.LENGTH_SHORT).show()
         }
 
         if (FirebaseAuth.getInstance().currentUser != null) {
