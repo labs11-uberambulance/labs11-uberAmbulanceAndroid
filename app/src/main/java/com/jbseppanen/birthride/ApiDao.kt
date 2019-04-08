@@ -5,7 +5,12 @@ import android.graphics.Bitmap
 import android.support.annotation.WorkerThread
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GetTokenResult
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import com.google.maps.android.PolyUtil
+import kotlinx.io.ByteArrayOutputStream
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
@@ -178,10 +183,7 @@ object ApiDao {
         return success
     }
 
-    private fun uploadDriverPhoto(bitmap: Bitmap): String {
-        return "url"
-    }
-    fun acceptRejectRide(rideId: Long, accept: Boolean) :Boolean {
+    fun acceptRejectRide(rideId: Long, accept: Boolean): Boolean {
         val urlParam = when (accept) {
             true -> "accepts"
             false -> "rejects"
@@ -197,5 +199,33 @@ object ApiDao {
             )
         )
         return success
+    }
+
+    fun uploadDriverPhoto(bitmap: Bitmap,callback: UploadImageCallback) {
+        val imagesRef = FirebaseStorage.getInstance().reference
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val uid: String? = currentUser?.uid
+        val profileImage = imagesRef.child("profile_images/$uid.jpg")
+        profileImage.downloadUrl.addOnSuccessListener {
+            profileImage.delete()
+        }
+
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos)
+        val data = baos.toByteArray()
+
+        val uploadTask:UploadTask = profileImage.putBytes(data)
+        uploadTask.addOnSuccessListener {
+            profileImage.downloadUrl.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    callback.returnResult(task.result.toString())
+                } else {
+                    callback.returnResult("")
+                }
+            }
+        }
+        uploadTask.addOnFailureListener {
+           println("Failed to upload")
+        }
     }
 }

@@ -286,7 +286,7 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
                     R.color.colorButtonGreen
                 )
             )
-            button_driverview_togglestatus.text = "Online"
+            button_driverview_togglestatus.text = getString(R.string.driver_status_true)
         } else {
             button_driverview_togglestatus.setBackgroundColor(
                 ContextCompat.getColor(
@@ -294,7 +294,7 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
                     R.color.colorButtonRed
                 )
             )
-            button_driverview_togglestatus.text = "Offline"
+            button_driverview_togglestatus.text = getString(R.string.driver_status_false)
         }
     }
 }

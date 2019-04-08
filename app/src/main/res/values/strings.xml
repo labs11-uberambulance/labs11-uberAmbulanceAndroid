@@ -12,4 +12,6 @@
     <string name="fcm_message">Ride Request Notification</string>
     <string name="request_default_channel_id">request_default_channel</string>
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="driver_status_false">Offline</string>
+    <string name="driver_status_true">Available</string>
 </resources>
