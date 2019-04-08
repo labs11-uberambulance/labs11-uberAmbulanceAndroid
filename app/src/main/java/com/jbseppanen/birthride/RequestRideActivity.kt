@@ -2,14 +2,10 @@ package com.jbseppanen.birthride
 
 import android.content.Context
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_request_ride.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.serialization.SerializationStrategy
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 
 class RequestRideActivity : AppCompatActivity() {
@@ -27,15 +23,15 @@ class RequestRideActivity : AppCompatActivity() {
             )
         }
         button_requestride_editprofile.setOnClickListener {
-
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 val user = ApiDao.getCurrentUser()
-                if (user!=null) {
+                if (user != null) {
                     val requestIntent = Intent(context, EditAccountDetailsActivity::class.java)
-                    val serializer: SerializationStrategy<User> = User.serializer()
-                    val extra = Json.stringify(serializer, user)
+                    val extra = Json.stringify(User.serializer(), user)
                     requestIntent.putExtra(WelcomeActivity.USER_KEY, extra)
-                    startActivity(requestIntent)
+                    withContext(Dispatchers.Main) {
+                        startActivity(requestIntent)
+                    }
                 }
             }
         }

@@ -131,7 +131,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     user.driverData?.bio = edit_edituser_driverbio.text.toString()
                     val imageView: ImageView = image_edituser_driverimage
                     val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                    val url = ApiDao.uploadDriverPhoto(bitmap, object : UploadImageCallback {
+                    ApiDao.uploadDriverPhoto(bitmap, object : UploadImageCallback {
                         override fun returnResult(url: String) {
                             user.driverData?.photo_url = url
                             updateUser()
@@ -174,7 +174,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     }
 
     fun updateUser() {
-
         val newUser =  (user.motherData == null && user.driverData == null)
         CoroutineScope(Dispatchers.IO + Job()).launch {
             val success = ApiDao.updateCurrentUser(user, newUser)

@@ -13,10 +13,7 @@ import android.widget.Toast
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_welcome.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
 
@@ -81,12 +78,20 @@ class WelcomeActivity : AppCompatActivity() {
                                 RequestRideActivity::class.java
                             )
                         )
-                        user.userData.user_type == UserTypeSelectionActivity.DRIVER -> startActivity(
-                            Intent(
-                                context,
-                                DriverViewRequestsActivity::class.java
-                            )
-                        )
+                        user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
+//                            startActivity(Intent(context, DriverViewRequestsActivity::class.java))
+                            CoroutineScope(Dispatchers.IO + Job()).launch {
+                                val user = ApiDao.getCurrentUser()
+                                if (user != null) {
+                                    val requestIntent = Intent(context, EditAccountDetailsActivity::class.java)
+                                    val extra = Json.stringify(User.serializer(), user)
+                                    requestIntent.putExtra(WelcomeActivity.USER_KEY, extra)
+                                    withContext(Dispatchers.Main) {
+                                        startActivity(requestIntent)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

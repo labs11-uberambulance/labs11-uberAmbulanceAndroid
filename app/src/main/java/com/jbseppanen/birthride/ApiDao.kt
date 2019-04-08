@@ -215,9 +215,7 @@ object ApiDao {
         val data = baos.toByteArray()
 
         val uploadTask:UploadTask = profileImage.putBytes(data)
-        uploadTask.addOnFailureListener {
-            // Handle unsuccessful uploads
-        }.addOnSuccessListener {
+        uploadTask.addOnSuccessListener {
             profileImage.downloadUrl.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     callback.returnResult(task.result.toString())
@@ -225,6 +223,9 @@ object ApiDao {
                     callback.returnResult("")
                 }
             }
+        }
+        uploadTask.addOnFailureListener {
+           println("Failed to upload")
         }
     }
 }
