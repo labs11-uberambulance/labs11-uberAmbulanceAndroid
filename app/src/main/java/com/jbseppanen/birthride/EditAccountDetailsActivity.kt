@@ -101,6 +101,8 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     edit_edituser_driverprice.setText(user.driverData?.price.toString())
                 }
                 edit_edituser_driverbio.setText(user.driverData?.bio)
+
+                //Glide.with(this).load("http://goo.gl/gEgYUd").into(imageView);
             }
         }
 
