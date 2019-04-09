@@ -6,9 +6,11 @@ import android.support.annotation.WorkerThread
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GetTokenResult
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import com.google.maps.android.PolyUtil
+import kotlinx.coroutines.tasks.await
 import kotlinx.io.ByteArrayOutputStream
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -22,7 +24,7 @@ const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
 @WorkerThread
 object ApiDao {
 
-    fun getCurrentUser(): User? {
+    suspend fun getCurrentUser(): User? {
         val tokenString = getToken()
         val (success, result) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/users",
@@ -41,7 +43,7 @@ object ApiDao {
         return user
     }
 
-    fun updateCurrentUser(user: User, newUser: Boolean): Boolean {
+    suspend fun updateCurrentUser(user: User, newUser: Boolean): Boolean {
         var success = true
         if (newUser) {
             success = postNewUser(user)
@@ -52,15 +54,17 @@ object ApiDao {
         return success
     }
 
-    private fun getToken(): String? {
-//        return FirebaseAuth.getInstance().getAccessToken(false).result?.token
-        val firebaseAuth = FirebaseAuth.getInstance()
-        val accessToken = firebaseAuth.getAccessToken(false)
-        val result = accessToken.result
-        return result?.token
+/*    private fun getTokenOld():String? {
+       return FirebaseAuth.getInstance().getAccessToken(false).result?.token
+    }*/
+
+    private suspend fun getToken(): String? {
+        val await: GetTokenResult = FirebaseAuth.getInstance().getAccessToken(false).await()
+        return await.token
     }
 
-    private fun postNewUser(user: User): Boolean {
+
+    private suspend fun postNewUser(user: User): Boolean {
         val tokenString = getToken()
         val json = when (user.userData.user_type) {
             UserTypeSelectionActivity.MOTHER -> "{\"user_type\":\"mother\",\"motherData\":${Json.stringify(
@@ -86,7 +90,7 @@ object ApiDao {
         return success
     }
 
-    private fun putCurrentUser(user: User): Boolean {
+    private suspend fun putCurrentUser(user: User): Boolean {
         val tokenString = getToken()
         val json = Json.stringify(User.serializer(), user).replace("motherData", "mother")
             .replace("driverData", "driver")
@@ -103,7 +107,7 @@ object ApiDao {
         return success
     }
 
-    fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
+    suspend fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
         val json = "{\"location\":\"${location.latitude},${location.longitude}\"}"
         val (success, result) = NetworkAdapter.httpRequest(
@@ -157,7 +161,7 @@ object ApiDao {
         return path
     }
 
-    fun getRideById(id: Int) {
+    suspend fun getRideById(id: Int) {
         val (success, response) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides",
             requestType = NetworkAdapter.GET,
@@ -171,7 +175,7 @@ object ApiDao {
         println(response)
     }
 
-    fun postRideRequest(user: User, driverFbaseId: String): Boolean {
+    suspend fun postRideRequest(user: User, driverFbaseId: String): Boolean {
         val json =
             "{\"end\":\"${user.motherData?.destination?.latlng}\", \"start\":\"${user.motherData?.start?.latlng}\", \"name\":\"${user.userData.name}\", \"phone\":\"${user.userData.phone}\"}"
         val (success, response) = NetworkAdapter.httpRequest(
@@ -187,14 +191,19 @@ object ApiDao {
         return success
     }
 
-    fun acceptRejectRide(rideId: Long, accept: Boolean): Boolean {
+    suspend fun acceptRejectRide(rideId: Long, accept: Boolean, json: String?): Boolean {
         val urlParam = when (accept) {
             true -> "accepts"
             false -> "rejects"
         }
+
+        //Accept  = get.  Reject = Post
         val (success, response) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/driver/$urlParam/$rideId",
-            requestType = NetworkAdapter.GET,
+            requestType = when (accept) {
+                true -> NetworkAdapter.GET
+                false -> NetworkAdapter.POST
+            },
             jsonBody = null,
             headerProperties = mapOf(
                 "Authorization" to "${getToken()}",
@@ -203,10 +212,11 @@ object ApiDao {
             )
         )
         return success
+        //key "dataDictionary", value = data
     }
 
     //TODO change to not repeat so much code.
-    fun uploadDriverPhoto(bitmap: Bitmap, url: String? = null, callback: UploadImageCallback) {
+    fun uploadDriverPhoto(bitmap: Bitmap, url: String? = null, callback: ResultCallback) {
         val imagesRef = FirebaseStorage.getInstance().reference
         val currentUser = FirebaseAuth.getInstance().currentUser
 

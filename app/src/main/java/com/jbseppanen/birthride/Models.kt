@@ -1,12 +1,5 @@
 package com.jbseppanen.birthride
 
-import android.content.Context
-import com.bumptech.glide.GlideBuilder
-import com.bumptech.glide.annotation.GlideModule
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.module.AppGlideModule
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.signature.ObjectKey
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -30,7 +23,7 @@ data class UserData(
     var phone: String? = "",
     val firebase_id: String,
     var user_type: String? = null,
-    var location:Location? = null,
+    var location: Location? = null,
     var email: String? = ""
 //    val created_at: String? = null,
 //    var updated_at: String? = null
@@ -41,8 +34,8 @@ data class MotherData(
 //    val id: Long,
     val firebase_id: String,
     var caretaker_name: String? = "",
-    var start:Location? = null,
-    var destination:Location? = null
+    var start: Location? = null,
+    var destination: Location? = null
 //    val created_at: String? = null,
 //    var updated_at: String? = null
 )
@@ -65,7 +58,6 @@ data class Location(
     var latlng: String,
     var name: String?
 )
-
 
 
 @Serializable
@@ -108,13 +100,13 @@ data class Driver(
     val firebase_id: String,
     val phone: String,
 //    var user_type: String,
-    var location:Location,
+    var location: Location,
 //    val email: String?=null,
 //    val created_at: String? = null,
 //    var updated_at: String? = null
     val price: Int? = 0,
     val active: Boolean,
-    val bio: String?=null,
+    val bio: String? = null,
     val photo_url: String
 )
 
@@ -130,11 +122,12 @@ data class LatLngJson(
 data class RideRequestData(
     val distance: String,
     val name: String,
+    val hospital: String,
     val phone: String,
     val price: Int,
     val ride_id: Long
 )
 
-interface UploadImageCallback {
-    fun returnResult(url: String)
+interface ResultCallback {
+    fun returnResult(result: String?)
 }

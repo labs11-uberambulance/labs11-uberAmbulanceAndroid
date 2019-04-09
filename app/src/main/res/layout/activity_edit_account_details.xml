@@ -123,21 +123,6 @@
                 android:hint="Phone Number"
                 android:inputType="phone" />
 
-            <Button
-                android:id="@+id/button_edituser_pick"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/radiused_rectangle_background"
-                android:backgroundTint="@color/colorAccent"
-                android:tag="mothers,caregiver"
-                android:text="Pick Location &amp; Destination"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                android:visibility="gone" />
-
             <!--                        <EditText
                                         android:id="@+id/edit_edituser_email"
                                         android:layout_width="match_parent"
@@ -237,6 +222,18 @@
                 android:maxLength="500"
                 android:tag="drivers"
                 android:visibility="gone" />
+
+            <Button
+                android:id="@+id/button_edituser_pick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/radiused_rectangle_background"
+                android:backgroundTint="@color/colorAccent"
+                android:textColor="@android:color/white"
+                android:textSize="24sp" />
 
             <TextView
                 android:layout_width="match_parent"

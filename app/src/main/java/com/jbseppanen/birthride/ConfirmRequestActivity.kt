@@ -184,11 +184,11 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
         // Setting the position of the marker
         if (markerPoints.size == 1) {
             options.position(latLng).title("Start")
-            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
             updateDrivers(latLng)
         } else if (markerPoints.size == 2) {
             options.position(latLng).title("End")
-            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
         }
 
         // Add new marker to the Google Map Android API V2

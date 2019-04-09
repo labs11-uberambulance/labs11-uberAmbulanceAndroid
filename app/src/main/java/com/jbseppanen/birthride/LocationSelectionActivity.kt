@@ -23,15 +23,18 @@ import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.android.synthetic.main.activity_location_selection.*
 import kotlinx.coroutines.*
 
+
 class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: LocationSelectionActivity
+    var numOfPoints = 1
 
     companion object {
         const val LOCATIONS_KEY = "locations_key"
+        const val NUMBER_OF_POINTS_KEY = "points key"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +48,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         val context: Context = this
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
+        numOfPoints = intent.getIntExtra(NUMBER_OF_POINTS_KEY, 1)
 
         if (ContextCompat.checkSelfPermission(
                 context,
@@ -91,11 +95,11 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-//        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
+        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
 
         mMap.setOnMapClickListener { latLng ->
-            if (markerPoints.size > 1) {
+            if (markerPoints.size == numOfPoints) {
                 markerPoints.clear()
                 mMap.clear()
                 button_locationselection_setlocations.isEnabled = false
@@ -104,13 +108,16 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 val options = MarkerOptions()
 
+                if(markerPoints.size == numOfPoints) {
+                    button_locationselection_setlocations.isEnabled = true
+                }
+
                 if (markerPoints.size == 1) {
                     options.position(latLng).title("Start")
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                 } else if (markerPoints.size == 2) {
                     options.position(latLng).title("End")
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                    button_locationselection_setlocations.isEnabled = true
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                 }
 
                 mMap.addMarker(options)
