@@ -55,7 +55,9 @@ object ApiDao {
     private fun getToken(): String? {
 //        return FirebaseAuth.getInstance().getAccessToken(false).result?.token
         val firebaseAuth = FirebaseAuth.getInstance()
-        return firebaseAuth.getAccessToken(false).result?.token
+        val accessToken = firebaseAuth.getAccessToken(false)
+        val result = accessToken.result
+        return result?.token
     }
 
     private fun postNewUser(user: User): Boolean {
