@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.android.synthetic.main.activity_confirm_request.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.Json
 
 
 class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -33,7 +34,6 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
     private var requestedDriver: RequestedDriver? = null
     private lateinit var drivers: ArrayList<RequestedDriver>
     var driverIndex = 0
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,6 +128,13 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                 --driverIndex
                 updateDriverInfo()
             }
+        }
+
+        button_requestconfirm_details.setOnClickListener {
+            val driverIntent = Intent(context, DriverDetailsActivity::class.java)
+            val extra = Json.stringify(RequestedDriver.serializer(), drivers[driverIndex])
+            driverIntent.putExtra(DriverDetailsActivity.DRIVER_DETAILS_KEY, extra)
+            startActivity(driverIntent)
         }
     }
 
