@@ -99,7 +99,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
 
         mMap.setOnMapClickListener { latLng ->
-            if (markerPoints.size > numOfPoints) {
+            if (markerPoints.size == numOfPoints) {
                 markerPoints.clear()
                 mMap.clear()
                 button_locationselection_setlocations.isEnabled = false
@@ -108,13 +108,16 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 val options = MarkerOptions()
 
+                if(markerPoints.size == numOfPoints) {
+                    button_locationselection_setlocations.isEnabled = true
+                }
+
                 if (markerPoints.size == 1) {
                     options.position(latLng).title("Start")
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                 } else if (markerPoints.size == 2) {
                     options.position(latLng).title("End")
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                    button_locationselection_setlocations.isEnabled = true
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                 }
 
                 mMap.addMarker(options)

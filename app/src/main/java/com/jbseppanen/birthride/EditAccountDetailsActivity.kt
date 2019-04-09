@@ -21,8 +21,6 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
 
 
 class EditAccountDetailsActivity : AppCompatActivity() {
@@ -52,7 +50,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         var userType = user.userData.user_type
         if (userType == UserTypeSelectionActivity.CAREGIVER) {
             user.userData.user_type = UserTypeSelectionActivity.MOTHER
-        } else if (userType == UserTypeSelectionActivity.MOTHER) {
+        } else if (user.userData.user_type == UserTypeSelectionActivity.MOTHER) {
             if (user.motherData != null) {
                 if (user.motherData!!.caretaker_name != "") {
                     userType = UserTypeSelectionActivity.CAREGIVER
@@ -69,6 +67,12 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        if (userType == UserTypeSelectionActivity.DRIVER) {
+            button_edituser_pick.text = "Pick home location"
+        } else {
+            button_edituser_pick.text = "Pick home and dropoff locations"
         }
 
 
@@ -183,10 +187,12 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                         val imageView: ImageView = image_edituser_driverimage
                         val bitmap = (imageView.drawable as BitmapDrawable).bitmap
                         val photoUrl = user.driverData?.photo_url
-                        ApiDao.uploadDriverPhoto(bitmap, photoUrl, object : UploadImageCallback {
-                            override fun returnResult(url: String) {
-                                user.driverData?.photo_url = url
-                                updateUser()
+                        ApiDao.uploadDriverPhoto(bitmap, photoUrl, object : ResultCallback {
+                            override fun returnResult(result: String?) {
+                                if (result != null) {
+                                    user.driverData?.photo_url = result
+                                    updateUser()
+                                }
                             }
                         })
                     } else {
@@ -216,8 +222,14 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                 if (locations != null) {
                     user.userData.location =
                         Location(null, "${locations[0].latitude},${locations[0].longitude}", null)
-                    user.motherData?.destination =
-                        Location(null, "${locations[1].latitude},${locations[1].longitude}", null)
+                    if (locations.size > 1) {
+                        user.motherData?.destination =
+                            Location(
+                                null,
+                                "${locations[1].latitude},${locations[1].longitude}",
+                                null
+                            )
+                    }
                 }
             }
         }
