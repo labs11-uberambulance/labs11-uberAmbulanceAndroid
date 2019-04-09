@@ -162,7 +162,8 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     if (updatePhoto) {
                         val imageView: ImageView = image_edituser_driverimage
                         val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                        ApiDao.uploadDriverPhoto(bitmap, object : UploadImageCallback {
+                        val photoUrl = user.driverData?.photo_url
+                        ApiDao.uploadDriverPhoto(bitmap, photoUrl, object : UploadImageCallback {
                             override fun returnResult(url: String) {
                                 user.driverData?.photo_url = url
                                 updateUser()

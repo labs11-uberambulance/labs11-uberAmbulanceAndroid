@@ -120,7 +120,7 @@
             android:textAlignment="center"
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
-            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_prev"
             map:layout_constraintStart_toStartOf="parent" />
 
         <TextView
@@ -130,8 +130,51 @@
             android:text="-"
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
-            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_prev"
             map:layout_constraintStart_toEndOf="@id/text_requestconfirm_waittime_label" />
+
+        <Button
+            android:id="@+id/button_requestconfirm_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonBrown"
+            android:text="Previous"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintEnd_toStartOf="@+id/button_requestconfirm_details"
+            map:layout_constraintStart_toEndOf="@+id/text_requestconfirm_fare_label"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_requestconfirm_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonBrown"
+            android:text="See Details"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintEnd_toStartOf="@+id/button_requestconfirm_next"
+            map:layout_constraintStart_toEndOf="@+id/button_requestconfirm_prev" />
+
+        <Button
+            android:id="@+id/button_requestconfirm_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonBrown"
+            android:text="Next"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+            map:layout_constraintEnd_toEndOf="parent"
+            map:layout_constraintStart_toEndOf="@+id/button_requestconfirm_details" />
 
         <Button
             android:id="@+id/button_requestconfirm_send"

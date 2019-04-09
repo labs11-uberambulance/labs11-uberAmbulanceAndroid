@@ -21,17 +21,19 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.android.synthetic.main.activity_confirm_request.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.Json
 
 
 class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
     private var user: User? = null
     private var requestedDriver: RequestedDriver? = null
-
+    private lateinit var drivers: ArrayList<RequestedDriver>
+    var driverIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,16 +85,6 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             if (markerPoints.size != 2) {
                 Toast.makeText(context, "Select start and end points on map.", Toast.LENGTH_LONG)
                     .show()
-            } else if (user == null) {
-                CoroutineScope(Dispatchers.IO + Job()).launch {
-                    val user = ApiDao.getCurrentUser()
-                }
-                Toast.makeText(
-                    context,
-                    "User info not found.  Try again or restart the app and try again.",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
             } else {
                 user!!.motherData?.start?.latlng =
                     "${markerPoints[0].latitude},${markerPoints[0].longitude}"
@@ -101,7 +93,7 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
                         ApiDao.postRideRequest(user!!, requestedDriver?.driver?.firebase_id!!)
-                    if(success) {
+                    if (success) {
                         withContext(Dispatchers.Main) {
                             startActivity(
                                 Intent(
@@ -122,6 +114,27 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
             }
+        }
+
+        button_requestconfirm_next.setOnClickListener {
+            if (driverIndex < drivers.size - 1) {
+                ++driverIndex
+                updateDriverInfo()
+            }
+        }
+
+        button_requestconfirm_prev.setOnClickListener {
+            if (driverIndex > 0) {
+                --driverIndex
+                updateDriverInfo()
+            }
+        }
+
+        button_requestconfirm_details.setOnClickListener {
+            val driverIntent = Intent(context, DriverDetailsActivity::class.java)
+            val extra = Json.stringify(RequestedDriver.serializer(), drivers[driverIndex])
+            driverIntent.putExtra(DriverDetailsActivity.DRIVER_DETAILS_KEY, extra)
+            startActivity(driverIntent)
         }
     }
 
@@ -198,17 +211,23 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun updateDrivers(location: LatLng) {
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            val drivers: ArrayList<RequestedDriver> =
-                ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
+            drivers = ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
             if (drivers.size > 0) {
-                requestedDriver = drivers[0]
+                driverIndex = 0
                 withContext(Dispatchers.Main) {
-                    text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
-                    text_requestconfirm_fare.text =
-                        "${requestedDriver!!.driver.price.toString()} USh"
-                    text_requestconfirm_waittime.text = "10 mins"
+                    updateDriverInfo()
                 }
             }
+        }
+    }
+
+    fun updateDriverInfo() {
+        if (drivers.size - 1 >= driverIndex) {
+            requestedDriver = drivers[driverIndex]
+            text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
+            text_requestconfirm_fare.text =
+                "${requestedDriver!!.driver.price.toString()} USh"
+            text_requestconfirm_waittime.text = "10 mins"
         }
     }
 

@@ -1,38 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:background="@drawable/radiused_rectangle_background"
-    android:backgroundTint="@color/colorPrimaryDark"
-    android:orientation="vertical">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_requestconfirm"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical"
+    map:layout_constraintBottom_toBottomOf="parent"
+    map:layout_constraintTop_toTopOf="parent"
+    map:layout_constraintVertical_bias="1">
 
-    <ImageView
-        android:id="@+id/image_driverelement_driver"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        android:background="@color/colorButtonBrown" />
-
-    <TextView
-        android:id="@+id/text_driverelement_name"
-        android:layout_width="match_parent"
+   <!-- <TextView
+        android:id="@+id/text_requestconfirm_pickuptime_label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Name"
-        android:textColor="@color/colorPrimary" />
-
-    <TextView
-        android:id="@+id/text_driverelement_distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Distance"
+        android:text="Est. Pickup Time: "
         android:textColor="@color/colorPrimary"
-        android:textSize="12sp" />
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@id/text_requestconfirm_fare_label"
+        map:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/text_driverelement_price"
+        android:id="@+id/text_requestconfirm_pickuptime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@id/text_requestconfirm_fare_label"
+        map:layout_constraintStart_toEndOf="@id/text_requestconfirm_pickuptime_label" />
+
+
+    <TextView
+        android:id="@+id/text_requestconfirm_fare_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Est. Fare: $"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_waittime_label"
+        map:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/text_requestconfirm_fare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" -"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_waittime_label"
+        map:layout_constraintStart_toEndOf="@id/text_requestconfirm_fare_label" />
+
+    <TextView
+        android:id="@+id/text_requestconfirm_waittime_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wait for response: "
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_prev"
+        map:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/text_requestconfirm_waittime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_prev"
+        map:layout_constraintStart_toEndOf="@id/text_requestconfirm_waittime_label" />
+
+    <Button
+        android:id="@+id/button_requestconfirm_prev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:text="Previous"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+        map:layout_constraintEnd_toStartOf="@+id/button_requestconfirm_details"
+        map:layout_constraintStart_toEndOf="@+id/text_requestconfirm_fare_label" />
+
+    <Button
+        android:id="@+id/button_requestconfirm_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:text="See Details"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+        map:layout_constraintEnd_toStartOf="@+id/button_requestconfirm_next"
+        map:layout_constraintStart_toEndOf="@+id/button_requestconfirm_prev" />
+
+    <Button
+        android:id="@+id/button_requestconfirm_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:text="Next"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toEndOf="@+id/button_requestconfirm_details" />
+
+    <Button
+        android:id="@+id/button_requestconfirm_send"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="$Max Price"
-        android:textColor="@color/colorPrimary"
-        android:textSize="12sp" />
+        android:layout_margin="16dp"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:text="Send Request"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        map:layout_constraintBottom_toBottomOf="parent" />-->
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
