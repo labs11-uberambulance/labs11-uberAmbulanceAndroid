@@ -46,12 +46,13 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         activity = this
         context = this
 
+
         val userString = intent.getStringExtra(WelcomeActivity.USER_KEY)
         user = Json.nonstrict.parse(User.serializer(), userString)
         var userType = user.userData.user_type
-        if (userType.equals(UserTypeSelectionActivity.CAREGIVER)) {
+        if (userType == UserTypeSelectionActivity.CAREGIVER) {
             user.userData.user_type = UserTypeSelectionActivity.MOTHER
-        } else if (user.userData.user_type == UserTypeSelectionActivity.MOTHER) {
+        } else if (userType == UserTypeSelectionActivity.MOTHER) {
             if (user.motherData != null) {
                 if (user.motherData!!.caretaker_name != "") {
                     userType = UserTypeSelectionActivity.CAREGIVER
@@ -107,18 +108,30 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     user.driverData = DriverData(firebase_id = user.userData.firebase_id)
                 } else {
                     edit_edituser_driverbio.setText(user.driverData?.bio)
-                   val photoUrl = user.driverData?.photo_url
-                    if (photoUrl !=null) {
+                    val photoUrl = user.driverData?.photo_url
+                    if (photoUrl != null) {
                         Glide
                             .with(this)
                             .load(photoUrl)
                             .apply(RequestOptions().centerCrop())
-                            .listener(object: RequestListener<Drawable> {
-                                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                            .listener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(
+                                    e: GlideException?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
 //                                    Toast.makeText(applicationContext, e?.localizedMessage, Toast.LENGTH_LONG).show()
                                     return false
                                 }
-                                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+
+                                override fun onResourceReady(
+                                    resource: Drawable?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
                                     return false
                                 }
                             })
@@ -135,8 +148,15 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
 
         button_edituser_pick.setOnClickListener {
+            val requestIntent = Intent(context, LocationSelectionActivity::class.java)
+            if (user.userData.user_type == UserTypeSelectionActivity.DRIVER) {
+                requestIntent.putExtra(LocationSelectionActivity.NUMBER_OF_POINTS_KEY, 1)
+            } else {
+                requestIntent.putExtra(LocationSelectionActivity.NUMBER_OF_POINTS_KEY, 2)
+
+            }
             startActivityForResult(
-                Intent(context, LocationSelectionActivity::class.java),
+                requestIntent,
                 LOCATION_REQUEST_CODE
             )
 

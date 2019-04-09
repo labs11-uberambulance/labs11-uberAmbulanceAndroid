@@ -1,12 +1,5 @@
 package com.jbseppanen.birthride
 
-import android.content.Context
-import com.bumptech.glide.GlideBuilder
-import com.bumptech.glide.annotation.GlideModule
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.module.AppGlideModule
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.signature.ObjectKey
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -130,6 +123,7 @@ data class LatLngJson(
 data class RideRequestData(
     val distance: String,
     val name: String,
+//    val hospital,
     val phone: String,
     val price: Int,
     val ride_id: Long

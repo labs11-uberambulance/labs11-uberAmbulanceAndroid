@@ -187,14 +187,19 @@ object ApiDao {
         return success
     }
 
-    fun acceptRejectRide(rideId: Long, accept: Boolean): Boolean {
+    fun acceptRejectRide(rideId: Long, accept: Boolean, json:String?): Boolean {
         val urlParam = when (accept) {
             true -> "accepts"
             false -> "rejects"
         }
+
+        //Accept  = get.  Reject = Post
         val (success, response) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/driver/$urlParam/$rideId",
-            requestType = NetworkAdapter.GET,
+            requestType = when (accept) {
+                true -> NetworkAdapter.GET
+                false -> NetworkAdapter.POST
+            } ,
             jsonBody = null,
             headerProperties = mapOf(
                 "Authorization" to "${getToken()}",
@@ -203,6 +208,7 @@ object ApiDao {
             )
         )
         return success
+        //key "dataDictionary", value = data
     }
 
     //TODO change to not repeat so much code.
