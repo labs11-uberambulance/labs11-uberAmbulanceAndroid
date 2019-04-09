@@ -122,6 +122,13 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                 updateDriverInfo()
             }
         }
+
+        button_requestconfirm_prev.setOnClickListener {
+            if (driverIndex > 0) {
+                --driverIndex
+                updateDriverInfo()
+            }
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

@@ -11,7 +11,7 @@
     map:layout_constraintTop_toTopOf="parent"
     map:layout_constraintVertical_bias="1">
 
-    <TextView
+   <!-- <TextView
         android:id="@+id/text_requestconfirm_pickuptime_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -126,6 +126,6 @@
         android:text="Send Request"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        map:layout_constraintBottom_toBottomOf="parent" />
+        map:layout_constraintBottom_toBottomOf="parent" />-->
 
 </android.support.constraint.ConstraintLayout>
