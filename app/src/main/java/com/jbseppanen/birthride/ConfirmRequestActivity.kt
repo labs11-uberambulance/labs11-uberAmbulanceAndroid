@@ -30,7 +30,7 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
-    private var user: User? = null
+    private lateinit var user: User
     private var requestedDriver: RequestedDriver? = null
     private lateinit var drivers: ArrayList<RequestedDriver>
     var driverIndex = 0
@@ -44,6 +44,10 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
         activity = this
         val context: Context = this
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            getUser()
+        }
 
 
         if (ContextCompat.checkSelfPermission(
@@ -77,23 +81,21 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
 
         }
 
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            user = ApiDao.getCurrentUser()
-        }
-
         button_requestconfirm_send.setOnClickListener {
             if (markerPoints.size != 2) {
                 Toast.makeText(context, "Select start and end points on map.", Toast.LENGTH_LONG)
                     .show()
             } else {
-                user!!.motherData?.start?.latlng =
+                user.motherData?.start?.latlng =
                     "${markerPoints[0].latitude},${markerPoints[0].longitude}"
-                user!!.motherData?.destination?.latlng =
+                user.motherData?.destination?.latlng =
                     "${markerPoints[1].latitude},${markerPoints[1].longitude}"
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
-                        ApiDao.postRideRequest(user!!, requestedDriver?.driver?.firebase_id!!)
+                        ApiDao.postRideRequest(user, requestedDriver?.driver?.firebase_id!!)
                     if (success) {
+                        val statusIntent = Intent(context, RideStatusActivity::class.java)
+                        statusIntent.putExtra(RideStatusActivity.RIDE_ID_KEY, user.userData.id)
                         withContext(Dispatchers.Main) {
                             startActivity(
                                 Intent(
@@ -140,11 +142,12 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-//        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            if (user?.userData?.location != null) {
-                var split: List<String>? = user!!.userData.location?.latlng?.split(",")
+            if (!::user.isInitialized) {
+                getUser()
+            }
+            if (user.userData.location != null) {
+                var split: List<String>? = user.userData.location?.latlng?.split(",")
                 if (split != null && split.size == 2) {
                     val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
                     if (userLatLng != null) {
@@ -153,7 +156,7 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
                     }
                 }
-                split = user!!.motherData?.destination?.latlng?.split(",")
+                split = user.motherData?.destination?.latlng?.split(",")
                 if (split != null && split.size == 2) {
                     val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
                     if (userLatLng != null) {
@@ -228,6 +231,19 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             text_requestconfirm_fare.text =
                 "${requestedDriver!!.driver.price.toString()} USh"
             text_requestconfirm_waittime.text = "10 mins"
+        }
+    }
+
+    suspend fun getUser() {
+        val returnedUser = ApiDao.getCurrentUser()
+        if (returnedUser != null) {
+            user = returnedUser
+            withContext(Dispatchers.Main) {
+                button_requestconfirm_details.isEnabled = true
+                button_requestconfirm_prev.isEnabled = true
+                button_requestconfirm_next.isEnabled = true
+                button_requestconfirm_send.isEnabled = true
+            }
         }
     }
 

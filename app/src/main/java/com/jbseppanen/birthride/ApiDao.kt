@@ -175,6 +175,20 @@ object ApiDao {
         println(response)
     }
 
+   suspend fun getUserRides(id:Long) {
+       val (success, response) = NetworkAdapter.httpRequest(
+           stringUrl = "$baseUrl/rides/mother",
+           requestType = NetworkAdapter.GET,
+           jsonBody = "{\"userId\": $id}",
+           headerProperties = mapOf(
+               "Authorization" to "${getToken()}",
+               "Content-Type" to "application/json",
+               "Accept" to "application/json"
+           )
+       )
+       println(response)
+    }
+
     suspend fun postRideRequest(user: User, driverFbaseId: String): Boolean {
         val json =
             "{\"end\":\"${user.motherData?.destination?.latlng}\", \"start\":\"${user.motherData?.start?.latlng}\", \"name\":\"${user.userData.name}\", \"phone\":\"${user.userData.phone}\"}"

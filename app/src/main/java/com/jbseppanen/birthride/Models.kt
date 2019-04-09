@@ -62,16 +62,17 @@ data class Location(
 
 @Serializable
 data class Ride(
-    val id: Long?,
-    var driver_id: Int?,
-    val mother_id: Int,
-//    var wait_min: Int? = 5,
-//    var start_village: String? = "",
-    var start_address: LatLngJson,
-//    var destination: String? = "", //500 char limit.  Required.
-    var destination_address: LatLngJson,
-    var ride_status: String? = ""
+    val id: Long,
+    val mother_id: String,
+    val driver_id: String,
+    val start: String,
+    val destination: String,
+    val rejected_drivers: Any,
+    val ride_status: String
+//    val created_at: String,
+//    val updated_at: String
 )
+
 
 @Serializable
 data class RequestedDriver(
