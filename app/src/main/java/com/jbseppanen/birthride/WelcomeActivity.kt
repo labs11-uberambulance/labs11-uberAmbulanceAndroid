@@ -24,23 +24,27 @@ class WelcomeActivity : AppCompatActivity() {
         const val USER_TYPE_REQUEST_CODE = 5
         const val USER_KEY = "User Type"
         const val LOCATION_REQUEST_CODE = 1
-
     }
 
+    private lateinit var context: Context
     private lateinit var user: User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
 
-        val context: Context = this
+        context = this
 
 
         if ((ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
-        ) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_DENIED) {
+                    ) && ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_DENIED
+        ) {
             Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
                 .show()
             ActivityCompat.requestPermissions(
@@ -75,7 +79,8 @@ class WelcomeActivity : AppCompatActivity() {
                         user.userData.user_type == UserTypeSelectionActivity.MOTHER -> startActivity(
                             Intent(
                                 context,
-                                RequestRideActivity::class.java
+                                RideStatusActivity::class.java
+//                                        RequestRideActivity::class.java
                             )
                         )
                         user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
@@ -83,7 +88,8 @@ class WelcomeActivity : AppCompatActivity() {
                             CoroutineScope(Dispatchers.IO + Job()).launch {
                                 val user = ApiDao.getCurrentUser()
                                 if (user != null) {
-                                    val requestIntent = Intent(context, EditAccountDetailsActivity::class.java)
+                                    val requestIntent =
+                                        Intent(context, EditAccountDetailsActivity::class.java)
                                     val extra = Json.stringify(User.serializer(), user)
                                     requestIntent.putExtra(WelcomeActivity.USER_KEY, extra)
                                     withContext(Dispatchers.Main) {
@@ -106,14 +112,12 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     fun gotoEditUser() {
-
         val requestIntent = Intent(this, EditAccountDetailsActivity::class.java)
         val serializer: SerializationStrategy<User> = User.serializer()
         val extra = Json.stringify(serializer, user)
         requestIntent.putExtra(USER_KEY, extra)
         startActivity(requestIntent)
     }
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
