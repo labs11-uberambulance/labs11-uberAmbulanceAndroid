@@ -94,8 +94,6 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
                     val success =
                         ApiDao.postRideRequest(user, requestedDriver?.driver?.firebase_id!!)
                     if (success) {
-                        val statusIntent = Intent(context, RideStatusActivity::class.java)
-                        statusIntent.putExtra(RideStatusActivity.RIDE_ID_KEY, user.userData.id)
                         withContext(Dispatchers.Main) {
                             startActivity(
                                 Intent(

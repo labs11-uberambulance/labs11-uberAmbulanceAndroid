@@ -175,18 +175,38 @@ object ApiDao {
         println(response)
     }
 
-   suspend fun getUserRides(id:Long) {
-       val (success, response) = NetworkAdapter.httpRequest(
-           stringUrl = "$baseUrl/rides/mother",
-           requestType = NetworkAdapter.GET,
-           jsonBody = "{\"userId\": $id}",
-           headerProperties = mapOf(
-               "Authorization" to "${getToken()}",
-               "Content-Type" to "application/json",
-               "Accept" to "application/json"
-           )
-       )
-       println(response)
+    suspend fun getUserRides(): ArrayList<Ride> {
+        val tokenString = getToken()
+        val (success, result) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/rides/mother",
+            requestType = NetworkAdapter.GET,
+            jsonBody = "{\"userId\": $tokenString}",
+            headerProperties = mapOf(
+                "Authorization" to "$tokenString",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+        val rides = ArrayList<Ride>()
+        if (success) {
+            val jsonArray = JSONArray(result)
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                try {
+
+                    val ride: Ride = Json.nonstrict.parse(
+                        Ride.serializer(),
+                        jsonObject.toString()
+                    )
+                    if (!ride.ride_status.contains("complete", true) || !ride.ride_status.contains("cancel", true)) {
+                        rides.add(ride)
+                    }
+                } catch (e: SerializationException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        return rides
     }
 
     suspend fun postRideRequest(user: User, driverFbaseId: String): Boolean {
