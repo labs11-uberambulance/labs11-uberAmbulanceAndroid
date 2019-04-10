@@ -2,6 +2,7 @@ package com.jbseppanen.birthride
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import kotlinx.android.synthetic.main.activity_ride_status.*
 import kotlinx.coroutines.*
 import java.util.ArrayList
@@ -21,12 +22,17 @@ class RideStatusActivity : AppCompatActivity() {
 
     private fun updateStatus() {
         CoroutineScope(Dispatchers.IO + Job()).launch {
+            withContext(Dispatchers.Main) {
+                progress_ridestatus.visibility = View.VISIBLE
+            }
             val userRides: ArrayList<Ride> = ApiDao.getUserRides()
             if (userRides.size > 0) {
                 val rides =
                     userRides.sortedWith(compareBy { it.id }).reversed() as ArrayList<Ride>
                 withContext(Dispatchers.Main) {
-                    text_ridestatus_status.text = rides[0].ride_status
+                    val statusText = rides[0].ride_status.replace("_"," ").capitalize()
+                    text_ridestatus_status.text = statusText
+                    progress_ridestatus.visibility = View.INVISIBLE
                 }
             }
         }
