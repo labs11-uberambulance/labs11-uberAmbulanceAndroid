@@ -12,6 +12,10 @@ import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class PushNotificationService : FirebaseMessagingService() {
@@ -116,7 +120,11 @@ class PushNotificationService : FirebaseMessagingService() {
      * @param token The new token.
      */
     private fun sendRegistrationToServer(token: String?) {
-        // TODO: Implement this method to send token to your app server.
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            if (token != null) {
+                ApiDao.updateFcmToken(token)
+            }
+        }
     }
 
     /**
