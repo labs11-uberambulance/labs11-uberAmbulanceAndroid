@@ -29,6 +29,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     private lateinit var context: Context
     private lateinit var user: User
     var updatePhoto = false
+    var newUser = false
 
     companion object {
         const val IMAGE_REQUEST_CODE = 3
@@ -92,6 +93,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         when (user.userData.user_type) {
             UserTypeSelectionActivity.MOTHER -> {
                 if (user.motherData == null) {
+                    newUser = true
                     user.motherData = MotherData(firebase_id = user.userData.firebase_id)
                 }
                 edit_edituser_caregivername.setText(user.motherData?.caretaker_name)
@@ -109,6 +111,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             }
             UserTypeSelectionActivity.DRIVER -> {
                 if (user.driverData == null) {
+                    newUser = true
                     user.driverData = DriverData(firebase_id = user.userData.firebase_id)
                 } else {
                     edit_edituser_driverbio.setText(user.driverData?.bio)
@@ -242,7 +245,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     }
 
     fun updateUser() {
-        val newUser = (user.motherData == null && user.driverData == null)
         CoroutineScope(Dispatchers.IO + Job()).launch {
             val success = ApiDao.updateCurrentUser(user, newUser)
             if (success) {

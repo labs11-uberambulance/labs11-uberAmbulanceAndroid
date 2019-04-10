@@ -24,6 +24,11 @@ const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
 @WorkerThread
 object ApiDao {
 
+    private suspend fun getToken(): String? {
+        val await: GetTokenResult = FirebaseAuth.getInstance().getAccessToken(false).await()
+        return await.token
+    }
+
     suspend fun getCurrentUser(): User? {
         val tokenString = getToken()
         val (success, result) = NetworkAdapter.httpRequest(
@@ -53,16 +58,6 @@ object ApiDao {
         }
         return success
     }
-
-/*    private fun getTokenOld():String? {
-       return FirebaseAuth.getInstance().getAccessToken(false).result?.token
-    }*/
-
-    private suspend fun getToken(): String? {
-        val await: GetTokenResult = FirebaseAuth.getInstance().getAccessToken(false).await()
-        return await.token
-    }
-
 
     private suspend fun postNewUser(user: User): Boolean {
         val tokenString = getToken()
@@ -106,6 +101,10 @@ object ApiDao {
         )
         return success
     }
+
+/*    private fun getTokenOld():String? {
+       return FirebaseAuth.getInstance().getAccessToken(false).result?.token
+    }*/
 
     suspend fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
@@ -308,5 +307,21 @@ object ApiDao {
                 println("Failed to upload")
             }
         }
+    }
+
+    suspend fun updateFcmToken(token:String) {
+        val json =
+            "{\"token\":\"$token\"}"
+        val (success, response) = NetworkAdapter.httpRequest(
+            stringUrl = "$baseUrl/users/notifications/refresh-token",
+            requestType = NetworkAdapter.POST,
+            jsonBody = json,
+            headerProperties = mapOf(
+                "Authorization" to "${getToken()}",
+                "Content-Type" to "application/json",
+                "Accept" to "application/json"
+            )
+        )
+//        return success
     }
 }

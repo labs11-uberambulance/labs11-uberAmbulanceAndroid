@@ -228,7 +228,8 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
             text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
             text_requestconfirm_fare.text =
                 "${requestedDriver!!.driver.price.toString()} USh"
-            text_requestconfirm_waittime.text = "10 mins"
+//            text_requestconfirm_waittime.text = "10 mins"
+            text_requestconfirm_waittime.text = requestedDriver!!.driver.name
         }
     }
 
