@@ -67,7 +67,7 @@ data class Ride(
     val driver_id: String,
     val start: String,
     val destination: String,
-    val rejected_drivers: Any,
+    val rejected_drivers: Any? = null,
     val ride_status: String
 //    val created_at: String,
 //    val updated_at: String
