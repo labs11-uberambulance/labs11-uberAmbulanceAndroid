@@ -61,7 +61,8 @@ class PushNotificationService : FirebaseMessagingService() {
 //                handleNow()
             if (remoteMessage.data!=null) {
                 val intent = Intent(SERVICE_BROADCAST_KEY)
-                intent.putExtra(SERVICE_MESSAGE_KEY, remoteMessage.data.toString())
+                val dataHashMap = HashMap<String, String>(remoteMessage.data)
+                intent.putExtra(SERVICE_MESSAGE_KEY, dataHashMap)
                 broadcaster.sendBroadcast(intent)
             }
 //            }

@@ -313,7 +313,7 @@ object ApiDao {
         val json =
             "{\"token\":\"$token\"}"
         val (success, response) = NetworkAdapter.httpRequest(
-            stringUrl = "$baseUrl/users/notifications/refresh-token",
+            stringUrl = "$baseUrl/notifications/refresh-token",
             requestType = NetworkAdapter.POST,
             jsonBody = json,
             headerProperties = mapOf(
@@ -322,6 +322,6 @@ object ApiDao {
                 "Accept" to "application/json"
             )
         )
-//        return success
+        println(success)
     }
 }

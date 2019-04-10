@@ -121,12 +121,12 @@ data class LatLngJson(
 @Serializable
 @SerialName("data")
 data class RideRequestData(
-    val distance: String,
-    val name: String,
-    val hospital: String,
-    val phone: String,
-    val price: Int,
-    val ride_id: Long
+    val distance: String="",
+    val name: String="",
+    val hospital: String="",
+    val phone: String="",
+    val price: Int=0,
+    val ride_id: Long=-1L
 )
 
 interface ResultCallback {

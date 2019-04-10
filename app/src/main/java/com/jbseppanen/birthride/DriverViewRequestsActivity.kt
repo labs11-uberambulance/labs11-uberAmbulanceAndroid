@@ -36,10 +36,9 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: DriverViewRequestsActivity
     private var user: User? = null
-    private var requestedDriver: RequestedDriver? = null
+    private var rideId: Long = -1
     private lateinit var receiver: BroadcastReceiver
-    private var rideRequest: RideRequestData? = null
-    private var notificationString: String = ""
+    private lateinit var notificationMap: HashMap<*, *>
 
     enum class PointType(val type: String) {
         START("Start Point"), PICKUP("Pickup Point"), DROPOFF("Dropoff Point")
@@ -55,6 +54,27 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
         activity = this
         val context: Context = this
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        FirebaseInstanceId.getInstance().instanceId
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    println("getInstanceId failed $task.exception")
+                    return@OnCompleteListener
+                }
+
+                // Get new Instance ID token
+                val token = task.result?.token
+
+                if (token != null) {
+                    CoroutineScope(Dispatchers.IO + Job()).launch {
+                        ApiDao.updateFcmToken(token)
+                    }
+                }
+
+                // Log and toast
+                val msg = getString(R.string.msg_token_fmt, token)
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            })
 
 
         if (ContextCompat.checkSelfPermission(
@@ -104,24 +124,19 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
                 when (receivedIntent?.action) {
                     PushNotificationService.SERVICE_BROADCAST_KEY -> {
-                        notificationString =
-                            receivedIntent.getStringExtra(PushNotificationService.SERVICE_MESSAGE_KEY)
-                        try {
-                            rideRequest =
-                                Json.nonstrict.parse(
-                                    RideRequestData.serializer(),
-                                    notificationString
-                                )
-                            if (rideRequest != null) {
-                                val request: RideRequestData = rideRequest as RideRequestData
-                                text_driverview_name.text = request.name
-                                text_driverview_phone.text = request.phone
-                                text_driverview_pickuptime.text =
-                                    ""//TODO calculate this or make it go away.
-                                text_driverview_fare.text = request.price.toString()
+
+                        notificationMap =
+                            receivedIntent.getSerializableExtra(PushNotificationService.SERVICE_MESSAGE_KEY) as HashMap<*, *>
+                        for ((key, value) in notificationMap) {
+                            if (key is String && value is String) {
+                                    when (key) {
+                                        "hospital" -> println(key)
+                                        "name" -> text_driverview_name.text = value
+                                        "phone" -> text_driverview_phone.text = value
+                                        "price" -> text_driverview_fare.text = value
+                                        "ride_id" -> value.toLong()
+                                }
                             }
-                        } catch (e: SerializationException) {
-                            e.printStackTrace()
                         }
                     }
                 }
@@ -158,9 +173,9 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         button_driverview_accept.setOnClickListener {
-            if (rideRequest != null) {
+            if (!rideId.equals(-1)) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    val success = ApiDao.acceptRejectRide(rideRequest!!.ride_id, true, null)
+                    val success = ApiDao.acceptRejectRide(rideId, true, null)
                     val message = if (success) {
                         "Ride Accepted!"
                     } else {
@@ -180,12 +195,16 @@ class DriverViewRequestsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         button_driverview_reject.setOnClickListener {
-            if (rideRequest != null) {
+            if (!rideId.equals(-1)) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
-                        ApiDao.acceptRejectRide(rideRequest!!.ride_id, false, notificationString)
+                        ApiDao.acceptRejectRide(
+                            rideId,
+                            false,
+                            notificationMap.toString()
+                        )
                     if (success) {
-                        notificationString = ""
+                        notificationMap = HashMap<String, String>()
                     }
                     val message = if (success) {
                         "Ride Rejected!"
