@@ -18,7 +18,6 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.google.android.gms.maps.model.LatLng
-import com.hbb20.CountryCodePicker
 import kotlinx.android.synthetic.main.activity_edit_account_details.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
@@ -29,8 +28,8 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     private lateinit var activity: Activity
     private lateinit var context: Context
     private lateinit var user: User
-    var updatePhoto = false
-    var newUser = false
+    private var updatePhoto = false
+    private var newUser = false
 
     companion object {
         const val IMAGE_REQUEST_CODE = 3
@@ -63,7 +62,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                 Thread.sleep(50)
             }
         }
-
+        progress_edituser.visibility = View.INVISIBLE
         ccp_edituser_ccp.registerCarrierNumberEditText(edit_edituser_phone)
 
         var userType = user.userData.user_type
@@ -104,11 +103,9 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
 
         edit_edituser_name.setText(user.userData.name)
-//        edit_edituser_city.setText(user.userData.village)
-//        edit_edituser_address.setText(user.userData.address)
-//        edit_edituser_phone.setText(user.userData.phone)
-        ccp_edituser_ccp.fullNumber = user.userData.phone
-//        edit_edituser_email.setText(user.userData.email)
+        if(user.userData.phone != null) {
+            ccp_edituser_ccp.fullNumber = user.userData.phone
+        }
         when (user.userData.user_type) {
             UserTypeSelectionActivity.MOTHER -> {
                 if (user.motherData == null) {
@@ -116,17 +113,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                     user.motherData = MotherData(firebase_id = user.userData.firebase_id)
                 }
                 edit_edituser_caregivername.setText(user.motherData?.caretaker_name)
-//                edit_edituser_hospitalname.setText(user.motherData?.hospital)
-/*                val dateArray = user.motherData?.due_date?.split("-")
-                if (dateArray != null) {
-                    if (dateArray.size >= 3) {
-                        date_edituser_duedate.updateDate(
-                            dateArray[0].toInt(),
-                            dateArray[1].toInt() - 1,
-                            dateArray[2].substring(0, 2).toInt()
-                        )
-                    }
-                }*/
             }
             UserTypeSelectionActivity.DRIVER -> {
                 if (user.driverData == null) {
@@ -147,7 +133,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                                     target: Target<Drawable>?,
                                     isFirstResource: Boolean
                                 ): Boolean {
-//                                    Toast.makeText(applicationContext, e?.localizedMessage, Toast.LENGTH_LONG).show()
                                     return false
                                 }
 
@@ -189,11 +174,9 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
 
         button_edituser_save.setOnClickListener {
-            //            user.userData.address = edit_edituser_address.text.toString()
-//            user.userData.email = edit_edituser_email.text.toString()
+            progress_edituser.visibility = View.VISIBLE
             user.userData.name = edit_edituser_name.text.toString()
             user.userData.phone = ccp_edituser_ccp.fullNumberWithPlus
-//            user.userData.village = edit_edituser_city.text.toString()
             when (user.userData.user_type) {
                 UserTypeSelectionActivity.MOTHER -> {
                     user.motherData?.caretaker_name = edit_edituser_caregivername.text.toString()
@@ -275,13 +258,15 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                         startActivity(Intent(context, DriverViewRequestsActivity::class.java))
                     }
                 }
+                finish()
             } else {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         context,
-                        "Failed to save. Go back and try log in again.",
+                        "Failed to save. Try again or log out and then retry.",
                         Toast.LENGTH_LONG
                     ).show()
+                    progress_edituser.visibility = View.INVISIBLE
                 }
             }
         }
