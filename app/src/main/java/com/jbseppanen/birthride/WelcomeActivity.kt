@@ -79,8 +79,8 @@ class WelcomeActivity : AppCompatActivity() {
                         user.userData.user_type == UserTypeSelectionActivity.MOTHER -> startActivity(
                             Intent(
                                 context,
-                                RideStatusActivity::class.java
-//                                        RequestRideActivity::class.java
+//                                RideStatusActivity::class.java
+                                        RequestRideActivity::class.java
                             )
                         )
                         user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {

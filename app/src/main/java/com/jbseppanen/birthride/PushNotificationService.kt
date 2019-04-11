@@ -12,6 +12,10 @@ import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class PushNotificationService : FirebaseMessagingService() {
@@ -57,7 +61,8 @@ class PushNotificationService : FirebaseMessagingService() {
 //                handleNow()
             if (remoteMessage.data!=null) {
                 val intent = Intent(SERVICE_BROADCAST_KEY)
-                intent.putExtra(SERVICE_MESSAGE_KEY, remoteMessage.data.toString())
+                val dataHashMap = HashMap<String, String>(remoteMessage.data)
+                intent.putExtra(SERVICE_MESSAGE_KEY, dataHashMap)
                 broadcaster.sendBroadcast(intent)
             }
 //            }
@@ -116,7 +121,11 @@ class PushNotificationService : FirebaseMessagingService() {
      * @param token The new token.
      */
     private fun sendRegistrationToServer(token: String?) {
-        // TODO: Implement this method to send token to your app server.
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            if (token != null) {
+                ApiDao.updateFcmToken(token)
+            }
+        }
     }
 
     /**

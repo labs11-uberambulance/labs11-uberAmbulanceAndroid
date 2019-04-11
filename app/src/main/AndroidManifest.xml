@@ -52,9 +52,9 @@
         <activity android:name=".EditAccountDetailsActivity" />
         <activity android:name=".RequestRideActivity" />
         <activity android:name=".UserTypeSelectionActivity" />
-        <activity android:name=".WelcomeActivity" />
+        <activity android:name=".MainActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".WelcomeActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
