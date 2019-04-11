@@ -34,7 +34,7 @@
                 android:text="Caregiver Name"
                 android:textAlignment="center"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/edit_edituser_caregivername"
@@ -44,7 +44,7 @@
                 android:layout_marginRight="16dp"
                 android:inputType="textPersonName"
                 android:tag="caregiver"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -107,7 +107,7 @@
                 android:text="Price per 10km"
                 android:textAlignment="center"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/edit_edituser_driverprice"
@@ -118,7 +118,7 @@
                 android:hint="Max price per 10km."
                 android:inputType="numberDecimal"
                 android:tag="drivers"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -128,7 +128,7 @@
                 android:text="Biography"
                 android:textAlignment="center"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/edit_edituser_driverbio"
@@ -140,7 +140,7 @@
                 android:inputType="textMultiLine"
                 android:maxLength="500"
                 android:tag="drivers"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_edituser_pick"
@@ -165,7 +165,7 @@
                 android:text="Photo"
                 android:textAlignment="center"
                 android:textSize="24sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/image_edituser_driverimagetext"
@@ -175,7 +175,7 @@
                 android:text="\nTap to pick a photo\n"
                 android:textAlignment="center"
                 android:textSize="24sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/image_edituser_driverimage"
@@ -183,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:textSize="24sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_edituser_save"
