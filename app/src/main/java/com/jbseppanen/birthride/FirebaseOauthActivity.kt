@@ -25,7 +25,8 @@ class FirebaseOauthActivity : AppCompatActivity() {
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.PhoneBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build()
+            AuthUI.IdpConfig.GoogleBuilder().build(),
+            AuthUI.IdpConfig.EmailBuilder().build()
         )
 
 // Create and launch sign-in intent
