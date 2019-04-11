@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".EditAccountDetailsActivity">
 
+    <ProgressBar
+        android:id="@+id/progress_edituser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:progressTint="@color/colorPrimaryDark"
+        android:background="@color/colorPrimary" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

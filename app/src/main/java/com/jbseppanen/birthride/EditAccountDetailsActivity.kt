@@ -63,7 +63,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                 Thread.sleep(50)
             }
         }
-
+        progress_edituser.visibility = View.INVISIBLE
         ccp_edituser_ccp.registerCarrierNumberEditText(edit_edituser_phone)
 
         var userType = user.userData.user_type
@@ -189,6 +189,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
 
         button_edituser_save.setOnClickListener {
+            progress_edituser.visibility = View.VISIBLE
             //            user.userData.address = edit_edituser_address.text.toString()
 //            user.userData.email = edit_edituser_email.text.toString()
             user.userData.name = edit_edituser_name.text.toString()
@@ -275,13 +276,15 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                         startActivity(Intent(context, DriverViewRequestsActivity::class.java))
                     }
                 }
+                finish()
             } else {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         context,
-                        "Failed to save. Go back and try log in again.",
+                        "Failed to save. Try again or log out and then retry.",
                         Toast.LENGTH_LONG
                     ).show()
+                    progress_edituser.visibility = View.INVISIBLE
                 }
             }
         }
