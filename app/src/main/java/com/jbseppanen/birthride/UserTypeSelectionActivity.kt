@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_user_type_selection.*
 
 class UserTypeSelectionActivity : AppCompatActivity() {
@@ -37,6 +38,13 @@ class UserTypeSelectionActivity : AppCompatActivity() {
             intent.putExtra(USER_TYPE_KEY, CAREGIVER)
             setResult(Activity.RESULT_OK, intent)
             finish()
+        }
+
+        button_usertype_logout.setOnClickListener {
+            AuthUI.getInstance().signOut(this).addOnCompleteListener {
+                startActivity(Intent(this, WelcomeActivity::class.java))
+                finish()
+            }
         }
     }
 }

@@ -45,6 +45,7 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 .setIsSmartLockEnabled(false)
                 .setAvailableProviders(providers)
                 .setAuthMethodPickerLayout(customLayout)
+                .setTheme(R.style.AppTheme_NoActionBar)
                 .build(),
             RC_SIGN_IN
         )
@@ -65,7 +66,6 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 }
             } else {
                 Toast.makeText(this, "Sign-in Failed. Try Again", Toast.LENGTH_LONG).show()
-                recreate()
             }
         }
     }
