@@ -16,8 +16,8 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 
 open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private fun onCreateDrawer() {
-        setContentView(R.layout.activity_main)
+    protected fun onCreateDrawer() {
+//        setContentView(R.layout.activity_main)
 
 /*        AuthUI.getInstance().signOut(this).addOnCompleteListener {
             //TODO remove this line after testing.  Currently forces login each time.
