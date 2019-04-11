@@ -47,9 +47,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".RideStatusActivity" />
         <activity android:name=".ConfirmRequestActivity" />
-        <activity
-            android:name=".DriverSearchActivity"
-            android:label="@string/title_activity_driver_search" />
         <activity android:name=".EditAccountDetailsActivity" />
         <activity android:name=".RequestRideActivity" />
         <activity android:name=".UserTypeSelectionActivity" />

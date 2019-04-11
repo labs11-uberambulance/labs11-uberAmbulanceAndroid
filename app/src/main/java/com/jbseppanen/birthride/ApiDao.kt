@@ -237,7 +237,7 @@ object ApiDao {
                 true -> NetworkAdapter.GET
                 false -> NetworkAdapter.POST
             },
-            jsonBody = "$json",
+            jsonBody = "{\"data\":$json}",
             headerProperties = mapOf(
                 "Authorization" to "${getToken()}",
                 "Content-Type" to "application/json",
