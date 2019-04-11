@@ -10,7 +10,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.coroutines.*
@@ -52,11 +51,6 @@ class WelcomeActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_REQUEST_CODE
             )
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                LOCATION_REQUEST_CODE
-            )
         }
 
         if (FirebaseAuth.getInstance().currentUser != null) {
@@ -80,12 +74,12 @@ class WelcomeActivity : AppCompatActivity() {
                             Intent(
                                 context,
 //                                RideStatusActivity::class.java
-                                        RequestRideActivity::class.java
+                                        MotherOptionsActivity::class.java
                             )
                         )
                         user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
-//                            startActivity(Intent(context, DriverViewRequestsActivity::class.java))
-                            CoroutineScope(Dispatchers.IO + Job()).launch {
+                            startActivity(Intent(context, DriverViewRequestsActivity::class.java))
+    /*                        CoroutineScope(Dispatchers.IO + Job()).launch {
                                 val user = ApiDao.getCurrentUser()
                                 if (user != null) {
                                     val requestIntent =
@@ -96,7 +90,7 @@ class WelcomeActivity : AppCompatActivity() {
                                         startActivity(requestIntent)
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
                 }

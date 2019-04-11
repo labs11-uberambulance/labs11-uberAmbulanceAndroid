@@ -45,9 +45,24 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         activity = this
         context = this
 
+        val userString: String? = intent.getStringExtra(WelcomeActivity.USER_KEY)
+        if (userString!=null) {
+            user = Json.nonstrict.parse(User.serializer(), userString)
+        } else {
+            CoroutineScope(Dispatchers.IO + Job()).launch {
+                val returnedUser = ApiDao.getCurrentUser()
+                if (returnedUser != null) {
+                    user = returnedUser
+                } else {
+                    startActivity(Intent(context, WelcomeActivity::class.java))
+                    finish()
+                }
+            }
+            while (!::user.isInitialized) {
+                Thread.sleep(50)
+            }
+        }
 
-        val userString = intent.getStringExtra(WelcomeActivity.USER_KEY)
-        user = Json.nonstrict.parse(User.serializer(), userString)
         var userType = user.userData.user_type
         if (userType == UserTypeSelectionActivity.CAREGIVER) {
             user.userData.user_type = UserTypeSelectionActivity.MOTHER
@@ -250,7 +265,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             if (success) {
                 when (user.userData.user_type) {
                     UserTypeSelectionActivity.MOTHER -> {
-                        startActivity(Intent(context, RequestRideActivity::class.java))
+                        startActivity(Intent(context, MotherOptionsActivity::class.java))
                     }
                     UserTypeSelectionActivity.DRIVER -> {
                         startActivity(Intent(context, DriverViewRequestsActivity::class.java))

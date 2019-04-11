@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
-    tools:context=".RequestRideActivity">
+    tools:context=".MotherOptionsActivity">
 
     <TextView
         android:id="@+id/textView4"
@@ -32,7 +32,7 @@
         android:padding="10dp"
         android:text="REQUEST RIDE"
         android:textColor="@android:color/white"
-        android:textSize="36sp"
+        android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -49,9 +49,9 @@
         android:background="@drawable/radiused_rectangle_background"
         android:backgroundTint="@color/colorAccent"
         android:padding="10dp"
-        android:text="Edit Profile"
+        android:text="View Ride Status"
         android:textColor="@android:color/white"
-        android:textSize="36sp"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
