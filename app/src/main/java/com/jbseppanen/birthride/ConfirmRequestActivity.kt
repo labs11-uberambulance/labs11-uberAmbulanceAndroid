@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.widget.FrameLayout
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -24,7 +26,7 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 
 
-class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
+class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -34,15 +36,27 @@ class ConfirmRequestActivity : AppCompatActivity(), OnMapReadyCallback {
     private var requestedDriver: RequestedDriver? = null
     private lateinit var drivers: ArrayList<RequestedDriver>
     var driverIndex = 0
+    private lateinit var context:Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_confirm_request)
+        setContentView(R.layout.activity_main)
+        context = this
+        val frameLayout: FrameLayout = findViewById(R.id.content_frame)
+        frameLayout.addView(
+            LayoutInflater.from(context).inflate(
+                R.layout.activity_confirm_request,
+                null
+            )
+        )
+        super.onCreateDrawer()
+
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map_requestconfirm) as SupportMapFragment
         mapFragment.getMapAsync(this)
         activity = this
-        val context: Context = this
+        context = this
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
