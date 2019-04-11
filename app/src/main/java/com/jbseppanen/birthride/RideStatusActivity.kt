@@ -56,6 +56,7 @@ class RideStatusActivity : MainActivity() {
         CoroutineScope(Dispatchers.IO + Job()).launch {
             while (refreshing) {
                 updateStatus()
+                // auto update once a minute while on this screen.
                 delay(60000)
             }
         }
