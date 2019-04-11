@@ -3,12 +3,9 @@ package com.jbseppanen.birthride
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import kotlinx.android.synthetic.main.activity_request_ride.*
-import kotlinx.coroutines.*
-import kotlinx.serialization.json.Json
+import kotlinx.android.synthetic.main.activity_mother_options.*
 
 class MotherOptionsActivity : MainActivity() {
 
@@ -21,7 +18,7 @@ class MotherOptionsActivity : MainActivity() {
         val frameLayout: FrameLayout = findViewById(R.id.content_frame)
         frameLayout.addView(
             LayoutInflater.from(context).inflate(
-                R.layout.activity_request_ride,
+                R.layout.activity_mother_options,
                 null
             )
         )

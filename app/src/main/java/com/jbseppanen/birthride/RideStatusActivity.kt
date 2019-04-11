@@ -1,19 +1,31 @@
 package com.jbseppanen.birthride
 
-import android.support.v7.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.activity_ride_status.*
 import kotlinx.coroutines.*
 import java.util.ArrayList
 
-class RideStatusActivity : AppCompatActivity() {
+class RideStatusActivity : MainActivity() {
 
     private var refreshing = true
+    private lateinit var context:Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_ride_status)
+        setContentView(R.layout.activity_main)
+        context = this
+        val frameLayout: FrameLayout = findViewById(R.id.content_frame)
+        frameLayout.addView(
+            LayoutInflater.from(context).inflate(
+                R.layout.activity_ride_status,
+                null
+            )
+        )
+        super.onCreateDrawer()
 
         button_ridestatus_refresh.setOnClickListener {
             updateStatus()
