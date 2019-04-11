@@ -2,12 +2,14 @@ package com.jbseppanen.birthride
 
 import android.app.Activity
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.firebase.ui.auth.AuthMethodPickerLayout
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
+
 
 class FirebaseOauthActivity : AppCompatActivity() {
 
@@ -28,6 +30,13 @@ class FirebaseOauthActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build()
         )
+        val customLayout = AuthMethodPickerLayout.Builder(R.layout.login_layout)
+            .setPhoneButtonId(R.id.button_login_phone)
+            .setGoogleButtonId(R.id.button_login_google)
+            .setEmailButtonId(R.id.button_login_email)
+            .build()
+//Set a custom layout
+
 
 // Create and launch sign-in intent
         startActivityForResult(
@@ -35,6 +44,7 @@ class FirebaseOauthActivity : AppCompatActivity() {
                 .createSignInIntentBuilder()
                 .setIsSmartLockEnabled(false)
                 .setAvailableProviders(providers)
+                .setAuthMethodPickerLayout(customLayout)
                 .build(),
             RC_SIGN_IN
         )
