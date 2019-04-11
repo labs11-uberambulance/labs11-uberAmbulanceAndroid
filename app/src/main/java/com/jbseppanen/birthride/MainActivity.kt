@@ -4,38 +4,44 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private fun onCreateDrawer() {
         setContentView(R.layout.activity_main)
 
 /*        AuthUI.getInstance().signOut(this).addOnCompleteListener {
             //TODO remove this line after testing.  Currently forces login each time.
             startActivity(Intent(this, WelcomeActivity::class.java))
         }*/
-        startActivity(Intent(this, WelcomeActivity::class.java))
+//        startActivity(Intent(this, WelcomeActivity::class.java))
 
-//        setSupportActionBar(toolbar)
-
-/*        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+        setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
-        drawer_layout.addDrawerListener(toggle)
+
+        val mDrawerLayout:DrawerLayout = findViewById(R.id.drawer_layout)
+        mDrawerLayout.addDrawerListener(toggle)
+//        drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
-        nav_view.setNavigationItemSelectedListener(this)*/
+        nav_view.setNavigationItemSelectedListener(this)
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        onCreateDrawer()
     }
 
     override fun onBackPressed() {
