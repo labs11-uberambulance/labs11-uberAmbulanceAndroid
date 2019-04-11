@@ -52,11 +52,6 @@ class WelcomeActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_REQUEST_CODE
             )
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                LOCATION_REQUEST_CODE
-            )
         }
 
         if (FirebaseAuth.getInstance().currentUser != null) {

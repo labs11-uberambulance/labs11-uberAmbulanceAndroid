@@ -1,6 +1,7 @@
 package com.jbseppanen.birthride
 
 import android.Manifest
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
@@ -89,7 +91,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
                 // Log and toast
                 val msg = getString(R.string.msg_token_fmt, token)
-                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+//                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
             })
 
 
@@ -97,10 +99,13 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
-        ) run {
-            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
-                .show()
-            return
+        ) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                WelcomeActivity.LOCATION_REQUEST_CODE
+            )
+           Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT).show()
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(
