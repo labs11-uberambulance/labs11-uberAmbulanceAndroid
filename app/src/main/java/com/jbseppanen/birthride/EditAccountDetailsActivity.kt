@@ -265,7 +265,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             if (success) {
                 when (user.userData.user_type) {
                     UserTypeSelectionActivity.MOTHER -> {
-                        startActivity(Intent(context, RequestRideActivity::class.java))
+                        startActivity(Intent(context, MotherOptionsActivity::class.java))
                     }
                     UserTypeSelectionActivity.DRIVER -> {
                         startActivity(Intent(context, DriverViewRequestsActivity::class.java))

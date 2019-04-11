@@ -46,6 +46,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private var rideId: Long = -1
     private lateinit var receiver: BroadcastReceiver
     private lateinit var notificationMap: HashMap<*, *>
+    private lateinit var context: Context
 
     enum class PointType(val type: String) {
         START("Start Point"), PICKUP("Pickup Point"), DROPOFF("Dropoff Point")
@@ -53,17 +54,17 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_driver_view_requests)
         setContentView(R.layout.activity_main)
-
-        val context: Context = this
-
-        val frameLayout:FrameLayout = findViewById(R.id.content_frame)
-//        frameLayout.addView(LayoutInflater.from(context).inflate(R.layout.activity_driver_view_requests,findViewById(R.id.layout_coordinator)))
-        frameLayout.addView(LayoutInflater.from(context).inflate(R.layout.activity_driver_view_requests, null))
+        context = this
+        val frameLayout: FrameLayout = findViewById(R.id.content_frame)
+        frameLayout.addView(
+            LayoutInflater.from(context).inflate(
+                R.layout.activity_driver_view_requests,
+                null
+            )
+        )
         super.onCreateDrawer()
 
-//        val mDrawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -105,7 +106,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 WelcomeActivity.LOCATION_REQUEST_CODE
             )
-           Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
+                .show()
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(
@@ -150,12 +152,12 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                             receivedIntent.getSerializableExtra(PushNotificationService.SERVICE_MESSAGE_KEY) as HashMap<*, *>
                         for ((key, value) in notificationMap) {
                             if (key is String && value is String) {
-                                    when (key) {
-                                        "hospital" -> println(key)
-                                        "name" -> text_driverview_name.text = value
-                                        "phone" -> text_driverview_phone.text = value
-                                        "price" -> text_driverview_fare.text = value
-                                        "ride_id" -> rideId = value.toLong()
+                                when (key) {
+                                    "hospital" -> println(key)
+                                    "name" -> text_driverview_name.text = value
+                                    "phone" -> text_driverview_phone.text = value
+                                    "price" -> text_driverview_fare.text = value
+                                    "ride_id" -> rideId = value.toLong()
                                 }
                             }
                         }

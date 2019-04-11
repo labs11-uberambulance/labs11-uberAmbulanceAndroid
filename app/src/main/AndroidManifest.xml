@@ -48,7 +48,7 @@
         <activity android:name=".RideStatusActivity" />
         <activity android:name=".ConfirmRequestActivity" />
         <activity android:name=".EditAccountDetailsActivity" />
-        <activity android:name=".RequestRideActivity" />
+        <activity android:name=".MotherOptionsActivity" />
         <activity android:name=".UserTypeSelectionActivity" />
         <activity
             android:name=".MainActivity"

@@ -26,14 +26,15 @@ class RideStatusActivity : AppCompatActivity() {
                 progress_ridestatus.visibility = View.VISIBLE
             }
             val userRides: ArrayList<Ride> = ApiDao.getUserRides()
+            var statusText = "No rides found"
             if (userRides.size > 0) {
                 val rides =
                     userRides.sortedWith(compareBy { it.id }).reversed() as ArrayList<Ride>
-                withContext(Dispatchers.Main) {
-                    val statusText = rides[0].ride_status.replace("_"," ").capitalize()
-                    text_ridestatus_status.text = statusText
-                    progress_ridestatus.visibility = View.INVISIBLE
-                }
+                statusText = rides[0].ride_status.replace("_", " ").capitalize()
+            }
+            withContext(Dispatchers.Main) {
+                text_ridestatus_status.text = statusText
+                progress_ridestatus.visibility = View.INVISIBLE
             }
         }
     }

@@ -4,16 +4,29 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.activity_request_ride.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 
-class RequestRideActivity : AppCompatActivity() {
+class MotherOptionsActivity : MainActivity() {
+
+    private lateinit var context: Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_request_ride)
-        val context: Context = this
+        setContentView(R.layout.activity_main)
+        context = this
+        val frameLayout: FrameLayout = findViewById(R.id.content_frame)
+        frameLayout.addView(
+            LayoutInflater.from(context).inflate(
+                R.layout.activity_request_ride,
+                null
+            )
+        )
+        super.onCreateDrawer()
+
         button_requestride_request.setOnClickListener {
             startActivity(
                 Intent(
@@ -23,17 +36,12 @@ class RequestRideActivity : AppCompatActivity() {
             )
         }
         button_requestride_editprofile.setOnClickListener {
-            CoroutineScope(Dispatchers.IO + Job()).launch {
-                val user = ApiDao.getCurrentUser()
-                if (user != null) {
-                    val requestIntent = Intent(context, EditAccountDetailsActivity::class.java)
-                    val extra = Json.stringify(User.serializer(), user)
-                    requestIntent.putExtra(WelcomeActivity.USER_KEY, extra)
-                    withContext(Dispatchers.Main) {
-                        startActivity(requestIntent)
-                    }
-                }
-            }
+            startActivity(
+                Intent(
+                    this,
+                    RideStatusActivity::class.java
+                )
+            )
         }
     }
 }

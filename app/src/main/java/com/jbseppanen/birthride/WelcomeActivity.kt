@@ -10,7 +10,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.coroutines.*
@@ -75,7 +74,7 @@ class WelcomeActivity : AppCompatActivity() {
                             Intent(
                                 context,
 //                                RideStatusActivity::class.java
-                                        RequestRideActivity::class.java
+                                        MotherOptionsActivity::class.java
                             )
                         )
                         user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
