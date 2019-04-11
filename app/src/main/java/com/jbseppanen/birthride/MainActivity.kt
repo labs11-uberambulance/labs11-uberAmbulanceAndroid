@@ -7,6 +7,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
@@ -24,7 +25,7 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             startActivity(Intent(this, WelcomeActivity::class.java))
         }*/
 //        startActivity(Intent(this, WelcomeActivity::class.java))
-
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
@@ -39,10 +40,10 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         nav_view.setNavigationItemSelectedListener(this)
     }
 
-    override fun setContentView(layoutResID: Int) {
+/*    override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
         onCreateDrawer()
-    }
+    }*/
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {

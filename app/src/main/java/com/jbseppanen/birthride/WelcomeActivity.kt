@@ -84,8 +84,8 @@ class WelcomeActivity : AppCompatActivity() {
                             )
                         )
                         user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
-//                            startActivity(Intent(context, DriverViewRequestsActivity::class.java))
-                            CoroutineScope(Dispatchers.IO + Job()).launch {
+                            startActivity(Intent(context, DriverViewRequestsActivity::class.java))
+    /*                        CoroutineScope(Dispatchers.IO + Job()).launch {
                                 val user = ApiDao.getCurrentUser()
                                 if (user != null) {
                                     val requestIntent =
@@ -96,7 +96,7 @@ class WelcomeActivity : AppCompatActivity() {
                                         startActivity(requestIntent)
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
                 }

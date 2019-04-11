@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -52,12 +53,12 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
 //        setContentView(R.layout.activity_driver_view_requests)
         setContentView(R.layout.activity_main)
+
         val context: Context = this
 
         val frameLayout:FrameLayout = findViewById(R.id.content_frame)
-
+//        frameLayout.addView(LayoutInflater.from(context).inflate(R.layout.activity_driver_view_requests,findViewById(R.id.layout_coordinator)))
         frameLayout.addView(LayoutInflater.from(context).inflate(R.layout.activity_driver_view_requests, null))
-
         super.onCreateDrawer()
 
 //        val mDrawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
