@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_welcome.*
@@ -31,9 +32,7 @@ class WelcomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
-
         context = this
-
 
         if ((ContextCompat.checkSelfPermission(
                 context,
@@ -54,50 +53,22 @@ class WelcomeActivity : AppCompatActivity() {
         }
 
         if (FirebaseAuth.getInstance().currentUser != null) {
-            val dataJob = Job()
-            val dataScope = CoroutineScope(Dispatchers.IO + dataJob)
-            dataScope.launch {
+            CoroutineScope(Dispatchers.IO + Job()).launch {
                 val resultUser = ApiDao.getCurrentUser()
                 if (resultUser != null) {
                     user = resultUser
-                    when {
-                        user.userData.user_type == null -> {
-                            startActivityForResult(
-                                Intent(context, UserTypeSelectionActivity::class.java),
-                                USER_TYPE_REQUEST_CODE
-                            )
-                        }
-
-//                        else ->  gotoEditUser() //TODO remove this line of coded and uncomment out code below.  For demo purposes.
-
-                        user.userData.user_type == UserTypeSelectionActivity.MOTHER -> startActivity(
-                            Intent(
-                                context,
-//                                RideStatusActivity::class.java
-                                        MotherOptionsActivity::class.java
-                            )
-                        )
-                        user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
-                            startActivity(Intent(context, DriverViewRequestsActivity::class.java))
-    /*                        CoroutineScope(Dispatchers.IO + Job()).launch {
-                                val user = ApiDao.getCurrentUser()
-                                if (user != null) {
-                                    val requestIntent =
-                                        Intent(context, EditAccountDetailsActivity::class.java)
-                                    val extra = Json.stringify(User.serializer(), user)
-                                    requestIntent.putExtra(WelcomeActivity.USER_KEY, extra)
-                                    withContext(Dispatchers.Main) {
-                                        startActivity(requestIntent)
-                                    }
-                                }
-                            }*/
-                        }
+                    withContext(Dispatchers.Main) {
+                        userTypeRedirect()
                     }
                 }
             }
         }
 
+        button_welcome_next.visibility = View.VISIBLE
+        progress_welcome.visibility = View.INVISIBLE
         button_welcome_next.setOnClickListener {
+            progress_welcome.visibility = View.VISIBLE
+            button_welcome_next.visibility = View.INVISIBLE
             startActivityForResult(
                 Intent(this, FirebaseOauthActivity::class.java),
                 AUTH_REQUEST_CODE
@@ -105,14 +76,24 @@ class WelcomeActivity : AppCompatActivity() {
         }
     }
 
-    fun gotoEditUser() {
-        val requestIntent = Intent(this, EditAccountDetailsActivity::class.java)
-        val serializer: SerializationStrategy<User> = User.serializer()
-        val extra = Json.stringify(serializer, user)
-        requestIntent.putExtra(USER_KEY, extra)
-        startActivity(requestIntent)
+    fun userTypeRedirect() {
+        when {
+            user.userData.user_type == null -> {
+                startActivityForResult(
+                    Intent(context, UserTypeSelectionActivity::class.java),
+                    USER_TYPE_REQUEST_CODE
+                )
+            }
+            user.userData.user_type == UserTypeSelectionActivity.MOTHER -> {
+                startActivity(Intent(context, MotherOptionsActivity::class.java))
+                finish()
+            }
+            user.userData.user_type == UserTypeSelectionActivity.DRIVER -> {
+                startActivity(Intent(context, DriverViewRequestsActivity::class.java))
+                finish()
+            }
+        }
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -120,9 +101,21 @@ class WelcomeActivity : AppCompatActivity() {
             if (requestCode == USER_TYPE_REQUEST_CODE) {
                 val userType = data?.getStringExtra(UserTypeSelectionActivity.USER_TYPE_KEY)
                 user.userData.user_type = userType
-                gotoEditUser()
+                val requestIntent = Intent(this, EditAccountDetailsActivity::class.java)
+                val extra = Json.stringify(User.serializer(), user)
+                requestIntent.putExtra(USER_KEY, extra)
+                startActivity(requestIntent)
+                finish()
             } else if (requestCode == AUTH_REQUEST_CODE) {
-                recreate()
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    val resultUser = ApiDao.getCurrentUser()
+                    if (resultUser != null) {
+                        user = resultUser
+                        withContext(Dispatchers.Main) {
+                            userTypeRedirect()
+                        }
+                    }
+                }
             }
         }
     }
