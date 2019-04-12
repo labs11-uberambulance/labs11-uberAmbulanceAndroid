@@ -60,12 +60,19 @@ class WelcomeActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         userTypeRedirect()
                     }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        button_welcome_next.visibility = View.VISIBLE
+                        progress_welcome.visibility = View.INVISIBLE
+                    }
                 }
             }
+        } else {
+                button_welcome_next.visibility = View.VISIBLE
+                progress_welcome.visibility = View.INVISIBLE
         }
 
-        button_welcome_next.visibility = View.VISIBLE
-        progress_welcome.visibility = View.INVISIBLE
+
         button_welcome_next.setOnClickListener {
             progress_welcome.visibility = View.VISIBLE
             button_welcome_next.visibility = View.INVISIBLE

@@ -15,6 +15,7 @@ import kotlinx.io.ByteArrayOutputStream
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
@@ -147,14 +148,19 @@ object ApiDao {
             "https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}4&key=$key"
         val (success, response) = NetworkAdapter.httpRequest(url, NetworkAdapter.GET, null, null)
         if (success) {
-            val jsonResponse = JSONObject(response)
-            // Get routes
-            val routes = jsonResponse.getJSONArray("routes")
-            val legs = routes.getJSONObject(0).getJSONArray("legs")
-            val steps = legs.getJSONObject(0).getJSONArray("steps")
-            for (i in 0 until steps.length()) {
-                val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
-                path.add(PolyUtil.decode(points))
+            try {
+                val jsonResponse = JSONObject(response)
+                // Get routes
+                val routes = jsonResponse.getJSONArray("routes")
+                val legs = routes.getJSONObject(0).getJSONArray("legs")
+                val steps = legs.getJSONObject(0).getJSONArray("steps")
+                for (i in 0 until steps.length()) {
+                    val points =
+                        steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+                    path.add(PolyUtil.decode(points))
+                }
+            } catch(e: JSONException) {
+                e.printStackTrace()
             }
         }
         return path

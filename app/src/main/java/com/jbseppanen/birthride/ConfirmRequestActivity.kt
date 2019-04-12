@@ -36,7 +36,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
     private var requestedDriver: RequestedDriver? = null
     private lateinit var drivers: ArrayList<RequestedDriver>
     var driverIndex = 0
-    private lateinit var context:Context
+    private lateinit var context: Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,10 +145,14 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_requestconfirm_details.setOnClickListener {
-            val driverIntent = Intent(context, DriverDetailsActivity::class.java)
-            val extra = Json.stringify(RequestedDriver.serializer(), drivers[driverIndex])
-            driverIntent.putExtra(DriverDetailsActivity.DRIVER_DETAILS_KEY, extra)
-            startActivity(driverIntent)
+            if (::drivers.isInitialized) {
+                if (drivers.size > 0) {
+                    val driverIntent = Intent(context, DriverDetailsActivity::class.java)
+                    val extra = Json.stringify(RequestedDriver.serializer(), drivers[driverIndex])
+                    driverIntent.putExtra(DriverDetailsActivity.DRIVER_DETAILS_KEY, extra)
+                    startActivity(driverIntent)
+                }
+            }
         }
     }
 
