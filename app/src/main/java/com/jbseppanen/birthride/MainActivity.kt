@@ -89,8 +89,8 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_logout -> {
                 AuthUI.getInstance().signOut(this).addOnCompleteListener {
                     startActivity(Intent(this, WelcomeActivity::class.java))
+                    finish()
                 }
-                finish()
             }
 /*            R.id.nav_deleteaccount -> {
                 //For future delete account option.

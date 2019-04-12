@@ -40,7 +40,10 @@
         <activity
             android:name=".LocationSelectionActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".FirebaseOauthActivity" />
+        <activity
+            android:name=".FirebaseOauthActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".DriverViewRequestsActivity"
             android:label="@string/title_activity_driver_view_requests"
