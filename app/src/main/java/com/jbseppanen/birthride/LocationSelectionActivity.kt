@@ -41,8 +41,9 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
     )
 
     companion object {
-        const val LOCATIONS_KEY = "locations_key"
-        const val NUMBER_OF_POINTS_KEY = "points key"
+        const val RETURN_POINTS_KEY = "return points key"
+        const val INPUT_NUMBER_OF_POINTS_KEY = "num of points key"
+        const val INPUT_POINTS_KEY = "input points key"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,13 +58,17 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map_locationselection) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        numOfPoints = intent.getIntExtra(NUMBER_OF_POINTS_KEY, 1)
+        numOfPoints = intent.getIntExtra(INPUT_NUMBER_OF_POINTS_KEY, 1)
 
         button_locationselection_setlocations.setOnClickListener {
-            val intent = Intent()
-            intent.putExtra(LOCATIONS_KEY, markerPoints)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            if (markerPoints.size == numOfPoints) {
+                val intent = Intent()
+                intent.putExtra(RETURN_POINTS_KEY, markerPoints)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            } else {
+                Toast.makeText(context, "Not enough points.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -102,14 +107,14 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
             // Checks, whether start and end locations are captured
             if (markerPoints.size >= 2) {
-                val origin = markerPoints[0] as LatLng
-                val dest = markerPoints[1] as LatLng
+                val origin = markerPoints[0]
+                val dest = markerPoints[1]
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val path = ApiDao.getDirections(activity, origin, dest)
                     withContext(Dispatchers.Main) {
                         for (i in 0 until path.size) {
                             mMap.addPolyline(
-                                PolylineOptions().addAll(path[i]).width(20f).color(
+                                PolylineOptions().addAll(path[i]).width(10f).color(
                                     Color.RED
                                 )
                             )
@@ -122,6 +127,13 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     override fun onMapReady(googleMap: GoogleMap) {
+
+        mMap = googleMap
+        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(locLatLng))
+        mMap.setOnMapClickListener { latLng ->
+            addPoint(latLng)
+        }
 
         if (ContextCompat.checkSelfPermission(
                 context,
@@ -158,18 +170,12 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                                 override fun onCancel() {}
                             })
                     }
-
                     override fun onCancel() {
                     }
                 })
             }
         }
-
-        mMap = googleMap
-        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(locLatLng))
-        mMap.setOnMapClickListener { latLng ->
-            addPoint(latLng)
-        }
+        val inputPoints = intent.extras?.getParcelableArrayList<LatLng>(INPUT_POINTS_KEY)
+        inputPoints?.forEach {addPoint(it)}
     }
 }

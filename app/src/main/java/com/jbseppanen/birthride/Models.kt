@@ -1,5 +1,6 @@
 package com.jbseppanen.birthride
 
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -57,7 +58,15 @@ data class Location(
     var descr: String?,
     var latlng: String,
     var name: String?
-)
+) {
+    fun asLatLng() : LatLng {
+        return LatLng(
+        latlng.split(",")[0].toDouble(),
+        latlng.split(",")[1].toDouble()
+        )
+    }
+
+}
 
 
 @Serializable
@@ -109,12 +118,6 @@ data class Driver(
     val active: Boolean,
     val bio: String? = null,
     val photo_url: String
-)
-
-@Serializable
-data class LatLngJson(
-    val lat: Double,
-    val long: Double
 )
 
 

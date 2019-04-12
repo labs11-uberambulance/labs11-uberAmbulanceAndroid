@@ -145,10 +145,12 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_requestconfirm_details.setOnClickListener {
-            val driverIntent = Intent(context, DriverDetailsActivity::class.java)
-            val extra = Json.stringify(RequestedDriver.serializer(), drivers[driverIndex])
-            driverIntent.putExtra(DriverDetailsActivity.DRIVER_DETAILS_KEY, extra)
-            startActivity(driverIntent)
+            if (drivers.size>0) {
+                val driverIntent = Intent(context, DriverDetailsActivity::class.java)
+                val extra = Json.stringify(RequestedDriver.serializer(), drivers[driverIndex])
+                driverIntent.putExtra(DriverDetailsActivity.DRIVER_DETAILS_KEY, extra)
+                startActivity(driverIntent)
+            }
         }
     }
 

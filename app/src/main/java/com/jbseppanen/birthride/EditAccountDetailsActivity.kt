@@ -46,7 +46,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         context = this
 
         val userString: String? = intent.getStringExtra(WelcomeActivity.USER_KEY)
-        if (userString!=null) {
+        if (userString != null) {
             user = Json.nonstrict.parse(User.serializer(), userString)
         } else {
             CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -103,7 +103,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
         }
 
         edit_edituser_name.setText(user.userData.name)
-        if(user.userData.phone != null) {
+        if (user.userData.phone != null) {
             ccp_edituser_ccp.fullNumber = user.userData.phone
         }
         when (user.userData.user_type) {
@@ -160,17 +160,29 @@ class EditAccountDetailsActivity : AppCompatActivity() {
 
         button_edituser_pick.setOnClickListener {
             val requestIntent = Intent(context, LocationSelectionActivity::class.java)
-            if (user.userData.user_type == UserTypeSelectionActivity.DRIVER) {
-                requestIntent.putExtra(LocationSelectionActivity.NUMBER_OF_POINTS_KEY, 1)
-            } else {
-                requestIntent.putExtra(LocationSelectionActivity.NUMBER_OF_POINTS_KEY, 2)
-
+            val markerPoints = ArrayList<LatLng>()
+            var userLocation: Location? = user.userData.location
+            if (userLocation != null) {
+                markerPoints.add(userLocation.asLatLng())
             }
+            if (user.userData.user_type == UserTypeSelectionActivity.DRIVER) {
+                requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 1)
+            } else {
+/*                userLocation = user.motherData?.start
+                if (userLocation != null) {
+                    markerPoints.add(userLocation.asLatLng())
+                }*/
+                userLocation = user.motherData?.destination
+                if (userLocation != null) {
+                    markerPoints.add(userLocation.asLatLng())
+                }
+                requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 2)
+            }
+            requestIntent.putExtra(LocationSelectionActivity.INPUT_POINTS_KEY, markerPoints)
             startActivityForResult(
                 requestIntent,
                 LOCATION_REQUEST_CODE
             )
-
         }
 
         button_edituser_save.setOnClickListener {
@@ -223,7 +235,7 @@ class EditAccountDetailsActivity : AppCompatActivity() {
                 }
             } else if (requestCode == LOCATION_REQUEST_CODE) {
                 val locations =
-                    data?.extras?.getParcelableArrayList<LatLng>(LocationSelectionActivity.LOCATIONS_KEY)
+                    data?.extras?.getParcelableArrayList<LatLng>(LocationSelectionActivity.RETURN_POINTS_KEY)
                 if (locations != null) {
                     user.userData.location =
                         Location(null, "${locations[0].latitude},${locations[0].longitude}", null)
