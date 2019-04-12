@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
+import java.lang.Thread.sleep
 
 
 open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -80,11 +82,13 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.nav_editprofile -> {
-                startActivity(
-                    Intent(
-                        context, EditAccountDetailsActivity::class.java
-                    )
-                )
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    delay(300)
+                    withContext(Dispatchers.Main) {
+                        startActivity(Intent( context, EditAccountDetailsActivity::class.java))
+                    }
+                }
+
             }
             R.id.nav_logout -> {
                 AuthUI.getInstance().signOut(this).addOnCompleteListener {
@@ -97,7 +101,6 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             }*/
 
         }
-
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
