@@ -35,6 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:tooltipText="Click here to use your current location"
         android:src="@android:drawable/ic_menu_compass"
         map:layout_constraintBottom_toTopOf="@id/button_locationselection_setlocations"
         map:layout_constraintStart_toStartOf="parent" />

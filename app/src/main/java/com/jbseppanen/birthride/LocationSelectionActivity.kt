@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.TooltipCompat
 import android.view.View
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -18,10 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_location_selection.*
 import kotlinx.coroutines.*
 
@@ -131,6 +129,12 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             progress_locationselection.visibility = View.GONE
         }
+
+        TooltipCompat.setTooltipText(
+            button_locationselection_center_map,
+            "Click here to use your current location"
+        )
+
     }
 
 
@@ -183,6 +187,15 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
             // Checks, whether start and end locations are captured
             if (markerPoints.size >= 2) {
+
+
+                val builder = LatLngBounds.Builder()
+                for (marker in markerPoints) {
+                    builder.include(marker)
+                }
+                val padding = (resources.displayMetrics.widthPixels*.2).toInt()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(),padding))
+
                 val origin = markerPoints[markerPoints.size - 2]
                 val dest = markerPoints[markerPoints.size - 1]
                 CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -215,8 +228,8 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 .show()
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                //                locLatLng = LatLng(location.latitude, location.longitude)
-                locLatLng = Constants.defaultMapCenter
+                locLatLng = LatLng(location.latitude, location.longitude)
+//                locLatLng = Constants.defaultMapCenter  // For debugging.
             }
         }
     }
