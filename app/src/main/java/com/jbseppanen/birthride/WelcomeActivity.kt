@@ -83,7 +83,7 @@ class WelcomeActivity : AppCompatActivity() {
         }
     }
 
-    fun userTypeRedirect() {
+    private fun userTypeRedirect() {
         when {
             user.userData.user_type == null -> {
                 startActivityForResult(

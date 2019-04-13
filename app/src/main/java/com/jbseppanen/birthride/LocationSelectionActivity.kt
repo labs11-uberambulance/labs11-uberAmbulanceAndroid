@@ -7,8 +7,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -32,7 +34,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var activity: LocationSelectionActivity
     private lateinit var context: Context
     private var numOfPoints = 1
-    private var locLatLng = Constants.defaultMapCenter
+    private lateinit var locLatLng: LatLng
     private val pointColors = arrayOf(
         BitmapDescriptorFactory.HUE_RED,
         BitmapDescriptorFactory.HUE_GREEN,
@@ -54,6 +56,8 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         context = this
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
+        updateCurrentLocation()
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map_locationselection) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -70,6 +74,77 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(context, "Not enough points.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        button_locationselection_center_map.setOnClickListener {
+            progress_locationselection.visibility = View.VISIBLE
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    context as Activity,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    WelcomeActivity.LOCATION_REQUEST_CODE
+                )
+            }
+            if (!::locLatLng.isInitialized) {
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    updateCurrentLocation()
+                    var timeDelay = 0L
+                    while (timeDelay < 10000) { //Wait for GPS for up to 10 seconds
+                        if (::locLatLng.isInitialized) {
+                            break
+                        }
+                        delay(100)
+                        timeDelay += 100
+                    }
+
+                    var message = ""
+                    if (!::locLatLng.isInitialized) {
+                        message =
+                            "Location not found.  Check that GPS is on and location permissions have been given."
+                    } else if (!Constants.mapBounds.contains(locLatLng)) {
+                        message = "Your current location is outside of bounds."
+                    }
+                    withContext(Dispatchers.Main) {
+                        if (message != "") {
+                            Toast.makeText(
+                                context,
+                                message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            addPoint(locLatLng)
+                        }
+                        progress_locationselection.visibility = View.GONE
+                    }
+                }
+            } else if (!Constants.mapBounds.contains(locLatLng)) {
+                Toast.makeText(
+                    context,
+                    "Your current location is outside of bounds.",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                addPoint(locLatLng)
+            }
+            progress_locationselection.visibility = View.GONE
+        }
+    }
+
+
+    override fun onMapReady(googleMap: GoogleMap) {
+
+        mMap = googleMap
+        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
+        mMap.setOnMapClickListener { latLng ->
+            addPoint(latLng)
+        }
+
+        val inputPoints = intent.extras?.getParcelableArrayList<LatLng>(INPUT_POINTS_KEY)
+        inputPoints?.forEach { addPoint(it) }
     }
 
     private fun addPoint(latLng: LatLng) {
@@ -77,7 +152,8 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
             markerPoints.clear()
             mMap.clear()
             button_locationselection_setlocations.isEnabled = false
-        } else if (!Constants.mapBounds.contains(latLng)) {
+        }
+        if (!Constants.mapBounds.contains(latLng)) {
             Toast.makeText(context, "Outside of bounds.  Try again", Toast.LENGTH_SHORT).show()
         } else {
             markerPoints.add(latLng)
@@ -107,8 +183,8 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
             // Checks, whether start and end locations are captured
             if (markerPoints.size >= 2) {
-                val origin = markerPoints[0]
-                val dest = markerPoints[1]
+                val origin = markerPoints[markerPoints.size - 2]
+                val dest = markerPoints[markerPoints.size - 1]
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val path = ApiDao.getDirections(activity, origin, dest)
                     withContext(Dispatchers.Main) {
@@ -125,16 +201,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
-    override fun onMapReady(googleMap: GoogleMap) {
-
-        mMap = googleMap
-        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(locLatLng))
-        mMap.setOnMapClickListener { latLng ->
-            addPoint(latLng)
-        }
-
+    private fun updateCurrentLocation() {
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -146,36 +213,11 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.LENGTH_SHORT
             )
                 .show()
-            return
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                locLatLng = LatLng(location.latitude, location.longitude)
-                if (!Constants.mapBounds.contains(locLatLng)) {
-                    locLatLng = Constants.defaultMapCenter
-                    Toast.makeText(
-                        context,
-                        "Your current location is outside of bounds.  Using default map center.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(
-                    locLatLng
-                ), 2000, object : GoogleMap.CancelableCallback {
-                    override fun onFinish() {
-                        mMap.animateCamera(
-                            CameraUpdateFactory.zoomTo(10f),
-                            2000,
-                            object : GoogleMap.CancelableCallback {
-                                override fun onFinish() {}
-                                override fun onCancel() {}
-                            })
-                    }
-                    override fun onCancel() {
-                    }
-                })
+                //                locLatLng = LatLng(location.latitude, location.longitude)
+                locLatLng = Constants.defaultMapCenter
             }
         }
-        val inputPoints = intent.extras?.getParcelableArrayList<LatLng>(INPUT_POINTS_KEY)
-        inputPoints?.forEach {addPoint(it)}
     }
 }
