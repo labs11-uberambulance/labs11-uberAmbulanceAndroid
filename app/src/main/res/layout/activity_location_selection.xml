@@ -13,15 +13,13 @@
         android:layout_height="match_parent"
         tools:context=".LocationSelectionActivity" />
 
-    <TextView
-        android:id="@+id/text_locationselection_label"
+    <fragment
+        android:id="@+id/fragment_locationselection_locationsearch"
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="Tap screen to set a location."
-        android:textAlignment="center"
-        android:textSize="20sp"
-        map:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="16dp"
+        map:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content" />
 
     <!--    <EditText
             android:id="@+id/edit_locationselection_locationsearch"
@@ -39,6 +37,16 @@
         android:src="@android:drawable/ic_menu_compass"
         map:layout_constraintBottom_toTopOf="@id/button_locationselection_setlocations"
         map:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/text_locationselection_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap screen to set a location. \nTap button to the left to use current location"
+        android:layout_marginBottom="24dp"
+        android:textSize="16sp"
+        map:layout_constraintStart_toEndOf="@id/button_locationselection_center_map"
+        map:layout_constraintBottom_toTopOf="@id/button_locationselection_setlocations" />
 
     <ProgressBar
         android:id="@+id/progress_locationselection"
