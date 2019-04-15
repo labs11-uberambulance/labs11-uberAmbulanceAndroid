@@ -1,6 +1,7 @@
 package com.jbseppanen.birthride
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,10 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_confirm_request.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
@@ -184,8 +182,28 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
             }
         }
 
-        mMap.setOnMapClickListener { latLng ->
-            setPoint(latLng)
+        mMap.setOnMapClickListener {/* latLng ->
+            setPoint(latLng)*/
+            val requestIntent = Intent(context, LocationSelectionActivity::class.java)
+            val markerPoints = ArrayList<LatLng>()
+            var userLocation: Location? = user.userData.location
+            if (userLocation != null) {
+                markerPoints.add(userLocation.asLatLng())
+            }
+            if (user.userData.user_type == UserTypeSelectionActivity.DRIVER) {
+                requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 1)
+            } else {
+                userLocation = user.motherData?.destination
+                if (userLocation != null) {
+                    markerPoints.add(userLocation.asLatLng())
+                }
+                requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 2)
+            }
+            requestIntent.putExtra(LocationSelectionActivity.INPUT_POINTS_KEY, markerPoints)
+            startActivityForResult(
+                requestIntent,
+                EditAccountDetailsActivity.LOCATION_REQUEST_CODE
+            )
         }
     }
 
@@ -215,7 +233,16 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
         // Checks, whether start and end locations are captured
         if (markerPoints.size >= 2) {
-            val origin = markerPoints[0]
+
+            //Zoom in to scope of points
+                val builder = LatLngBounds.Builder()
+                for (marker in markerPoints) {
+                    builder.include(marker)
+                }
+                val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+
+                val origin = markerPoints[0]
             val dest = markerPoints[1]
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 val path = ApiDao.getDirections(activity, origin, dest)
@@ -228,7 +255,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    fun updateDrivers(location: LatLng) {
+    private fun updateDrivers(location: LatLng) {
         CoroutineScope(Dispatchers.IO + Job()).launch {
             drivers = ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
             if (drivers.size > 0) {
@@ -240,7 +267,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    fun updateDriverInfo() {
+    private fun updateDriverInfo() {
         if (drivers.size - 1 >= driverIndex) {
             requestedDriver = drivers[driverIndex]
             text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
@@ -251,7 +278,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    suspend fun getUser() {
+    private suspend fun getUser() {
         val returnedUser = ApiDao.getCurrentUser()
         if (returnedUser != null) {
             user = returnedUser
@@ -264,8 +291,29 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == EditAccountDetailsActivity.LOCATION_REQUEST_CODE) {
+                val locations =
+                    data?.extras?.getParcelableArrayList<LatLng>(LocationSelectionActivity.RETURN_POINTS_KEY)
+                if (locations != null) {
+                    user.userData.location =
+                        Location(null, "${locations[0].latitude},${locations[0].longitude}", null)
+                    if (locations.size > 1) {
+                        user.motherData?.destination =
+                            Location(
+                                null,
+                                "${locations[1].latitude},${locations[1].longitude}",
+                                null
+                            )
+                    }
+                }
+            }
+        }
+    }
 
-/*    class MinutesPicker : DialogFragment() {
+    /*    class MinutesPicker : DialogFragment() {
       text_requestconfirm_waittime.setOnClickListener {
             val fragment = MinutesPicker()
             fragment.show(supportFragmentManager, "Minutes To Wait")

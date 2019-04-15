@@ -168,10 +168,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             if (user.userData.user_type == UserTypeSelectionActivity.DRIVER) {
                 requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 1)
             } else {
-/*                userLocation = user.motherData?.start
-                if (userLocation != null) {
-                    markerPoints.add(userLocation.asLatLng())
-                }*/
                 userLocation = user.motherData?.destination
                 if (userLocation != null) {
                     markerPoints.add(userLocation.asLatLng())
