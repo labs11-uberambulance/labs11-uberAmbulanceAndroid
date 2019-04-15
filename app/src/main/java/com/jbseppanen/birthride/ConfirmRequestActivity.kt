@@ -27,7 +27,7 @@ import kotlinx.serialization.json.Json
 class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+//    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
     private lateinit var user: User
@@ -35,6 +35,10 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
     private lateinit var drivers: ArrayList<RequestedDriver>
     var driverIndex = 0
     private lateinit var context: Context
+
+    companion object {
+        const val LOCATION_REQUEST_CODE = 11
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,14 +59,14 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         activity = this
         context = this
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
             getUser()
         }
 
 
-        if (ContextCompat.checkSelfPermission(
+/*        if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
@@ -85,13 +89,11 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
                                 override fun onCancel() {}
                             })
                     }
-
                     override fun onCancel() {
                     }
                 })
             }
-
-        }
+        }*/
 
         button_requestconfirm_send.setOnClickListener {
             if (markerPoints.size != 2) {
@@ -157,33 +159,12 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            if (!::user.isInitialized) {
-                getUser()
-            }
-            if (user.userData.location != null) {
-                var split: List<String>? = user.userData.location?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            setPoint(userLatLng)
-                        }
-                    }
-                }
-                split = user.motherData?.destination?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            setPoint(userLatLng)
-                        }
-                    }
-                }
-            }
+            displayUserPoints()
         }
 
-        mMap.setOnMapClickListener {/* latLng ->
-            setPoint(latLng)*/
+        mMap.setOnMapClickListener {
+            /* latLng ->
+                        setPoint(latLng)*/
             val requestIntent = Intent(context, LocationSelectionActivity::class.java)
             val markerPoints = ArrayList<LatLng>()
             var userLocation: Location? = user.userData.location
@@ -235,14 +216,14 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         if (markerPoints.size >= 2) {
 
             //Zoom in to scope of points
-                val builder = LatLngBounds.Builder()
-                for (marker in markerPoints) {
-                    builder.include(marker)
-                }
-                val padding = (resources.displayMetrics.widthPixels * .2).toInt()
-                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+            val builder = LatLngBounds.Builder()
+            for (marker in markerPoints) {
+                builder.include(marker)
+            }
+            val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
 
-                val origin = markerPoints[0]
+            val origin = markerPoints[0]
             val dest = markerPoints[1]
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 val path = ApiDao.getDirections(activity, origin, dest)
@@ -308,26 +289,51 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
                                 null
                             )
                     }
+                    CoroutineScope(Dispatchers.IO + Job()).launch {
+                        displayUserPoints()
+                        ApiDao.updateCurrentUser(user, false)
+                    }
                 }
             }
         }
+
     }
 
-    /*    class MinutesPicker : DialogFragment() {
-      text_requestconfirm_waittime.setOnClickListener {
-            val fragment = MinutesPicker()
-            fragment.show(supportFragmentManager, "Minutes To Wait")
+    private suspend fun displayUserPoints() {
+        if (!::user.isInitialized) {
+            getUser()
         }
-
-        override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View? {
-            val view: NumberPicker = NumberPicker(context)
-            view.minValue = 0
-            view.maxValue = 60
-            return view
+        val userLocation: LatLng? = user.userData.location?.asLatLng()
+        if (userLocation != null) {
+            withContext(Dispatchers.Main) {
+                setPoint(userLocation)
+            }
         }
-    }*/
-
+        val userDest: LatLng? = user.motherData?.destination?.asLatLng()
+        if (userDest != null) {
+            withContext(Dispatchers.Main) {
+                setPoint(userDest)
+            }
+        }
+    }
 }
+
+
+/*    class MinutesPicker : DialogFragment() {
+  text_requestconfirm_waittime.setOnClickListener {
+        val fragment = MinutesPicker()
+        fragment.show(supportFragmentManager, "Minutes To Wait")
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view: NumberPicker = NumberPicker(context)
+        view.minValue = 0
+        view.maxValue = 60
+        return view
+    }
+}*/
+
+

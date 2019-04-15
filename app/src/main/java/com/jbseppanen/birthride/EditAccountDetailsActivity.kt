@@ -34,7 +34,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
     companion object {
         const val IMAGE_REQUEST_CODE = 3
         const val LOCATION_REQUEST_CODE = 10
-
     }
 
 
