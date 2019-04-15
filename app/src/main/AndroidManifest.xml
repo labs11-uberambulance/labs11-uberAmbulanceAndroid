@@ -48,7 +48,7 @@
             android:name=".DriverViewRequestsActivity"
             android:label="@string/title_activity_driver_view_requests"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".RideStatusActivity" />
+        <activity android:name=".MotherRideStatusActivity" />
         <activity android:name=".ConfirmRequestActivity" />
         <activity android:name=".EditAccountDetailsActivity" />
         <activity android:name=".MotherOptionsActivity" />

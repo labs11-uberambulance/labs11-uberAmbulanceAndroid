@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.activity_ride_status.*
 import kotlinx.coroutines.*
 import java.util.ArrayList
 
-class RideStatusActivity : MainActivity() {
+class MotherRideStatusActivity : MainActivity() {
 
     private var refreshing = true
     private lateinit var context:Context

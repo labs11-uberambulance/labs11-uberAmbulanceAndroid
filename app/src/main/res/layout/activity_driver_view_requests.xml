@@ -101,7 +101,7 @@
             android:id="@+id/text_driverview_fare_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Est. Fare: $"
+            android:text="Est. Fare: "
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
             map:layout_constraintBottom_toTopOf="@+id/text_driverview_waittime_label"
