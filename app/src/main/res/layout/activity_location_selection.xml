@@ -13,15 +13,13 @@
         android:layout_height="match_parent"
         tools:context=".LocationSelectionActivity" />
 
-    <TextView
-        android:id="@+id/text_locationselection_label"
+    <fragment
+        android:id="@+id/fragment_locationselection_locationsearch"
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="Tap screen to set a location."
-        android:textSize="20sp"
+        android:layout_margin="16dp"
         map:layout_constraintTop_toTopOf="parent"
-        android:textAlignment="center" />
+        android:layout_height="wrap_content" />
 
     <!--    <EditText
             android:id="@+id/edit_locationselection_locationsearch"
@@ -30,26 +28,47 @@
             android:layout_margin="16dp"
             map:layout_constraintTop_toTopOf="parent" />-->
 
-    <!--    <ImageButton
-            android:id="@+id/button_locationselection_center_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:src="@android:drawable/ic_menu_compass"
-            map:layout_constraintBottom_toBottomOf="@id/map_driversearch"
-            map:layout_constraintStart_toStartOf="parent" />-->
+    <ImageButton
+        android:id="@+id/button_locationselection_center_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:tooltipText="Click here to use your current location"
+        android:src="@android:drawable/ic_menu_compass"
+        map:layout_constraintBottom_toTopOf="@id/button_locationselection_setlocations"
+        map:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/text_locationselection_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap screen to set a location. \nTap button to the left to use current location"
+        android:layout_marginBottom="24dp"
+        android:textSize="16sp"
+        map:layout_constraintStart_toEndOf="@id/button_locationselection_center_map"
+        map:layout_constraintBottom_toTopOf="@id/button_locationselection_setlocations" />
+
+    <ProgressBar
+        android:id="@+id/progress_locationselection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:visibility="gone"
+        map:layout_constraintBottom_toTopOf="@id/button_locationselection_setlocations"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/button_locationselection_setlocations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:background="@drawable/radiused_rectangle_background"
         android:backgroundTint="@color/colorAccent"
         android:enabled="false"
         android:text="Accept Locations"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        android:layout_margin="16dp"
         map:layout_constraintBottom_toBottomOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

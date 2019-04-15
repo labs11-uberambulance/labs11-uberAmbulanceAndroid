@@ -7,21 +7,28 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.TooltipCompat
+import android.view.View
 import android.widget.Toast
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import kotlinx.android.synthetic.main.activity_location_selection.*
 import kotlinx.coroutines.*
+import java.util.*
 
 
 class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -32,7 +39,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var activity: LocationSelectionActivity
     private lateinit var context: Context
     private var numOfPoints = 1
-    private var locLatLng = Constants.defaultMapCenter
+    private lateinit var locLatLng: LatLng
     private val pointColors = arrayOf(
         BitmapDescriptorFactory.HUE_RED,
         BitmapDescriptorFactory.HUE_GREEN,
@@ -54,9 +61,37 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         context = this
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
+        updateCurrentLocation()
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map_locationselection) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        if (!Places.isInitialized()) {
+            Places.initialize(
+                applicationContext,
+                activity.applicationContext.resources.getString(R.string.gKey)
+            )
+        }
+
+        val autocompleteFragment =
+            supportFragmentManager.findFragmentById(R.id.fragment_locationselection_locationsearch) as AutocompleteSupportFragment
+
+
+        val bounds:RectangularBounds = RectangularBounds.newInstance(Constants.mapBounds)
+        autocompleteFragment.setLocationRestriction(bounds)
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                if(place.latLng!=null) {
+                    addPoint(place.latLng!!)
+                }
+            }
+            override fun onError(status: Status) {
+                // TODO: Handle the error.
+            }
+        })
 
         numOfPoints = intent.getIntExtra(INPUT_NUMBER_OF_POINTS_KEY, 1)
 
@@ -70,6 +105,82 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(context, "Not enough points.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        button_locationselection_center_map.setOnClickListener {
+            progress_locationselection.visibility = View.VISIBLE
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    context as Activity,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    WelcomeActivity.LOCATION_REQUEST_CODE
+                )
+            }
+            if (!::locLatLng.isInitialized) {
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    updateCurrentLocation()
+                    var timeDelay = 0L
+                    while (timeDelay < 10000) { //Wait for GPS for up to 10 seconds
+                        if (::locLatLng.isInitialized) {
+                            break
+                        }
+                        delay(100)
+                        timeDelay += 100
+                    }
+
+                    var message = ""
+                    if (!::locLatLng.isInitialized) {
+                        message =
+                            "Location not found.  Check that GPS is on and location permissions have been given."
+                    } else if (!Constants.mapBounds.contains(locLatLng)) {
+                        message = "Your current location is outside of bounds."
+                    }
+                    withContext(Dispatchers.Main) {
+                        if (message != "") {
+                            Toast.makeText(
+                                context,
+                                message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            addPoint(locLatLng)
+                        }
+                        progress_locationselection.visibility = View.GONE
+                    }
+                }
+            } else if (!Constants.mapBounds.contains(locLatLng)) {
+                Toast.makeText(
+                    context,
+                    "Your current location is outside of bounds.",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                addPoint(locLatLng)
+            }
+            progress_locationselection.visibility = View.GONE
+        }
+
+        TooltipCompat.setTooltipText(
+            button_locationselection_center_map,
+            "Click here to use your current location"
+        )
+
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+
+        mMap = googleMap
+        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.defaultMapCenter, 12.0f))
+        mMap.setOnMapClickListener { latLng ->
+            addPoint(latLng)
+        }
+
+        val inputPoints = intent.extras?.getParcelableArrayList<LatLng>(INPUT_POINTS_KEY)
+        inputPoints?.forEach { addPoint(it) }
     }
 
     private fun addPoint(latLng: LatLng) {
@@ -77,7 +188,8 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
             markerPoints.clear()
             mMap.clear()
             button_locationselection_setlocations.isEnabled = false
-        } else if (!Constants.mapBounds.contains(latLng)) {
+        }
+        if (!Constants.mapBounds.contains(latLng)) {
             Toast.makeText(context, "Outside of bounds.  Try again", Toast.LENGTH_SHORT).show()
         } else {
             markerPoints.add(latLng)
@@ -98,17 +210,24 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
             )
             options.position(latLng)
             if (markerPoints.size == 1) {
-                options.title("Start")
+//                options.title("Start")
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f))
             } else if (markerPoints.size == 2) {
                 options.title("End")
             }
             mMap.addMarker(options).showInfoWindow()
 
 
-            // Checks, whether start and end locations are captured
             if (markerPoints.size >= 2) {
-                val origin = markerPoints[0]
-                val dest = markerPoints[1]
+                val builder = LatLngBounds.Builder()
+                for (marker in markerPoints) {
+                    builder.include(marker)
+                }
+                val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+
+                val origin = markerPoints[markerPoints.size - 2]
+                val dest = markerPoints[markerPoints.size - 1]
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val path = ApiDao.getDirections(activity, origin, dest)
                     withContext(Dispatchers.Main) {
@@ -125,16 +244,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
-    override fun onMapReady(googleMap: GoogleMap) {
-
-        mMap = googleMap
-        mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(locLatLng))
-        mMap.setOnMapClickListener { latLng ->
-            addPoint(latLng)
-        }
-
+    private fun updateCurrentLocation() {
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -146,36 +256,11 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.LENGTH_SHORT
             )
                 .show()
-            return
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 locLatLng = LatLng(location.latitude, location.longitude)
-                if (!Constants.mapBounds.contains(locLatLng)) {
-                    locLatLng = Constants.defaultMapCenter
-                    Toast.makeText(
-                        context,
-                        "Your current location is outside of bounds.  Using default map center.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(
-                    locLatLng
-                ), 2000, object : GoogleMap.CancelableCallback {
-                    override fun onFinish() {
-                        mMap.animateCamera(
-                            CameraUpdateFactory.zoomTo(10f),
-                            2000,
-                            object : GoogleMap.CancelableCallback {
-                                override fun onFinish() {}
-                                override fun onCancel() {}
-                            })
-                    }
-                    override fun onCancel() {
-                    }
-                })
+//                locLatLng = Constants.defaultMapCenter  // For debugging.
             }
         }
-        val inputPoints = intent.extras?.getParcelableArrayList<LatLng>(INPUT_POINTS_KEY)
-        inputPoints?.forEach {addPoint(it)}
     }
 }

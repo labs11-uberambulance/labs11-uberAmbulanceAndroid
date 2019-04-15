@@ -1,6 +1,7 @@
 package com.jbseppanen.birthride
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,10 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_confirm_request.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
@@ -29,7 +27,7 @@ import kotlinx.serialization.json.Json
 class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+//    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
     private lateinit var user: User
@@ -37,6 +35,10 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
     private lateinit var drivers: ArrayList<RequestedDriver>
     var driverIndex = 0
     private lateinit var context: Context
+
+    companion object {
+        const val LOCATION_REQUEST_CODE = 11
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +59,14 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         activity = this
         context = this
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
             getUser()
         }
 
 
-        if (ContextCompat.checkSelfPermission(
+/*        if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
@@ -87,13 +89,11 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
                                 override fun onCancel() {}
                             })
                     }
-
                     override fun onCancel() {
                     }
                 })
             }
-
-        }
+        }*/
 
         button_requestconfirm_send.setOnClickListener {
             if (markerPoints.size != 2) {
@@ -159,33 +159,32 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            if (!::user.isInitialized) {
-                getUser()
-            }
-            if (user.userData.location != null) {
-                var split: List<String>? = user.userData.location?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            setPoint(userLatLng)
-                        }
-                    }
-                }
-                split = user.motherData?.destination?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            setPoint(userLatLng)
-                        }
-                    }
-                }
-            }
+            displayUserPoints()
         }
 
-        mMap.setOnMapClickListener { latLng ->
-            setPoint(latLng)
+        mMap.setOnMapClickListener {
+            /* latLng ->
+                        setPoint(latLng)*/
+            val requestIntent = Intent(context, LocationSelectionActivity::class.java)
+            val markerPoints = ArrayList<LatLng>()
+            var userLocation: Location? = user.userData.location
+            if (userLocation != null) {
+                markerPoints.add(userLocation.asLatLng())
+            }
+            if (user.userData.user_type == UserTypeSelectionActivity.DRIVER) {
+                requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 1)
+            } else {
+                userLocation = user.motherData?.destination
+                if (userLocation != null) {
+                    markerPoints.add(userLocation.asLatLng())
+                }
+                requestIntent.putExtra(LocationSelectionActivity.INPUT_NUMBER_OF_POINTS_KEY, 2)
+            }
+            requestIntent.putExtra(LocationSelectionActivity.INPUT_POINTS_KEY, markerPoints)
+            startActivityForResult(
+                requestIntent,
+                EditAccountDetailsActivity.LOCATION_REQUEST_CODE
+            )
         }
     }
 
@@ -215,6 +214,15 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
         // Checks, whether start and end locations are captured
         if (markerPoints.size >= 2) {
+
+            //Zoom in to scope of points
+            val builder = LatLngBounds.Builder()
+            for (marker in markerPoints) {
+                builder.include(marker)
+            }
+            val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+
             val origin = markerPoints[0]
             val dest = markerPoints[1]
             CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -228,7 +236,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    fun updateDrivers(location: LatLng) {
+    private fun updateDrivers(location: LatLng) {
         CoroutineScope(Dispatchers.IO + Job()).launch {
             drivers = ApiDao.getDrivers(LatLng(location.latitude, location.longitude))
             if (drivers.size > 0) {
@@ -240,7 +248,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    fun updateDriverInfo() {
+    private fun updateDriverInfo() {
         if (drivers.size - 1 >= driverIndex) {
             requestedDriver = drivers[driverIndex]
             text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
@@ -251,7 +259,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    suspend fun getUser() {
+    private suspend fun getUser() {
         val returnedUser = ApiDao.getCurrentUser()
         if (returnedUser != null) {
             user = returnedUser
@@ -264,22 +272,68 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == EditAccountDetailsActivity.LOCATION_REQUEST_CODE) {
+                val locations =
+                    data?.extras?.getParcelableArrayList<LatLng>(LocationSelectionActivity.RETURN_POINTS_KEY)
+                if (locations != null) {
+                    user.userData.location =
+                        Location(null, "${locations[0].latitude},${locations[0].longitude}", null)
+                    if (locations.size > 1) {
+                        user.motherData?.destination =
+                            Location(
+                                null,
+                                "${locations[1].latitude},${locations[1].longitude}",
+                                null
+                            )
+                    }
+                    CoroutineScope(Dispatchers.IO + Job()).launch {
+                        displayUserPoints()
+                        ApiDao.updateCurrentUser(user, false)
+                    }
+                }
+            }
+        }
+
+    }
+
+    private suspend fun displayUserPoints() {
+        if (!::user.isInitialized) {
+            getUser()
+        }
+        val userLocation: LatLng? = user.userData.location?.asLatLng()
+        if (userLocation != null) {
+            withContext(Dispatchers.Main) {
+                setPoint(userLocation)
+            }
+        }
+        val userDest: LatLng? = user.motherData?.destination?.asLatLng()
+        if (userDest != null) {
+            withContext(Dispatchers.Main) {
+                setPoint(userDest)
+            }
+        }
+    }
+}
+
 
 /*    class MinutesPicker : DialogFragment() {
-      text_requestconfirm_waittime.setOnClickListener {
-            val fragment = MinutesPicker()
-            fragment.show(supportFragmentManager, "Minutes To Wait")
-        }
+  text_requestconfirm_waittime.setOnClickListener {
+        val fragment = MinutesPicker()
+        fragment.show(supportFragmentManager, "Minutes To Wait")
+    }
 
-        override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View? {
-            val view: NumberPicker = NumberPicker(context)
-            view.minValue = 0
-            view.maxValue = 60
-            return view
-        }
-    }*/
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view: NumberPicker = NumberPicker(context)
+        view.minValue = 0
+        view.maxValue = 60
+        return view
+    }
+}*/
 
-}
+
