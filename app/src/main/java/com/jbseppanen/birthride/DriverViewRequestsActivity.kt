@@ -9,11 +9,10 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -31,9 +30,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.activity_driver_view_requests.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.JsonObject
 import org.json.JSONObject
 
 class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
@@ -45,11 +42,12 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private var user: User? = null
     private var rideId: Long = -1
     private lateinit var receiver: BroadcastReceiver
+    private val requests = ArrayList<HashMap<*, *>>()
     private lateinit var notificationMap: HashMap<*, *>
     private lateinit var context: Context
 
     enum class PointType(val type: String) {
-        START("Start Point"), PICKUP("Pickup Point"), DROPOFF("Dropoff Point")
+        START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +62,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             )
         )
         super.onCreateDrawer()
-
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -128,7 +125,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 })
             }
-
         }
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -147,9 +143,14 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
                 when (receivedIntent?.action) {
                     PushNotificationService.SERVICE_BROADCAST_KEY -> {
+                        refreshRequests()
 
-                        notificationMap =
+/*                        notificationMap =
                             receivedIntent.getSerializableExtra(PushNotificationService.SERVICE_MESSAGE_KEY) as HashMap<*, *>
+                        requests.add(notificationMap)
+                        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+                        val savedRideId = notificationMap["ride_id"] as String
+                        sharedPrefs.edit().remove(savedRideId).apply()
                         for ((key, value) in notificationMap) {
                             if (key is String && value is String) {
                                 when (key) {
@@ -161,6 +162,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                                 }
                             }
                         }
+                        toggleVisibility()*/
                     }
                 }
             }
@@ -181,6 +183,28 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                                 Log.d("ServiceTag", msg)
                                 Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()*/
             })
+
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val userRides: ArrayList<Ride> = ApiDao.getUserRides()
+            userRides.forEach {
+                if (!it.ride_status.contains("waiting")) {
+                    userRides.remove(it)
+                }
+            }
+            var ride: Ride
+            if (userRides.size > 0) {
+                val rides =
+                    userRides.sortedWith(compareBy { it.id }).reversed() as ArrayList<Ride>
+                ride = userRides[0]
+            }
+            withContext(Dispatchers.Main) {
+                progress_driverview.visibility = View.INVISIBLE
+
+//Do something here.
+
+            }
+        }
+
 
         button_driverview_togglestatus.setOnClickListener {
             if (user != null) {
@@ -209,12 +233,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
             }
-
-            //Temp lines below
-/*            CoroutineScope(Dispatchers.IO + Job()).launch {
-                ApiDao.getRideById(0)
-            }*/
-
+            refreshRequests()
+            //TODO Go to another view.
         }
 
         button_driverview_reject.setOnClickListener {
@@ -225,10 +245,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                             rideId,
                             false,
                             JSONObject(notificationMap).toString()
-//                            notificationMap.toString()
                         )
                     if (success) {
-                        notificationMap = HashMap<String, String>()
+                        requests.remove(notificationMap)
+                        removeFromSharedPrefs()
+//                        notificationMap = HashMap<String, String>()
                     }
                     val message = if (success) {
                         "Ride Rejected!"
@@ -240,8 +261,13 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
             }
+            refreshRequests()
         }
 
+        button_driverview_refresh.setOnClickListener {
+            refreshRequests()
+//            println(requests)
+        }
 
     }
 
@@ -258,34 +284,19 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-//        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            if (user?.userData?.location != null) {
-                var split: List<String>? = user!!.userData.location?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            //                            setPoint(userLatLng)
-                        }
-                    }
-                }
-                split = user!!.motherData?.destination?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            //                            setPoint(userLatLng)
-                        }
-                    }
-                }
-            }
+        var userLocation: Location? = user?.userData?.location
+        if (userLocation != null) {
+            setPoint(userLocation.asLatLng(), PointType.PICKUP)
         }
 
-        mMap.setOnMapClickListener { latLng ->
-            //            setPoint(latLng)
+        userLocation = user?.motherData?.destination
+        if (userLocation != null) {
+            setPoint(userLocation.asLatLng(), PointType.DROPOFF)
         }
+
+/*        mMap.setOnMapClickListener { latLng ->
+            //            setPoint(latLng)
+        }*/
     }
 
     private fun setPoint(latLng: LatLng, title: PointType) {
@@ -329,7 +340,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    fun setStatusButton(status: Boolean, context: Context) {
+    private fun setStatusButton(status: Boolean, context: Context) {
         if (status) {
             button_driverview_togglestatus.setBackgroundColor(
                 ContextCompat.getColor(
@@ -348,4 +359,84 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             button_driverview_togglestatus.text = getString(R.string.driver_status_false)
         }
     }
+
+    private fun toggleRequestVisibility(status: Boolean) {
+        layout_driverview_default.visibility = when (status) {
+            true -> View.INVISIBLE
+            false -> View.VISIBLE
+        }
+        layout_driverview_request.visibility = when (status) {
+            true -> View.VISIBLE
+            false -> View.INVISIBLE
+        }
+    }
+
+    private fun refreshRequests() {
+        requests.clear()
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val rideIds = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
+        val map = HashMap<String, String>()
+        if (rideIds != null) {
+            val savedRequestIds = rideIds.split(",")
+            for (request in savedRequestIds) {
+                val requestData = sharedPrefs.getString(request, null)
+                if (requestData != null) {
+                    val requestArray = requestData.split(",") as ArrayList
+                    requestArray.forEachIndexed { index, item ->
+                        val itemArray = item.replace("{", "").replace("}", "").split("=")
+                        map[itemArray[0].trim()] = itemArray[1]
+                    }
+                    var timeStamp = map["timestamp"]?.toLong()
+                    if (timeStamp != null) {
+                        timeStamp += System.currentTimeMillis()
+                        if (timeStamp < System.currentTimeMillis()) {
+                            requests.add(map)
+                        } else {
+                            sharedPrefs.edit().remove(request).apply()
+                            requestArray.remove(request)
+                            sharedPrefs.edit().putString(PushNotificationService.STORED_REQUESTS_KEY,requestArray.toString()).apply()
+                        }
+                    }
+                }
+            }
+        }
+        updateViews()
+    }
+
+    private fun updateViews() {
+        if (requests.size > 0) {
+            notificationMap = requests[0]
+            for ((key, value) in notificationMap) {
+                if (key is String && value is String) {
+                    when (key) {
+                        "hospital" -> println(key)
+                        "name" -> text_driverview_name.text = value
+                        "phone" -> text_driverview_phone.text = value
+                        "price" -> text_driverview_fare.text = value
+                        "ride_id" -> rideId = value.toLong()
+                    }
+                }
+            }
+            toggleRequestVisibility(true)
+        } else {
+            toggleRequestVisibility(false)
+        }
+    }
+
+    private fun removeFromSharedPrefs() {
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+        sharedPrefs.edit().remove(rideId.toString()).apply()
+        val rideIds = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
+        if (rideIds != null) {
+            val idArray = rideIds.split(",") as ArrayList
+            idArray.forEach {
+                if (it.equals(rideId)) {
+                    idArray.remove(it)
+                }
+            }
+            sharedPrefs.edit()
+                .putString(PushNotificationService.STORED_REQUESTS_KEY, idArray.toString()).apply()
+        }
+    }
+
 }

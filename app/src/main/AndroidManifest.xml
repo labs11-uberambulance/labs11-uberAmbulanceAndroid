@@ -24,6 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".DriverRideStatusActivity" />
         <activity android:name=".DriverDetailsActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -43,7 +44,6 @@
         <activity
             android:name=".FirebaseOauthActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".DriverViewRequestsActivity"
             android:label="@string/title_activity_driver_view_requests"

@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import kotlinx.android.synthetic.main.activity_ride_status.*
+import kotlinx.android.synthetic.main.activity_mother_ride_status.*
 import kotlinx.coroutines.*
 import java.util.ArrayList
 
@@ -21,7 +21,7 @@ class MotherRideStatusActivity : MainActivity() {
         val frameLayout: FrameLayout = findViewById(R.id.content_frame)
         frameLayout.addView(
             LayoutInflater.from(context).inflate(
-                R.layout.activity_ride_status,
+                R.layout.activity_mother_ride_status,
                 null
             )
         )

@@ -7,7 +7,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_driver_search">Driver Search</string>
-    <string name="title_activity_driver_view_requests">View Incoming Requests</string>
+    <string name="title_activity_driver_view_requests">Ride Requests</string>
     <string name="title_activity_maps">Map</string>
     <string name="fcm_message">Ride Request Notification</string>
     <string name="request_default_channel_id">request_default_channel</string>

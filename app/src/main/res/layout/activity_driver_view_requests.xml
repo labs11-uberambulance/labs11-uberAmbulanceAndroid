@@ -11,7 +11,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        map:layout_constraintBottom_toTopOf="@+id/layout_driverview"
+        map:layout_constraintBottom_toTopOf="@+id/layout_driverview_request"
         tools:context=".DriverViewRequestsActivity" />
 
     <Button
@@ -24,14 +24,74 @@
         android:text="Toggle Status"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-       map:layout_constraintTop_toTopOf="parent" />
+        map:layout_constraintTop_toTopOf="parent" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/layout_driverview"
+        android:id="@+id/layout_driverview_default"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
+        android:visibility="visible"
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintTop_toBottomOf="@id/map_driverview"
+        map:layout_constraintVertical_bias="1">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No new ride requests currently available"
+            android:textColor="@color/colorPrimary"
+            android:textAlignment="center"
+            android:layout_marginTop="24dp"
+            map:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progress_driverview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            map:layout_constraintBottom_toTopOf="@+id/button_driverview_refresh"
+            map:layout_constraintEnd_toEndOf="parent"
+            map:layout_constraintHorizontal_bias=".5"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_driverview_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonBrown"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Refresh"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@id/button_driverview_ridestatus"
+            map:layout_constraintEnd_toEndOf="parent"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_driverview_ridestatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/radiused_rectangle_background"
+            android:backgroundTint="@color/colorButtonBrown"
+            android:text="View Accepted Rides"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toBottomOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/layout_driverview_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
         android:orientation="vertical"
+        android:visibility="invisible"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintTop_toTopOf="parent"
         map:layout_constraintVertical_bias="1">
@@ -167,5 +227,4 @@
             map:layout_constraintEnd_toEndOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
-
 </android.support.constraint.ConstraintLayout>
