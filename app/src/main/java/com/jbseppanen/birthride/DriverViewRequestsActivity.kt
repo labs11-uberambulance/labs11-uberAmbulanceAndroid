@@ -238,6 +238,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_driverview_reject.setOnClickListener {
+            removeFromSharedPrefs(notificationMap)
             if (!rideId.equals(-1)) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
@@ -266,9 +267,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverview_refresh.setOnClickListener {
             refreshRequests()
-//            println(requests)
         }
-
+        refreshRequests()
     }
 
     override fun onResume() {
@@ -376,7 +376,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
 //        sharedPrefs.edit().remove(PushNotificationService.STORED_REQUESTS_KEY).apply()
 //        sharedPrefs.edit().putString(PushNotificationService.STORED_REQUESTS_KEY, "47").apply()
-        val rideIdsAsString = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
+        val rideIdsAsString =
+            sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
         val map = HashMap<String, String>()
         if (rideIdsAsString != null) {
             val requestIds = rideIdsAsString.split(",")
@@ -423,7 +424,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun removeFromSharedPrefs(map:HashMap<*, *>) {
+    private fun removeFromSharedPrefs(map: HashMap<*, *>) {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
         val id = map["ride_id"] as String
         sharedPrefs.edit().remove(id).apply()
@@ -437,7 +438,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 }
             }
             sharedPrefs.edit()
-                .putString(PushNotificationService.STORED_REQUESTS_KEY, idArray.toString().removePrefix("[").removeSuffix("]")).apply()
+                .putString(
+                    PushNotificationService.STORED_REQUESTS_KEY,
+                    idArray.toString().removePrefix("[").removeSuffix("]")
+                ).apply()
         }
     }
 

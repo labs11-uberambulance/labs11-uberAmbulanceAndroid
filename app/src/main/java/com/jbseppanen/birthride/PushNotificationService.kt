@@ -87,7 +87,7 @@ class PushNotificationService : FirebaseMessagingService() {
             dataHashMap["timestamp"] = System.currentTimeMillis().toString()
             sharedPrefs.edit().putString(key, dataHashMap.toString()).apply()
             val rideIds = sharedPrefs.getString(STORED_REQUESTS_KEY, null)
-            var putString: String
+            val putString: String
             putString = if (rideIds == null) {
                 dataHashMap.getValue("ride_id")
             } else {
