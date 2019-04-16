@@ -184,7 +184,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                                 Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()*/
             })
 
-        CoroutineScope(Dispatchers.IO + Job()).launch {
+/*        CoroutineScope(Dispatchers.IO + Job()).launch {
             val userRides: ArrayList<Ride> = ApiDao.getUserRides()
             userRides.forEach {
                 if (!it.ride_status.contains("waiting")) {
@@ -203,7 +203,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 //Do something here.
 
             }
-        }
+        }*/
 
 
         button_driverview_togglestatus.setOnClickListener {
@@ -248,7 +248,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         )
                     if (success) {
                         requests.remove(notificationMap)
-                        removeFromSharedPrefs()
+                        removeFromSharedPrefs(notificationMap)
 //                        notificationMap = HashMap<String, String>()
                     }
                     val message = if (success) {
@@ -374,14 +374,16 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private fun refreshRequests() {
         requests.clear()
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val rideIds = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
+//        sharedPrefs.edit().remove(PushNotificationService.STORED_REQUESTS_KEY).apply()
+//        sharedPrefs.edit().putString(PushNotificationService.STORED_REQUESTS_KEY, "47").apply()
+        val rideIdsAsString = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
         val map = HashMap<String, String>()
-        if (rideIds != null) {
-            val savedRequestIds = rideIds.split(",")
-            for (request in savedRequestIds) {
-                val requestData = sharedPrefs.getString(request, null)
+        if (rideIdsAsString != null) {
+            val requestIds = rideIdsAsString.split(",")
+            for (requestId in requestIds) {
+                val requestData = sharedPrefs.getString(requestId, null)
                 if (requestData != null) {
-                    val requestArray = requestData.split(",") as ArrayList
+                    val requestArray = requestData.split(",") as MutableList<String>
                     requestArray.forEachIndexed { index, item ->
                         val itemArray = item.replace("{", "").replace("}", "").split("=")
                         map[itemArray[0].trim()] = itemArray[1]
@@ -389,12 +391,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     var timeStamp = map["timestamp"]?.toLong()
                     if (timeStamp != null) {
                         timeStamp += System.currentTimeMillis()
-                        if (timeStamp < System.currentTimeMillis()) {
+                        if (timeStamp > System.currentTimeMillis()) {
                             requests.add(map)
                         } else {
-                            sharedPrefs.edit().remove(request).apply()
-                            requestArray.remove(request)
-                            sharedPrefs.edit().putString(PushNotificationService.STORED_REQUESTS_KEY,requestArray.toString()).apply()
+                            removeFromSharedPrefs(map)
                         }
                     }
                 }
@@ -423,19 +423,21 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun removeFromSharedPrefs() {
+    private fun removeFromSharedPrefs(map:HashMap<*, *>) {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-        sharedPrefs.edit().remove(rideId.toString()).apply()
+        val id = map["ride_id"] as String
+        sharedPrefs.edit().remove(id).apply()
         val rideIds = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
         if (rideIds != null) {
-            val idArray = rideIds.split(",") as ArrayList
+            val idArray = rideIds.split(",")
+            val newIdArray = ArrayList<String>()
             idArray.forEach {
-                if (it.equals(rideId)) {
-                    idArray.remove(it)
+                if (it != id) {
+                    newIdArray.add(it)
                 }
             }
             sharedPrefs.edit()
-                .putString(PushNotificationService.STORED_REQUESTS_KEY, idArray.toString()).apply()
+                .putString(PushNotificationService.STORED_REQUESTS_KEY, idArray.toString().removePrefix("[").removeSuffix("]")).apply()
         }
     }
 
