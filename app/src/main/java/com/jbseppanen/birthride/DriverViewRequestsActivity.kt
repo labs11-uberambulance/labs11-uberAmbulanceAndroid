@@ -92,7 +92,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
                         when (receivedIntent?.action) {
                             PushNotificationService.SERVICE_BROADCAST_KEY -> {
-                                refreshRequests()
+                                refreshRequests(context)
                             }
                         }
                     }
@@ -202,7 +202,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         )
                     if (success) {
                         requests.remove(notificationMap)
-                        removeFromSharedPrefs(notificationMap)
+                        removeFromSharedPrefs(notificationMap, context)
 //                        notificationMap = HashMap<String, String>()
                     }
                     val message = if (success) {
@@ -215,7 +215,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
             }
-            refreshRequests()
+            refreshRequests(context)
         }
 
         button_driverview_refresh.setOnClickListener {
@@ -237,7 +237,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         super.onResume()
 /*        LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))*/
-        refreshRequests()
+        refreshRequests(context)
     }
 
     override fun onStop() {
@@ -336,36 +336,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    fun refreshRequests() {
-        requests.clear()
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val rideIdsAsString =
-            sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
-        val map = HashMap<String, String>()
-        if (rideIdsAsString != null) {
-            val requestIds = rideIdsAsString.split(",")
-            for (requestId in requestIds) {
-                val requestData = sharedPrefs.getString(requestId, null)
-                if (requestData != null) {
-                    val requestArray = requestData.split(",") as MutableList<String>
-                    requestArray.forEachIndexed { index, item ->
-                        val itemArray = item.replace("{", "").replace("}", "").split("=")
-                        map[itemArray[0].trim()] = itemArray[1]
-                    }
-                    var timeStamp = map["timestamp"]?.toLong()
-                    if (timeStamp != null) {
-                        timeStamp += System.currentTimeMillis()
-                        if (timeStamp > System.currentTimeMillis()) {
-                            requests.add(map)
-                        } else {
-                            removeFromSharedPrefs(map)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun updateViews() {
         notificationMap.clear()
         if (requests.size > 0) {
@@ -374,9 +344,21 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             for (request in requests) {
                 val status = request["accepted"]
                 if (status != null) {
-                    if (status == "false")
-                        updateMap = request
-                    break
+                    if (status == "false") {
+                        var timeStamp = request["timestamp"]?.toLong()
+                        if (timeStamp != null) {
+                            if (timeStamp > (System.currentTimeMillis() - Constants.DEFAULT_WAIT_TIME)) {
+                                updateMap = request
+                                break
+                            } else {
+                                //remove if older than 10 minutes
+                                removeFromSharedPrefs(request, context)
+                            }
+                        } else {
+                            //remove if no timestamp found.  Should not happen.
+                            removeFromSharedPrefs(request, context)
+                        }
+                    }
                 }
             }
             if (updateMap.isNotEmpty()) {
@@ -395,26 +377,4 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             }
         }
     }
-
-    private fun removeFromSharedPrefs(map: HashMap<*, *>) {
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val id = map["ride_id"] as String
-        sharedPrefs.edit().remove(id).apply()
-        val rideIds = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
-        if (rideIds != null) {
-            val idArray = rideIds.split(",")
-            val newIdArray = ArrayList<String>()
-            idArray.forEach {
-                if (it != id) {
-                    newIdArray.add(it)
-                }
-            }
-            sharedPrefs.edit()
-                .putString(
-                    PushNotificationService.STORED_REQUESTS_KEY,
-                    idArray.toString().removePrefix("[").removeSuffix("]")
-                ).apply()
-        }
-    }
-
 }
