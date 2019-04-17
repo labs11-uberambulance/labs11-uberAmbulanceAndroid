@@ -17,7 +17,7 @@ fun toLatLng(latLngString: String): LatLng? {
     return latLng
 }
 
-fun refreshRequests(context: Context) {
+fun getSavedRequests(context: Context) : ArrayList<HashMap<String, String>>  {
     val requests = ArrayList<HashMap<String, String>>()
     val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
     val rideIdsAsString =
@@ -37,6 +37,7 @@ fun refreshRequests(context: Context) {
             }
         }
     }
+    return requests
 }
 
 

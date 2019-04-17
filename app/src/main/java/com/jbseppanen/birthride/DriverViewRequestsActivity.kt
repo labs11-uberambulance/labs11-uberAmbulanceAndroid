@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
@@ -20,7 +19,6 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -43,9 +41,12 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private var user: User? = null
     private var rideId: Long = -1
     private lateinit var receiver: BroadcastReceiver
-    private val requests = ArrayList<HashMap<String, String>>()
-    private var notificationMap = HashMap<String, String>()
+    private var requests = ArrayList<HashMap<String, String>>()
+    private var mainHashMap = HashMap<String, String>()
     private lateinit var context: Context
+    private lateinit var driverLatLng: LatLng
+    private lateinit var motherLatLng: LatLng
+    private lateinit var destLatLng: LatLng
 
     enum class PointType(val type: String) {
         START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
@@ -70,8 +71,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         activity = this
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
@@ -92,7 +91,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
                         when (receivedIntent?.action) {
                             PushNotificationService.SERVICE_BROADCAST_KEY -> {
-                                refreshRequests(context)
+                                refreshRequests()
                             }
                         }
                     }
@@ -104,6 +103,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     )
             })
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (ContextCompat.checkSelfPermission(
                 context,
@@ -119,7 +119,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 .show()
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(
+                driverLatLng = LatLng(location.latitude, location.longitude)
+/*                mMap.animateCamera(CameraUpdateFactory.newLatLng(
 //                    LatLng(location.latitude,location.longitude)
                     Constants.defaultMapCenter //Todo remove this hardcoded location
                 ), 2000, object : GoogleMap.CancelableCallback {
@@ -135,7 +136,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
                     override fun onCancel() {
                     }
-                })
+                })*/
             }
         }
 
@@ -171,14 +172,14 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     val message: String
                     if (success) {
                         message = "Ride Accepted!"
-                        notificationMap["accepted"] = "true"
+                        mainHashMap["accepted"] = "true"
                         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-                        sharedPrefs.edit().putString(rideId.toString(), notificationMap.toString())
+                        sharedPrefs.edit().putString(rideId.toString(), mainHashMap.toString())
                             .apply()
                         val statusIntent = Intent(context, DriverRideStatusActivity::class.java)
                         statusIntent.putExtra(
                             DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
-                            notificationMap
+                            mainHashMap
                         )
                         startActivity(statusIntent)
                     } else {
@@ -198,12 +199,12 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         ApiDao.updateRideStatus(
                             rideId,
                             ApiDao.StatusType.REJECT,
-                            JSONObject(notificationMap).toString()
+                            JSONObject(mainHashMap).toString()
                         )
                     if (success) {
-                        requests.remove(notificationMap)
-                        removeFromSharedPrefs(notificationMap, context)
-//                        notificationMap = HashMap<String, String>()
+                        requests.remove(mainHashMap)
+                        removeFromSharedPrefs(mainHashMap, context)
+//                        mainHashMap = HashMap<String, String>()
                     }
                     val message = if (success) {
                         "Ride Rejected!"
@@ -215,7 +216,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
             }
-            refreshRequests(context)
+            refreshRequests()
         }
 
         button_driverview_refresh.setOnClickListener {
@@ -229,15 +230,13 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         button_driverview_ridestatus.setOnClickListener {
             startActivity(Intent(context, DriverRideStatusActivity::class.java))
         }
-
-//        refreshRequests()
     }
 
     override fun onResume() {
         super.onResume()
 /*        LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))*/
-        refreshRequests(context)
+        refreshRequests()
     }
 
     override fun onStop() {
@@ -258,11 +257,13 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         if (userLocation != null) {
             setPoint(userLocation.asLatLng(), PointType.DROPOFF)
         }
-        updateViews()
-/*        mMap.setOnMapClickListener { latLng ->
-            //            setPoint(latLng)
-        }*/
+        refreshRequests()
     }
+
+    fun updateMap() {
+
+    }
+
 
     private fun setPoint(latLng: LatLng, title: PointType) {
 
@@ -325,6 +326,14 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
+    fun refreshRequests() {
+        requests = getSavedRequests(context)
+        if (requests.size > 0) {
+            mainHashMap = requests[0]
+        }
+        updateViews()
+    }
+
     private fun toggleRequestVisibility(status: Boolean) {
         layout_driverview_default.visibility = when (status) {
             true -> View.INVISIBLE
@@ -337,43 +346,66 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     }
 
     private fun updateViews() {
-        notificationMap.clear()
-        if (requests.size > 0) {
-            notificationMap = requests[0]
-            var updateMap = HashMap<String, String>()
-            for (request in requests) {
-                val status = request["accepted"]
-                if (status != null) {
-                    if (status == "false") {
-                        var timeStamp = request["timestamp"]?.toLong()
-                        if (timeStamp != null) {
-                            if (timeStamp > (System.currentTimeMillis() - Constants.DEFAULT_WAIT_TIME)) {
-                                updateMap = request
-                                break
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            mainHashMap.clear()
+            if (requests.size > 0) {
+                mainHashMap = requests[0]
+                var uiHashMap = HashMap<String, String>()
+                for (request in requests) {
+                    val status = request["accepted"]
+                    if (status != null) {
+                        if (status == "false") {
+                            val timeStamp = request["timestamp"]?.toLong()
+                            if (timeStamp != null) {
+                                if (timeStamp > (System.currentTimeMillis() - Constants.DEFAULT_WAIT_TIME)) {
+                                    uiHashMap = request
+                                    break
+                                } else {
+                                    //remove if older than 10 minutes
+                                    removeFromSharedPrefs(request, context)
+                                }
                             } else {
-                                //remove if older than 10 minutes
+                                //remove if no timestamp found.  Should not happen.
                                 removeFromSharedPrefs(request, context)
                             }
-                        } else {
-                            //remove if no timestamp found.  Should not happen.
-                            removeFromSharedPrefs(request, context)
                         }
                     }
                 }
-            }
-            if (updateMap.isNotEmpty()) {
-                for ((key, value) in updateMap) {
-                    when (key) {
-                        "hospital" -> println(key)
-                        "name" -> text_driverview_name.text = value
-                        "phone" -> text_driverview_phone.text = value
-                        "price" -> text_driverview_fare.text = value
-                        "ride_id" -> rideId = value.toLong()
+
+                if (uiHashMap.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        for ((key, value) in uiHashMap) {
+
+                            when (key) {
+                                "hospital" -> println(key)
+                                "name" -> text_driverview_name.text = value
+                                "phone" -> text_driverview_phone.text = value
+                                "price" -> text_driverview_fare.text = value
+                                "ride_id" -> rideId = value.toLong()
+                            }
+                        }
+                        toggleRequestVisibility(true)
                     }
-                    toggleRequestVisibility(true)
+                    val ride = ApiDao.getRideById(rideId)
+                    if (ride != null) {
+                        var latLng = toLatLng(ride.start)
+                        if (latLng != null) {
+                            motherLatLng = latLng
+                        }
+                        latLng = toLatLng(ride.destination)
+                        if (latLng != null) {
+                            destLatLng = latLng
+                        }
+                        withContext(Dispatchers.Main) {
+                            updateMap()
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        toggleRequestVisibility(false)
+                    }
+
                 }
-            } else {
-                toggleRequestVisibility(false)
             }
         }
     }
