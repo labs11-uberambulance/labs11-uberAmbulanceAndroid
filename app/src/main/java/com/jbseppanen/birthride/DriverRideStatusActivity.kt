@@ -77,7 +77,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverstatus_dropoff.setOnClickListener {
             updateStatus(ApiDao.StatusType.DROPOFF)
-            if (requests.size>listIndex) {
+            if (requests.size > listIndex) {
                 removeFromSharedPrefs(requests[listIndex], context)
             }
             listIndex = 0
@@ -92,8 +92,22 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             startActivity(directionsIntent)
         }
 
-        button_test.setOnClickListener {
+/*        button_test.setOnClickListener {
             updateViews()
+        }*/
+
+        button_driverstatus_next.setOnClickListener {
+            if (requests.size < listIndex + 1) {
+                ++listIndex
+                updateViews()
+            }
+        }
+
+        button_driverstatus_prev.setOnClickListener {
+            if (listIndex > 0) {
+                --listIndex
+                updateViews()
+            }
         }
     }
 

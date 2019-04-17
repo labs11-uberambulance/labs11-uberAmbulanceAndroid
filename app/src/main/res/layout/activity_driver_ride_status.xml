@@ -165,7 +165,7 @@
             android:id="@+id/text_driverstatus_fare_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="28dp"
             android:text="Fare: "
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
@@ -176,7 +176,7 @@
             android:id="@+id/text_driverstatus_fare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="28dp"
             android:text=" -"
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
@@ -235,7 +235,7 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <Button
+<!--    <Button
         android:id="@+id/button_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -245,5 +245,5 @@
         map:layout_constraintHorizontal_bias="0.5"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent"
-        map:layout_constraintVertical_bias=".5" />
+        map:layout_constraintVertical_bias=".5" />-->
 </android.support.constraint.ConstraintLayout>
