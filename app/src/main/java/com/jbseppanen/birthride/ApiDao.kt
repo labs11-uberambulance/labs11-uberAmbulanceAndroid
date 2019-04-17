@@ -29,6 +29,11 @@ object ApiDao {
         ACCEPT("accepts"), REJECT("rejects"), PICKUP("arrives"), DROPOFF("delivers")
     }
 
+    enum class UserType(val type: String) {
+        MOTHER("mother"), DRIVER("driver")
+    }
+
+
     private suspend fun getToken(): String? {
         val await: GetTokenResult = FirebaseAuth.getInstance().getAccessToken(false).await()
         return await.token
@@ -163,31 +168,40 @@ object ApiDao {
                         steps.getJSONObject(i).getJSONObject("polyline").getString("points")
                     path.add(PolyUtil.decode(points))
                 }
-            } catch(e: JSONException) {
+            } catch (e: JSONException) {
                 e.printStackTrace()
             }
         }
         return path
     }
 
-    suspend fun getRideById(id: Long) {
+    suspend fun getRideById(id: Long):Ride? {
         val (success, response) = NetworkAdapter.httpRequest(
-            stringUrl = "$baseUrl/rides",
+            stringUrl = "$baseUrl/rides/$id",
             requestType = NetworkAdapter.GET,
-            jsonBody = "{\"rideId\": $id}",
+            jsonBody = null,
             headerProperties = mapOf(
                 "Authorization" to "${getToken()}",
                 "Content-Type" to "application/json",
                 "Accept" to "application/json"
             )
         )
-        println(response)
+        return if (success) {
+            val rides =  convertStringToRides(response)
+            if(rides.size>0) {
+                rides[0]
+            } else {
+                null
+            }
+        } else {
+            null
+        }
     }
 
-    suspend fun getUserRides(): ArrayList<Ride> {
+    suspend fun getUserRides(userType: UserType): ArrayList<Ride> {
         val tokenString = getToken()
         val (success, result) = NetworkAdapter.httpRequest(
-            stringUrl = "$baseUrl/rides/mother",
+            stringUrl = "$baseUrl/rides/${userType.type}",
             requestType = NetworkAdapter.GET,
             jsonBody = "{\"userId\": $tokenString}",
             headerProperties = mapOf(
@@ -207,12 +221,41 @@ object ApiDao {
                         Ride.serializer(),
                         jsonObject.toString()
                     )
-                    if (!ride.ride_status.contains("complete", true) || !ride.ride_status.contains("cancel", true)) {
+                    if (!ride.ride_status.contains(
+                            "complete",
+                            true
+                        ) || !ride.ride_status.contains("cancel", true)
+                    ) {
                         rides.add(ride)
                     }
                 } catch (e: SerializationException) {
                     e.printStackTrace()
                 }
+            }
+        }
+        return rides
+    }
+
+    fun convertStringToRides(input: String): ArrayList<Ride> {
+        val rides = ArrayList<Ride>()
+        val jsonArray = JSONArray(input)
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            try {
+
+                val ride: Ride = Json.nonstrict.parse(
+                    Ride.serializer(),
+                    jsonObject.toString()
+                )
+                if (!ride.ride_status.contains(
+                        "complete",
+                        true
+                    ) || !ride.ride_status.contains("cancel", true)
+                ) {
+                    rides.add(ride)
+                }
+            } catch (e: SerializationException) {
+                e.printStackTrace()
             }
         }
         return rides
@@ -235,9 +278,9 @@ object ApiDao {
     }
 
     suspend fun updateRideStatus(rideId: Long, statusType: StatusType, json: String?): Boolean {
-        val requestType = when(statusType.type) {
-            StatusType.REJECT.type ->NetworkAdapter.POST
-            else ->NetworkAdapter.GET
+        val requestType = when (statusType.type) {
+            StatusType.REJECT.type -> NetworkAdapter.POST
+            else -> NetworkAdapter.GET
         }
         //Accept  = get.  Reject = Post
         val (success, response) = NetworkAdapter.httpRequest(
@@ -315,7 +358,7 @@ object ApiDao {
         }
     }
 
-    suspend fun updateFcmToken(token:String) {
+    suspend fun updateFcmToken(token: String) {
         val json =
             "{\"token\":\"$token\"}"
         val (success, response) = NetworkAdapter.httpRequest(
@@ -328,6 +371,5 @@ object ApiDao {
                 "Accept" to "application/json"
             )
         )
-        println(success)
     }
 }

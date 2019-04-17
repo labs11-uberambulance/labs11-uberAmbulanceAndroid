@@ -271,7 +271,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_driverview_refresh.setOnClickListener {
-            refreshRequests()
+            //            refreshRequests()
+            CoroutineScope(Dispatchers.IO + Job()).launch {
+                ApiDao.getRideById(56)
+            }
+
         }
 
         button_driverview_ridestatus.setOnClickListener {
@@ -304,7 +308,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         if (userLocation != null) {
             setPoint(userLocation.asLatLng(), PointType.DROPOFF)
         }
-
+        updateViews()
 /*        mMap.setOnMapClickListener { latLng ->
             //            setPoint(latLng)
         }*/
@@ -412,27 +416,31 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 }
             }
         }
-        updateViews()
     }
 
     private fun updateViews() {
-        notificationMap.clear()
+        if (::notificationMap.isInitialized) {
+            notificationMap.clear()
+        }
         val rideIdList = ArrayList<Long>()
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            ApiDao.getUserRides().forEach {
-                rideIdList.add(it.id)
-            }
+            ApiDao.getUserRides(ApiDao.UserType.DRIVER).sortedWith(compareBy { it.id }).reversed()
+                .forEach {
+                    rideIdList.add(it.id)
+                }
             if (requests.size > 0) {
+                notificationMap = requests[0]
+                var updateMap: HashMap<*, *>? = null
                 for (request in requests) {
-                    val id = request["ride_id"] as Long
+                    val id = request["ride_id"].toString().toLong()
                     if (!rideIdList.contains(id)) {
-                        notificationMap = request
+                        updateMap = request
                         break
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    if (notificationMap.isNotEmpty()) {
-                        for ((key, value) in notificationMap) {
+                    if (updateMap != null) {
+                        for ((key, value) in updateMap) {
                             if (key is String && value is String) {
                                 when (key) {
                                     "hospital" -> println(key)
@@ -442,17 +450,16 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                                     "ride_id" -> rideId = value.toLong()
                                 }
                             }
+                            toggleRequestVisibility(true)
                         }
-                        toggleRequestVisibility(true)
                     } else {
                         toggleRequestVisibility(false)
                     }
                 }
             }
         }
-
-
     }
+
 
     private fun removeFromSharedPrefs(map: HashMap<*, *>) {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)

@@ -111,7 +111,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     }
 
     fun getRideInfo() {
-        rideId = 56
+//        rideId = 56
         if (rideId != -1L) {
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 ApiDao.getRideById(rideId)

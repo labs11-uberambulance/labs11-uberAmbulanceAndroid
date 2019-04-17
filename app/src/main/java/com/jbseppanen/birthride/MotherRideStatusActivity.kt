@@ -37,7 +37,7 @@ class MotherRideStatusActivity : MainActivity() {
             withContext(Dispatchers.Main) {
                 progress_ridestatus.visibility = View.VISIBLE
             }
-            val userRides: ArrayList<Ride> = ApiDao.getUserRides()
+            val userRides: ArrayList<Ride> = ApiDao.getUserRides(ApiDao.UserType.MOTHER)
             var statusText = "No rides found"
             if (userRides.size > 0) {
                 val rides =
