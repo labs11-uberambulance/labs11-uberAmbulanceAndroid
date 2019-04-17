@@ -183,6 +183,28 @@
             map:layout_constraintBottom_toTopOf="@+id/button_driverstatus_pickup"
             map:layout_constraintStart_toEndOf="@id/text_driverstatus_fare_label" />
 
+        <ImageButton
+            android:id="@+id/button_driverstatus_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_next"
+            map:layout_constraintBottom_toTopOf="@+id/button_driverstatus_dropoff"
+            map:layout_constraintEnd_toEndOf="@id/button_driverstatus_dropoff" />
+
+        <ImageButton
+            android:id="@+id/button_driverstatus_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_prev"
+            map:layout_constraintBottom_toTopOf="@+id/button_driverstatus_dropoff"
+            map:layout_constraintStart_toStartOf="@id/button_driverstatus_dropoff" />
+
         <Button
             android:id="@+id/button_driverstatus_pickup"
             android:layout_width="wrap_content"
@@ -219,9 +241,9 @@
         android:layout_height="wrap_content"
         android:text="Button"
         map:layout_constraintBottom_toBottomOf="parent"
-        map:layout_constraintVertical_bias=".5"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintHorizontal_bias="0.5"
         map:layout_constraintStart_toStartOf="parent"
-        map:layout_constraintTop_toTopOf="parent" />
+        map:layout_constraintTop_toTopOf="parent"
+        map:layout_constraintVertical_bias=".5" />
 </android.support.constraint.ConstraintLayout>
