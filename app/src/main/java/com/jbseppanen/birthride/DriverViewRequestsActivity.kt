@@ -43,8 +43,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private var user: User? = null
     private var rideId: Long = -1
     private lateinit var receiver: BroadcastReceiver
-    private val requests = ArrayList<HashMap<*, *>>()
-    private lateinit var notificationMap: HashMap<*, *>
+    private val requests = ArrayList<HashMap<String, String>>()
+    private var notificationMap = HashMap<String, String>()
     private lateinit var context: Context
 
     enum class PointType(val type: String) {
@@ -88,9 +88,20 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
 
-                // Log and toast
-                val msg = getString(R.string.msg_token_fmt, token)
-//                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                receiver = object : BroadcastReceiver() {
+                    override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
+                        when (receivedIntent?.action) {
+                            PushNotificationService.SERVICE_BROADCAST_KEY -> {
+                                refreshRequests()
+                            }
+                        }
+                    }
+                }
+                LocalBroadcastManager.getInstance(this)
+                    .registerReceiver(
+                        receiver,
+                        IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY)
+                    )
             })
 
 
@@ -140,73 +151,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             }
         }
 
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
-                when (receivedIntent?.action) {
-                    PushNotificationService.SERVICE_BROADCAST_KEY -> {
-                        refreshRequests()
-
-/*                        notificationMap =
-                            receivedIntent.getSerializableExtra(PushNotificationService.SERVICE_MESSAGE_KEY) as HashMap<*, *>
-                        requests.add(notificationMap)
-                        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-                        val savedRideId = notificationMap["ride_id"] as String
-                        sharedPrefs.edit().remove(savedRideId).apply()
-                        for ((key, value) in notificationMap) {
-                            if (key is String && value is String) {
-                                when (key) {
-                                    "hospital" -> println(key)
-                                    "name" -> text_driverview_name.text = value
-                                    "phone" -> text_driverview_phone.text = value
-                                    "price" -> text_driverview_fare.text = value
-                                    "ride_id" -> rideId = value.toLong()
-                                }
-                            }
-                        }
-                        toggleVisibility()*/
-                    }
-                }
-            }
-        }
-
-        FirebaseInstanceId.getInstance().instanceId
-            .addOnCompleteListener(OnCompleteListener { task ->
-                /*                if (!task.isSuccessful) {
-                                    Log.w("ServiceTag", "getInstanceId failed", task.exception)
-                                    return@OnCompleteListener
-                                }
-
-                                // Get new Instance ID token
-                                val token = task.result?.token
-
-                                // Log and toast
-                                val msg = getString(R.string.msg_token_fmt, token)
-                                Log.d("ServiceTag", msg)
-                                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()*/
-            })
-
-/*        CoroutineScope(Dispatchers.IO + Job()).launch {
-            val userRides: ArrayList<Ride> = ApiDao.getUserRides()
-            userRides.forEach {
-                if (!it.ride_status.contains("waiting")) {
-                    userRides.remove(it)
-                }
-            }
-            var ride: Ride
-            if (userRides.size > 0) {
-                val rides =
-                    userRides.sortedWith(compareBy { it.id }).reversed() as ArrayList<Ride>
-                ride = userRides[0]
-            }
-            withContext(Dispatchers.Main) {
-                progress_driverview.visibility = View.INVISIBLE
-
-//Do something here.
-
-            }
-        }*/
-
-
         button_driverview_togglestatus.setOnClickListener {
             if (user != null) {
                 var status = user!!.driverData?.active
@@ -224,26 +168,30 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             if (rideId != -1L) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success = ApiDao.updateRideStatus(rideId, ApiDao.StatusType.ACCEPT, null)
-                    val message = if (success) {
-                        "Ride Accepted!"
+                    val message: String
+                    if (success) {
+                        message = "Ride Accepted!"
+                        notificationMap["accepted"] = "true"
+                        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+                        sharedPrefs.edit().putString(rideId.toString(), notificationMap.toString())
+                            .apply()
+                        val statusIntent = Intent(context, DriverRideStatusActivity::class.java)
+                        statusIntent.putExtra(
+                            DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
+                            notificationMap
+                        )
+                        startActivity(statusIntent)
                     } else {
-                        "Failed to accept ride."
+                        message = "Failed to accept ride."
                     }
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                     }
                 }
-                val statusIntent = Intent(context, DriverRideStatusActivity::class.java)
-                statusIntent.putExtra(
-                    DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
-                    notificationMap
-                )
-                startActivity(statusIntent)
             }
         }
 
         button_driverview_reject.setOnClickListener {
-            removeFromSharedPrefs(notificationMap)
             if (rideId != -1L) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
@@ -287,14 +235,16 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))
+/*        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))*/
         refreshRequests()
     }
 
     override fun onStop() {
         super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        if (::receiver.isInitialized) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -386,11 +336,9 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun refreshRequests() {
+    fun refreshRequests() {
         requests.clear()
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-//        sharedPrefs.edit().remove(PushNotificationService.STORED_REQUESTS_KEY).apply()
-//        sharedPrefs.edit().putString(PushNotificationService.STORED_REQUESTS_KEY, "47").apply()
         val rideIdsAsString =
             sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
         val map = HashMap<String, String>()
@@ -419,47 +367,34 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     }
 
     private fun updateViews() {
-        if (::notificationMap.isInitialized) {
-            notificationMap.clear()
-        }
-        val rideIdList = ArrayList<Long>()
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            ApiDao.getUserRides(ApiDao.UserType.DRIVER).sortedWith(compareBy { it.id }).reversed()
-                .forEach {
-                    rideIdList.add(it.id)
-                }
-            if (requests.size > 0) {
-                notificationMap = requests[0]
-                var updateMap: HashMap<*, *>? = null
-                for (request in requests) {
-                    val id = request["ride_id"].toString().toLong()
-                    if (!rideIdList.contains(id)) {
+        notificationMap.clear()
+        if (requests.size > 0) {
+            notificationMap = requests[0]
+            var updateMap = HashMap<String, String>()
+            for (request in requests) {
+                val status = request["accepted"]
+                if (status != null) {
+                    if (status == "false")
                         updateMap = request
-                        break
-                    }
+                    break
                 }
-                withContext(Dispatchers.Main) {
-                    if (updateMap != null) {
-                        for ((key, value) in updateMap) {
-                            if (key is String && value is String) {
-                                when (key) {
-                                    "hospital" -> println(key)
-                                    "name" -> text_driverview_name.text = value
-                                    "phone" -> text_driverview_phone.text = value
-                                    "price" -> text_driverview_fare.text = value
-                                    "ride_id" -> rideId = value.toLong()
-                                }
-                            }
-                            toggleRequestVisibility(true)
-                        }
-                    } else {
-                        toggleRequestVisibility(false)
+            }
+            if (updateMap.isNotEmpty()) {
+                for ((key, value) in updateMap) {
+                    when (key) {
+                        "hospital" -> println(key)
+                        "name" -> text_driverview_name.text = value
+                        "phone" -> text_driverview_phone.text = value
+                        "price" -> text_driverview_fare.text = value
+                        "ride_id" -> rideId = value.toLong()
                     }
+                    toggleRequestVisibility(true)
                 }
+            } else {
+                toggleRequestVisibility(false)
             }
         }
     }
-
 
     private fun removeFromSharedPrefs(map: HashMap<*, *>) {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)

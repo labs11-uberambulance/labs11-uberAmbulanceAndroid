@@ -85,6 +85,7 @@ class PushNotificationService : FirebaseMessagingService() {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
         if (key != null) {
             dataHashMap["timestamp"] = System.currentTimeMillis().toString()
+            dataHashMap["accepted"] = "false"
             sharedPrefs.edit().putString(key, dataHashMap.toString()).apply()
             val rideIds = sharedPrefs.getString(STORED_REQUESTS_KEY, null)
             val putString: String
