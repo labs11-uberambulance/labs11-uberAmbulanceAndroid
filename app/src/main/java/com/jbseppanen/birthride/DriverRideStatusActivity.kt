@@ -57,10 +57,33 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             }
         }
 
+        button_driverstatus_pickup.setOnClickListener {
+            updateStatus(ApiDao.StatusType.PICKUP)
+        }
+
+        button_driverstatus_dropoff.setOnClickListener {
+            updateStatus(ApiDao.StatusType.DROPOFF)
+        }
     }
 
     override fun onMapReady(p0: GoogleMap?) {
 
+    }
+
+    fun updateStatus(status: ApiDao.StatusType) {
+        if (!rideId.equals(-1)) {
+            CoroutineScope(Dispatchers.IO + Job()).launch {
+                val success = ApiDao.updateRideStatus(rideId, status, null)
+                val message = if (success) {
+                    "Ride updated!"
+                } else {
+                    "Failed to update ride status."
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
 
