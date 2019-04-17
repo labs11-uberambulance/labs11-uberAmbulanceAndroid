@@ -15,19 +15,31 @@
         tools:context=".DriverRideStatusActivity" />
 
     <Button
-        android:id="@+id/button_driverstatus_directions"
-        android:layout_width="wrap_content"
+        android:id="@+id/button_driverstatus_startdirections"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:background="@drawable/radiused_rectangle_background"
         android:backgroundTint="@color/colorButtonBrown"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:text="Get Directions"
+        android:text="Directions\nTo Mother"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
-        map:layout_constraintEnd_toEndOf="parent"
+        android:textSize="16sp"
         map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_driverstatus_enddirections"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/radiused_rectangle_background"
+        android:backgroundTint="@color/colorButtonBrown"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:text="Directions\nTo Dropoff"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintTop_toTopOf="parent" />
 
 
@@ -187,8 +199,8 @@
             android:id="@+id/button_driverstatus_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_next"
             map:layout_constraintBottom_toTopOf="@+id/button_driverstatus_dropoff"
@@ -198,8 +210,8 @@
             android:id="@+id/button_driverstatus_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_prev"
             map:layout_constraintBottom_toTopOf="@+id/button_driverstatus_dropoff"
@@ -235,7 +247,7 @@
 
     </android.support.constraint.ConstraintLayout>
 
-<!--    <Button
+    <!--    <Button
         android:id="@+id/button_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

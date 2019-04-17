@@ -1,14 +1,21 @@
 package com.jbseppanen.birthride
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.Toast
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -24,6 +31,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         const val DRIVER_RIDE_STATUS_KEY = "Driver ride status key"
     }
 
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mMap: GoogleMap
     private lateinit var context: Context
     private lateinit var activity: DriverRideStatusActivity
@@ -55,6 +63,27 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map_driverstatus) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                WelcomeActivity.LOCATION_REQUEST_CODE
+            )
+            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                driverLatLng = LatLng(location.latitude, location.longitude)
+                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
+            }
+        }
+
         rideId = intent.getLongExtra(PushNotificationService.SERVICE_MESSAGE_KEY, -1)
 
         requests = getSavedRequests(context)
@@ -81,15 +110,26 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
                 removeFromSharedPrefs(requests[listIndex], context)
             }
             listIndex = 0
+            rideId = -1
             updateViews()
         }
 
-        button_driverstatus_directions.setOnClickListener {
-            //Todo update this to use correct locations
-            val uri = Uri.parse("google.navigation:q=40.763500,-73.979305")
-            val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
-            directionsIntent.setPackage("com.google.android.apps.maps")
-            startActivity(directionsIntent)
+        button_driverstatus_startdirections.setOnClickListener {
+            if (motherLatLng != null) {
+                val uri = Uri.parse("google.navigation:q=${motherLatLng!!.latitude},${motherLatLng!!.longitude}}")
+                val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
+                directionsIntent.setPackage("com.google.android.apps.maps")
+                startActivity(directionsIntent)
+            }
+        }
+
+        button_driverstatus_enddirections.setOnClickListener {
+            if (destLatLng != null) {
+                val uri = Uri.parse("google.navigation:q=${destLatLng!!.latitude},${destLatLng!!.longitude}}")
+                val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
+                directionsIntent.setPackage("com.google.android.apps.maps")
+                startActivity(directionsIntent)
+            }
         }
 
 /*        button_test.setOnClickListener {
@@ -217,7 +257,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     }
 
     private fun updateStatus(status: ApiDao.StatusType) {
-        if (!rideId.equals(-1)) {
+        if (rideId != -1L) {
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 val success = ApiDao.updateRideStatus(rideId, status, null)
                 val message = if (success) {
