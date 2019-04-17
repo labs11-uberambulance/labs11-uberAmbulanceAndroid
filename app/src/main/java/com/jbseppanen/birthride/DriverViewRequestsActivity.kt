@@ -221,7 +221,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             }
         }
         button_driverview_accept.setOnClickListener {
-            if (!rideId.equals(-1)) {
+            if (rideId != -1L) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success = ApiDao.updateRideStatus(rideId, ApiDao.StatusType.ACCEPT, null)
                     val message = if (success) {
@@ -244,7 +244,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverview_reject.setOnClickListener {
             removeFromSharedPrefs(notificationMap)
-            if (!rideId.equals(-1)) {
+            if (rideId != -1L) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
                         ApiDao.updateRideStatus(
@@ -275,7 +275,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_driverview_ridestatus.setOnClickListener {
-//            startActivity(Intent(context, DriverRideStatusActivity::class.java))
+            startActivity(Intent(context, DriverRideStatusActivity::class.java))
         }
 
 //        refreshRequests()
@@ -416,23 +416,42 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     }
 
     private fun updateViews() {
-        if (requests.size > 0) {
-            notificationMap = requests[0]
-            for ((key, value) in notificationMap) {
-                if (key is String && value is String) {
-                    when (key) {
-                        "hospital" -> println(key)
-                        "name" -> text_driverview_name.text = value
-                        "phone" -> text_driverview_phone.text = value
-                        "price" -> text_driverview_fare.text = value
-                        "ride_id" -> rideId = value.toLong()
+        notificationMap.clear()
+        val rideIdList = ArrayList<Long>()
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            ApiDao.getUserRides().forEach {
+                rideIdList.add(it.id)
+            }
+            if (requests.size > 0) {
+                for (request in requests) {
+                    val id = request["ride_id"] as Long
+                    if (!rideIdList.contains(id)) {
+                        notificationMap = request
+                        break
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    if (notificationMap.isNotEmpty()) {
+                        for ((key, value) in notificationMap) {
+                            if (key is String && value is String) {
+                                when (key) {
+                                    "hospital" -> println(key)
+                                    "name" -> text_driverview_name.text = value
+                                    "phone" -> text_driverview_phone.text = value
+                                    "price" -> text_driverview_fare.text = value
+                                    "ride_id" -> rideId = value.toLong()
+                                }
+                            }
+                        }
+                        toggleRequestVisibility(true)
+                    } else {
+                        toggleRequestVisibility(false)
                     }
                 }
             }
-            toggleRequestVisibility(true)
-        } else {
-            toggleRequestVisibility(false)
         }
+
+
     }
 
     private fun removeFromSharedPrefs(map: HashMap<*, *>) {

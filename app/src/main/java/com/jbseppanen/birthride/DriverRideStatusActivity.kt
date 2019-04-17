@@ -21,19 +21,20 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         const val DRIVER_RIDE_STATUS_KEY = "Driver ride status key"
     }
 
+    private lateinit var mMap: GoogleMap
     private lateinit var context: Context
     var rideId = -1L
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_driver_ride_status)
+        setContentView(R.layout.activity_main)
 
         context = this
         val frameLayout: FrameLayout = findViewById(R.id.content_frame)
         frameLayout.addView(
             LayoutInflater.from(context).inflate(
-                R.layout.activity_driver_view_requests,
+                R.layout.activity_driver_ride_status,
                 null
             )
         )
@@ -74,13 +75,26 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             startActivity(directionsIntent)
         }
 
+        button_test.setOnClickListener {
+            getRideInfo()
+        }
+
     }
 
-    override fun onMapReady(p0: GoogleMap?) {
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+/*        var userLocation: Location? = user?.userData?.location
+        if (userLocation != null) {
+            setPoint(userLocation.asLatLng(), DriverViewRequestsActivity.PointType.PICKUP)
+        }
 
+        userLocation = user?.motherData?.destination
+        if (userLocation != null) {
+            setPoint(userLocation.asLatLng(), DriverViewRequestsActivity.PointType.DROPOFF)
+        }*/
     }
 
-    fun updateStatus(status: ApiDao.StatusType) {
+    private fun updateStatus(status: ApiDao.StatusType) {
         if (!rideId.equals(-1)) {
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 val success = ApiDao.updateRideStatus(rideId, status, null)
@@ -96,5 +110,13 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
+    fun getRideInfo() {
+        rideId = 56
+        if (rideId != -1L) {
+            CoroutineScope(Dispatchers.IO + Job()).launch {
+                ApiDao.getRideById(rideId)
+            }
+        }
 
+    }
 }

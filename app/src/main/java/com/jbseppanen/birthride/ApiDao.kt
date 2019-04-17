@@ -170,7 +170,7 @@ object ApiDao {
         return path
     }
 
-    suspend fun getRideById(id: Int) {
+    suspend fun getRideById(id: Long) {
         val (success, response) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides",
             requestType = NetworkAdapter.GET,
