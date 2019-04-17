@@ -2,6 +2,7 @@ package com.jbseppanen.birthride
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_driver_ride_status.*
+import kotlinx.android.synthetic.main.activity_driver_view_requests.*
 import kotlinx.coroutines.*
 
 class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
@@ -64,6 +66,14 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         button_driverstatus_dropoff.setOnClickListener {
             updateStatus(ApiDao.StatusType.DROPOFF)
         }
+
+        button_driverstatus_directions.setOnClickListener {
+            val uri = Uri.parse("google.navigation:q=40.763500,-73.979305")
+            val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
+            directionsIntent.setPackage("com.google.android.apps.maps")
+            startActivity(directionsIntent)
+        }
+
     }
 
     override fun onMapReady(p0: GoogleMap?) {

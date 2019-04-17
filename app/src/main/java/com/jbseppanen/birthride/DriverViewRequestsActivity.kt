@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
@@ -272,6 +273,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         button_driverview_refresh.setOnClickListener {
             refreshRequests()
         }
+
+        button_driverview_ridestatus.setOnClickListener {
+//            startActivity(Intent(context, DriverRideStatusActivity::class.java))
+        }
+
 //        refreshRequests()
     }
 
