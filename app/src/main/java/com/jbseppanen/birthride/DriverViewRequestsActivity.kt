@@ -19,13 +19,11 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.activity_driver_view_requests.*
@@ -36,7 +34,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: DriverViewRequestsActivity
     private var user: User? = null
     private var rideId: Long = -1
@@ -44,9 +41,9 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private var requests = ArrayList<HashMap<String, String>>()
     private var mainHashMap = HashMap<String, String>()
     private lateinit var context: Context
-    private lateinit var driverLatLng: LatLng
-    private lateinit var motherLatLng: LatLng
-    private lateinit var destLatLng: LatLng
+    private var driverLatLng: LatLng? = null
+    private var motherLatLng: LatLng? = null
+    private var destLatLng: LatLng? = null
 
     enum class PointType(val type: String) {
         START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
@@ -120,9 +117,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 driverLatLng = LatLng(location.latitude, location.longitude)
+                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
 /*                mMap.animateCamera(CameraUpdateFactory.newLatLng(
 //                    LatLng(location.latitude,location.longitude)
-                    Constants.defaultMapCenter //Todo remove this hardcoded location
+                    Constants.defaultMapCenter //
                 ), 2000, object : GoogleMap.CancelableCallback {
                     override fun onFinish() {
                         mMap.animateCamera(
@@ -220,10 +218,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_driverview_refresh.setOnClickListener {
-            //            refreshRequests()
-            CoroutineScope(Dispatchers.IO + Job()).launch {
+            refreshRequests()
+/*            CoroutineScope(Dispatchers.IO + Job()).launch {
                 ApiDao.getRideById(56)
-            }
+            }*/
 
         }
 
@@ -236,7 +234,9 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         super.onResume()
 /*        LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))*/
-        refreshRequests()
+        if (::mMap.isInitialized) {
+            refreshRequests()
+        }
     }
 
     override fun onStop() {
@@ -260,19 +260,56 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         refreshRequests()
     }
 
-    fun updateMap() {
+    private fun updateMap() {
+        if (::mMap.isInitialized) {
+            mMap.clear()
+            val markerPoints = ArrayList<LatLng>()
 
+            if (driverLatLng != null) {
+                setPoint(driverLatLng!!, PointType.START)
+                markerPoints.add(driverLatLng!!)
+            }
+            if (motherLatLng != null) {
+                setPoint(motherLatLng!!, PointType.PICKUP)
+                markerPoints.add(motherLatLng!!)
+            }
+            if (destLatLng != null) {
+                setPoint(destLatLng!!, PointType.PICKUP)
+                markerPoints.add(destLatLng!!)
+            }
+            if (driverLatLng != null && motherLatLng != null) {
+                drawDirections(driverLatLng!!, motherLatLng!!, Color.BLUE)
+            }
+            if (motherLatLng != null && destLatLng != null) {
+                drawDirections(motherLatLng!!, destLatLng!!, Color.RED)
+            }
+            if (markerPoints.size >= 2) {
+                val builder = LatLngBounds.Builder()
+                for (marker in markerPoints) {
+                    builder.include(marker)
+                }
+                val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+            }
+        }
     }
 
+    private fun drawDirections(start: LatLng, end: LatLng, lineColor: Int) {
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val path = ApiDao.getDirections(activity, start, end)
+            withContext(Dispatchers.Main) {
+                for (i in 0 until path.size) {
+                    mMap.addPolyline(
+                        PolylineOptions().addAll(path[i]).width(10f).color(
+                            lineColor
+                        )
+                    )
+                }
+            }
+        }
+    }
 
     private fun setPoint(latLng: LatLng, title: PointType) {
-
-/*        if (markerPoints.size > 1) {
-            markerPoints.clear()
-            mMap.clear()
-        }*/
-        markerPoints.add(latLng)
-
         // Creating MarkerOptions
         val options = MarkerOptions()
         options.position(latLng).title(title.type)
@@ -287,23 +324,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             }
         }
-
         // Add new marker to the Google Map Android API V2
         mMap.addMarker(options)
-
-        // Checks, whether start and end locations are captured
-        if (markerPoints.size >= 2) {
-            val origin = markerPoints[0]
-            val dest = markerPoints[1]
-            CoroutineScope(Dispatchers.IO + Job()).launch {
-                val path = ApiDao.getDirections(activity, origin, dest)
-                withContext(Dispatchers.Main) {
-                    for (i in 0 until path.size) {
-                        mMap.addPolyline(PolylineOptions().addAll(path[i]).width(5f).color(Color.RED))
-                    }
-                }
-            }
-        }
     }
 
     private fun setStatusButton(status: Boolean, context: Context) {
@@ -327,10 +349,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     }
 
     fun refreshRequests() {
+        driverLatLng = null
+        motherLatLng = null
+        destLatLng = null
         requests = getSavedRequests(context)
-        if (requests.size > 0) {
-            mainHashMap = requests[0]
-        }
         updateViews()
     }
 
@@ -346,20 +368,22 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     }
 
     private fun updateViews() {
+        mMap.clear()
         CoroutineScope(Dispatchers.IO + Job()).launch {
             mainHashMap.clear()
             if (requests.size > 0) {
                 mainHashMap = requests[0]
                 var uiHashMap = HashMap<String, String>()
-                for (request in requests) {
+                requests.forEach { request ->
                     val status = request["accepted"]
                     if (status != null) {
                         if (status == "false") {
                             val timeStamp = request["timestamp"]?.toLong()
                             if (timeStamp != null) {
                                 if (timeStamp > (System.currentTimeMillis() - Constants.DEFAULT_WAIT_TIME)) {
-                                    uiHashMap = request
-                                    break
+                                    if (uiHashMap.isEmpty()) {
+                                        uiHashMap = request
+                                    }
                                 } else {
                                     //remove if older than 10 minutes
                                     removeFromSharedPrefs(request, context)

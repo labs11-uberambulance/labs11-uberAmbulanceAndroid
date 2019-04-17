@@ -112,10 +112,6 @@ object ApiDao {
         return success
     }
 
-/*    private fun getTokenOld():String? {
-       return FirebaseAuth.getInstance().getAccessToken(false).result?.token
-    }*/
-
     suspend fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
         val json = "{\"location\":\"${location.latitude},${location.longitude}\"}"
@@ -151,7 +147,6 @@ object ApiDao {
 
     fun getDirections(activity: Activity, start: LatLng, end: LatLng): MutableList<List<LatLng>> {
         val path: MutableList<List<LatLng>> = ArrayList()
-//        val key = activity.applicationContext.resources.getString(R.string.google_api_key)
         val key = activity.applicationContext.resources.getString(R.string.gKey)
         val url =
             "https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}4&key=$key"
