@@ -77,6 +77,11 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverstatus_dropoff.setOnClickListener {
             updateStatus(ApiDao.StatusType.DROPOFF)
+            if (requests.size>listIndex) {
+                removeFromSharedPrefs(requests[listIndex], context)
+            }
+            listIndex = 0
+            updateViews()
         }
 
         button_driverstatus_directions.setOnClickListener {
@@ -207,7 +212,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
                     "Failed to update ride status."
                 }
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
