@@ -1,19 +1,13 @@
 package com.jbseppanen.birthride
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -112,7 +106,7 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
                             startActivity(
                                 Intent(
                                     context,
-                                    RideStatusActivity::class.java
+                                    MotherRideStatusActivity::class.java
                                 )
                             )
                             finish()

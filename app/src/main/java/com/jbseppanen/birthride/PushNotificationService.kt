@@ -16,12 +16,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.*
+import android.preference.PreferenceManager
 
 
 class PushNotificationService : FirebaseMessagingService() {
 
-    private lateinit var broadcaster:LocalBroadcastManager
-
+    private lateinit var broadcaster: LocalBroadcastManager
 
     override fun onCreate() {
         super.onCreate()
@@ -57,9 +58,10 @@ class PushNotificationService : FirebaseMessagingService() {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 scheduleJob()
             } else {*/
-                // Handle message within 10 seconds
+            // Handle message within 10 seconds
 //                handleNow()
-            if (remoteMessage.data!=null) {
+            if (remoteMessage.data != null) {
+                saveToSharedPrefs(remoteMessage.data)
                 val intent = Intent(SERVICE_BROADCAST_KEY)
                 val dataHashMap = HashMap<String, String>(remoteMessage.data)
                 intent.putExtra(SERVICE_MESSAGE_KEY, dataHashMap)
@@ -76,6 +78,24 @@ class PushNotificationService : FirebaseMessagingService() {
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
         sendNotification("New Ride Request")
+    }
+
+    private fun saveToSharedPrefs(dataHashMap: MutableMap<String, String>) {
+        val key = dataHashMap["ride_id"]
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        if (key != null) {
+            dataHashMap["timestamp"] = System.currentTimeMillis().toString()
+            dataHashMap["accepted"] = "false"
+            sharedPrefs.edit().putString(key, dataHashMap.toString()).apply()
+            val rideIds = sharedPrefs.getString(STORED_REQUESTS_KEY, null)
+            val putString: String
+            putString = if (rideIds == null) {
+                dataHashMap.getValue("ride_id")
+            } else {
+                "$rideIds,${dataHashMap.getValue("ride_id")}"
+            }
+            sharedPrefs.edit().putString(STORED_REQUESTS_KEY,putString).apply()
+        }
     }
     // [END receive_message]
 
@@ -134,10 +154,12 @@ class PushNotificationService : FirebaseMessagingService() {
      * @param messageBody FCM message body received.
      */
     private fun sendNotification(messageBody: String) {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, WelcomeActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-            PendingIntent.FLAG_ONE_SHOT)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0 /* Request code */, intent,
+            PendingIntent.FLAG_ONE_SHOT
+        )
 
         val channelId = getString(R.string.request_default_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
@@ -149,22 +171,37 @@ class PushNotificationService : FirebaseMessagingService() {
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId,
+            val channel = NotificationChannel(
+                channelId,
                 "Ride Request Notification Channel",
-                NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
             notificationManager.createNotificationChannel(channel)
         }
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
     }
 
+
+/*    @Throws(IOException::class)
+    private fun serialize(o: Serializable): String {
+        val baos = ByteArrayOutputStream()
+        val oos = ObjectOutputStream(baos)
+        oos.writeObject(o)
+        oos.close()
+        return baos.toString()
+    }*/
+
+
     companion object {
         private const val TAG = "FirebaseMsgService"
         const val SERVICE_BROADCAST_KEY = "BirthRide Service Key"
         const val SERVICE_MESSAGE_KEY = "BirthRide Service Message Key"
+        const val STORED_REQUESTS_KEY = "Stored requests"
     }
 }

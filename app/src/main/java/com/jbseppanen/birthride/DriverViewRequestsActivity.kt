@@ -9,11 +9,10 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -24,32 +23,30 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.activity_driver_view_requests.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.JsonObject
 import org.json.JSONObject
 
 class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: DriverViewRequestsActivity
     private var user: User? = null
     private var rideId: Long = -1
     private lateinit var receiver: BroadcastReceiver
-    private lateinit var notificationMap: HashMap<*, *>
+    private var requests = ArrayList<HashMap<String, String>>()
+    private var mainHashMap = HashMap<String, String>()
     private lateinit var context: Context
+    private var driverLatLng: LatLng? = null
+    private var motherLatLng: LatLng? = null
+    private var destLatLng: LatLng? = null
 
     enum class PointType(val type: String) {
-        START("Start Point"), PICKUP("Pickup Point"), DROPOFF("Dropoff Point")
+        START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,14 +62,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         )
         super.onCreateDrawer()
 
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map_driverview) as SupportMapFragment
         mapFragment.getMapAsync(this)
         activity = this
-
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener(OnCompleteListener { task ->
@@ -90,11 +84,23 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
 
-                // Log and toast
-                val msg = getString(R.string.msg_token_fmt, token)
-//                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                receiver = object : BroadcastReceiver() {
+                    override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
+                        when (receivedIntent?.action) {
+                            PushNotificationService.SERVICE_BROADCAST_KEY -> {
+                                refreshRequests()
+                            }
+                        }
+                    }
+                }
+                LocalBroadcastManager.getInstance(this)
+                    .registerReceiver(
+                        receiver,
+                        IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY)
+                    )
             })
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (ContextCompat.checkSelfPermission(
                 context,
@@ -110,9 +116,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 .show()
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(
+                driverLatLng = LatLng(location.latitude, location.longitude)
+                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
+/*                mMap.animateCamera(CameraUpdateFactory.newLatLng(
 //                    LatLng(location.latitude,location.longitude)
-                    Constants.defaultMapCenter //Todo remove this hardcoded location
+                    Constants.defaultMapCenter //
                 ), 2000, object : GoogleMap.CancelableCallback {
                     override fun onFinish() {
                         mMap.animateCamera(
@@ -126,9 +134,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
                     override fun onCancel() {
                     }
-                })
+                })*/
             }
-
         }
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -142,45 +149,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 }
             }
         }
-
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
-                when (receivedIntent?.action) {
-                    PushNotificationService.SERVICE_BROADCAST_KEY -> {
-
-                        notificationMap =
-                            receivedIntent.getSerializableExtra(PushNotificationService.SERVICE_MESSAGE_KEY) as HashMap<*, *>
-                        for ((key, value) in notificationMap) {
-                            if (key is String && value is String) {
-                                when (key) {
-                                    "hospital" -> println(key)
-                                    "name" -> text_driverview_name.text = value
-                                    "phone" -> text_driverview_phone.text = value
-                                    "price" -> text_driverview_fare.text = value
-                                    "ride_id" -> rideId = value.toLong()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        FirebaseInstanceId.getInstance().instanceId
-            .addOnCompleteListener(OnCompleteListener { task ->
-                /*                if (!task.isSuccessful) {
-                                    Log.w("ServiceTag", "getInstanceId failed", task.exception)
-                                    return@OnCompleteListener
-                                }
-
-                                // Get new Instance ID token
-                                val token = task.result?.token
-
-                                // Log and toast
-                                val msg = getString(R.string.msg_token_fmt, token)
-                                Log.d("ServiceTag", msg)
-                                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()*/
-            })
 
         button_driverview_togglestatus.setOnClickListener {
             if (user != null) {
@@ -196,39 +164,45 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             }
         }
         button_driverview_accept.setOnClickListener {
-            if (!rideId.equals(-1)) {
+            if (rideId != -1L) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    val success = ApiDao.acceptRejectRide(rideId, true, null)
-                    val message = if (success) {
-                        "Ride Accepted!"
+                    val success = ApiDao.updateRideStatus(rideId, ApiDao.StatusType.ACCEPT, null)
+                    val message: String
+                    if (success) {
+                        message = "Ride Accepted!"
+                        mainHashMap["accepted"] = "true"
+                        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+                        sharedPrefs.edit().putString(rideId.toString(), mainHashMap.toString())
+                            .apply()
+                        val statusIntent = Intent(context, DriverRideStatusActivity::class.java)
+                        statusIntent.putExtra(
+                            DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
+                            mainHashMap
+                        )
+                        startActivity(statusIntent)
                     } else {
-                        "Failed to accept ride."
+                        message = "Failed to accept ride."
                     }
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                     }
                 }
             }
-
-            //Temp lines below
-/*            CoroutineScope(Dispatchers.IO + Job()).launch {
-                ApiDao.getRideById(0)
-            }*/
-
         }
 
         button_driverview_reject.setOnClickListener {
-            if (!rideId.equals(-1)) {
+            if (rideId != -1L) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
-                        ApiDao.acceptRejectRide(
+                        ApiDao.updateRideStatus(
                             rideId,
-                            false,
-                            JSONObject(notificationMap).toString()
-//                            notificationMap.toString()
+                            ApiDao.StatusType.REJECT,
+                            JSONObject(mainHashMap).toString()
                         )
                     if (success) {
-                        notificationMap = HashMap<String, String>()
+                        requests.remove(mainHashMap)
+                        removeFromSharedPrefs(mainHashMap, context)
+//                        mainHashMap = HashMap<String, String>()
                     }
                     val message = if (success) {
                         "Ride Rejected!"
@@ -240,62 +214,102 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
                 }
             }
+            refreshRequests()
         }
 
+        button_driverview_refresh.setOnClickListener {
+            refreshRequests()
+/*            CoroutineScope(Dispatchers.IO + Job()).launch {
+                ApiDao.getRideById(56)
+            }*/
 
+        }
+
+        button_driverview_ridestatus.setOnClickListener {
+            startActivity(Intent(context, DriverRideStatusActivity::class.java))
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))
+/*        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))*/
+        if (::mMap.isInitialized) {
+            refreshRequests()
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        if (::receiver.isInitialized) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-//        mMap.addMarker(MarkerOptions().position(Constants.defaultMapCenter).title("Marker in Uganda"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(Constants.defaultMapCenter))
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            if (user?.userData?.location != null) {
-                var split: List<String>? = user!!.userData.location?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            //                            setPoint(userLatLng)
-                        }
-                    }
-                }
-                split = user!!.motherData?.destination?.latlng?.split(",")
-                if (split != null && split.size == 2) {
-                    val userLatLng: LatLng? = LatLng(split[0].toDouble(), split[1].toDouble())
-                    if (userLatLng != null) {
-                        withContext(Dispatchers.Main) {
-                            //                            setPoint(userLatLng)
-                        }
-                    }
-                }
-            }
+        var userLocation: Location? = user?.userData?.location
+        if (userLocation != null) {
+            setPoint(userLocation.asLatLng(), PointType.PICKUP)
         }
 
-        mMap.setOnMapClickListener { latLng ->
-            //            setPoint(latLng)
+        userLocation = user?.motherData?.destination
+        if (userLocation != null) {
+            setPoint(userLocation.asLatLng(), PointType.DROPOFF)
+        }
+        refreshRequests()
+    }
+
+    private fun updateMap() {
+        if (::mMap.isInitialized) {
+            mMap.clear()
+            val markerPoints = ArrayList<LatLng>()
+
+            if (driverLatLng != null) {
+                setPoint(driverLatLng!!, PointType.START)
+                markerPoints.add(driverLatLng!!)
+            }
+            if (motherLatLng != null) {
+                setPoint(motherLatLng!!, PointType.PICKUP)
+                markerPoints.add(motherLatLng!!)
+            }
+            if (destLatLng != null) {
+                setPoint(destLatLng!!, PointType.PICKUP)
+                markerPoints.add(destLatLng!!)
+            }
+            if (driverLatLng != null && motherLatLng != null) {
+                drawDirections(driverLatLng!!, motherLatLng!!, Color.BLUE)
+            }
+            if (motherLatLng != null && destLatLng != null) {
+                drawDirections(motherLatLng!!, destLatLng!!, Color.RED)
+            }
+            if (markerPoints.size >= 2) {
+                val builder = LatLngBounds.Builder()
+                for (marker in markerPoints) {
+                    builder.include(marker)
+                }
+                val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+            }
+        }
+    }
+
+    private fun drawDirections(start: LatLng, end: LatLng, lineColor: Int) {
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val path = ApiDao.getDirections(activity, start, end)
+            withContext(Dispatchers.Main) {
+                for (i in 0 until path.size) {
+                    mMap.addPolyline(
+                        PolylineOptions().addAll(path[i]).width(10f).color(
+                            lineColor
+                        )
+                    )
+                }
+            }
         }
     }
 
     private fun setPoint(latLng: LatLng, title: PointType) {
-
-/*        if (markerPoints.size > 1) {
-            markerPoints.clear()
-            mMap.clear()
-        }*/
-        markerPoints.add(latLng)
-
         // Creating MarkerOptions
         val options = MarkerOptions()
         options.position(latLng).title(title.type)
@@ -310,26 +324,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             }
         }
-
         // Add new marker to the Google Map Android API V2
         mMap.addMarker(options)
-
-        // Checks, whether start and end locations are captured
-        if (markerPoints.size >= 2) {
-            val origin = markerPoints[0]
-            val dest = markerPoints[1]
-            CoroutineScope(Dispatchers.IO + Job()).launch {
-                val path = ApiDao.getDirections(activity, origin, dest)
-                withContext(Dispatchers.Main) {
-                    for (i in 0 until path.size) {
-                        mMap.addPolyline(PolylineOptions().addAll(path[i]).width(5f).color(Color.RED))
-                    }
-                }
-            }
-        }
     }
 
-    fun setStatusButton(status: Boolean, context: Context) {
+    private fun setStatusButton(status: Boolean, context: Context) {
         if (status) {
             button_driverview_togglestatus.setBackgroundColor(
                 ContextCompat.getColor(
@@ -346,6 +345,92 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 )
             )
             button_driverview_togglestatus.text = getString(R.string.driver_status_false)
+        }
+    }
+
+    fun refreshRequests() {
+        driverLatLng = null
+        motherLatLng = null
+        destLatLng = null
+        requests = getSavedRequests(context)
+        updateViews()
+    }
+
+    private fun toggleRequestVisibility(status: Boolean) {
+        layout_driverview_default.visibility = when (status) {
+            true -> View.INVISIBLE
+            false -> View.VISIBLE
+        }
+        layout_driverview_request.visibility = when (status) {
+            true -> View.VISIBLE
+            false -> View.INVISIBLE
+        }
+    }
+
+    private fun updateViews() {
+        mMap.clear()
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            mainHashMap.clear()
+            if (requests.size > 0) {
+                mainHashMap = requests[0]
+                var uiHashMap = HashMap<String, String>()
+                requests.forEach { request ->
+                    val status = request["accepted"]
+                    if (status != null) {
+                        if (status == "false") {
+                            val timeStamp = request["timestamp"]?.toLong()
+                            if (timeStamp != null) {
+                                if (timeStamp > (System.currentTimeMillis() - Constants.DEFAULT_WAIT_TIME)) {
+                                    if (uiHashMap.isEmpty()) {
+                                        uiHashMap = request
+                                    }
+                                } else {
+                                    //remove if older than 10 minutes
+                                    removeFromSharedPrefs(request, context)
+                                }
+                            } else {
+                                //remove if no timestamp found.  Should not happen.
+                                removeFromSharedPrefs(request, context)
+                            }
+                        }
+                    }
+                }
+
+                if (uiHashMap.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        for ((key, value) in uiHashMap) {
+
+                            when (key) {
+                                "hospital" -> println(key)
+                                "name" -> text_driverview_name.text = value
+                                "phone" -> text_driverview_phone.text = value
+                                "price" -> text_driverview_fare.text = value
+                                "ride_id" -> rideId = value.toLong()
+                            }
+                        }
+                        toggleRequestVisibility(true)
+                    }
+                    val ride = ApiDao.getRideById(rideId)
+                    if (ride != null) {
+                        var latLng = toLatLng(ride.start)
+                        if (latLng != null) {
+                            motherLatLng = latLng
+                        }
+                        latLng = toLatLng(ride.destination)
+                        if (latLng != null) {
+                            destLatLng = latLng
+                        }
+                        withContext(Dispatchers.Main) {
+                            updateMap()
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        toggleRequestVisibility(false)
+                    }
+
+                }
+            }
         }
     }
 }

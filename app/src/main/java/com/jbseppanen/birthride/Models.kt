@@ -72,11 +72,14 @@ data class Location(
 @Serializable
 data class Ride(
     val id: Long,
-    val mother_id: String,
     val driver_id: String,
+    val mother_id: String,
     val start: String,
+    val start_name: String,
     val destination: String,
-    val rejected_drivers: Any? = null,
+    val dest_name: String,
+    val price: String,
+//    val rejected_drivers: Any? = null,
     val ride_status: String
 //    val created_at: String,
 //    val updated_at: String

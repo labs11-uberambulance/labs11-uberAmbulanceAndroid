@@ -36,7 +36,7 @@ class MotherOptionsActivity : MainActivity() {
             startActivity(
                 Intent(
                     this,
-                    RideStatusActivity::class.java
+                    MotherRideStatusActivity::class.java
                 )
             )
         }
