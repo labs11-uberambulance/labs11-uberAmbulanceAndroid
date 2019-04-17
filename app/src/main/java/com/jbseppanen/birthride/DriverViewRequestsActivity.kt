@@ -222,7 +222,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         button_driverview_accept.setOnClickListener {
             if (!rideId.equals(-1)) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    val success = ApiDao.acceptRejectRide(rideId, true, null)
+                    val success = ApiDao.updateRideStatus(rideId, ApiDao.StatusType.ACCEPT, null)
                     val message = if (success) {
                         "Ride Accepted!"
                     } else {
@@ -232,9 +232,13 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                     }
                 }
+                val statusIntent = Intent(context, DriverRideStatusActivity::class.java)
+                statusIntent.putExtra(
+                    DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
+                    notificationMap
+                )
+                startActivity(statusIntent)
             }
-            refreshRequests()
-            //TODO Go to another view.
         }
 
         button_driverview_reject.setOnClickListener {
@@ -242,9 +246,9 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             if (!rideId.equals(-1)) {
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
-                        ApiDao.acceptRejectRide(
+                        ApiDao.updateRideStatus(
                             rideId,
-                            false,
+                            ApiDao.StatusType.REJECT,
                             JSONObject(notificationMap).toString()
                         )
                     if (success) {
@@ -268,13 +272,14 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         button_driverview_refresh.setOnClickListener {
             refreshRequests()
         }
-        refreshRequests()
+//        refreshRequests()
     }
 
     override fun onResume() {
         super.onResume()
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))
+        refreshRequests()
     }
 
     override fun onStop() {

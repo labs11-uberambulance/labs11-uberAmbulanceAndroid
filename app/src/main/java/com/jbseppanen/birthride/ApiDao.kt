@@ -25,6 +25,10 @@ const val baseUrl = "https://birthrider-backend.herokuapp.com/api"
 @WorkerThread
 object ApiDao {
 
+    enum class StatusType(val type: String) {
+        ACCEPT("accepts"), REJECT("rejects"), PICKUP("arrives"), DROPOFF("delivers")
+    }
+
     private suspend fun getToken(): String? {
         val await: GetTokenResult = FirebaseAuth.getInstance().getAccessToken(false).await()
         return await.token
@@ -230,19 +234,15 @@ object ApiDao {
         return success
     }
 
-    suspend fun acceptRejectRide(rideId: Long, accept: Boolean, json: String?): Boolean {
-        val urlParam = when (accept) {
-            true -> "accepts"
-            false -> "rejects"
+    suspend fun updateRideStatus(rideId: Long, statusType: StatusType, json: String?): Boolean {
+        val requestType = when(statusType.type) {
+            StatusType.REJECT.type ->NetworkAdapter.POST
+            else ->NetworkAdapter.GET
         }
-
         //Accept  = get.  Reject = Post
         val (success, response) = NetworkAdapter.httpRequest(
-            stringUrl = "$baseUrl/rides/driver/$urlParam/$rideId",
-            requestType = when (accept) {
-                true -> NetworkAdapter.GET
-                false -> NetworkAdapter.POST
-            },
+            stringUrl = "$baseUrl/rides/driver/${statusType.type}/$rideId",
+            requestType = requestType,
             jsonBody = "{\"data\":$json}",
             headerProperties = mapOf(
                 "Authorization" to "${getToken()}",
