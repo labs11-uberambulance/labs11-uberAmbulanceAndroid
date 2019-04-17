@@ -138,3 +138,7 @@ data class RideRequestData(
 interface ResultCallback {
     fun returnResult(result: String?)
 }
+
+enum class PointType(val type: String) {
+    START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
+}

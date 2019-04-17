@@ -2,15 +2,18 @@ package com.jbseppanen.birthride
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.Toast
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_driver_ride_status.*
 import kotlinx.android.synthetic.main.activity_driver_view_requests.*
 import kotlinx.coroutines.*
@@ -23,7 +26,14 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var context: Context
+    private lateinit var activity: DriverRideStatusActivity
+
     var rideId = -1L
+    var listIndex = 0
+    private lateinit var requests: ArrayList<HashMap<String, String>>
+    private var driverLatLng: LatLng? = null
+    private var motherLatLng: LatLng? = null
+    private var destLatLng: LatLng? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +41,8 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_main)
 
         context = this
+        activity = this
+
         val frameLayout: FrameLayout = findViewById(R.id.content_frame)
         frameLayout.addView(
             LayoutInflater.from(context).inflate(
@@ -43,18 +55,17 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map_driverstatus) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        val data =
-            intent.getSerializableExtra(PushNotificationService.SERVICE_MESSAGE_KEY) as HashMap<*, *>?
+        rideId = intent.getLongExtra(PushNotificationService.SERVICE_MESSAGE_KEY, -1)
 
-        if (data != null) {
-            for ((key, value) in data) {
-                if (key is String && value is String) {
-                    when (key) {
-                        "hospital" -> text_driverstatus_dropoffplace.text = value
-                        "name" -> text_driverstatus_name.text = value
-                        "phone" -> text_driverstatus_phone.text = value
-                        "price" -> text_driverstatus_fare.text = value
-                        "ride_id" -> rideId = value.toLong()
+        requests = getSavedRequests(context)
+
+        //Get index of requested item
+        if (rideId != -1L) {
+            requests.forEachIndexed { index, request ->
+                val id = request["ride_id"]?.toLong()
+                if (id != null) {
+                    if (id == rideId) {
+                        listIndex = index
                     }
                 }
             }
@@ -69,6 +80,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_driverstatus_directions.setOnClickListener {
+            //Todo update this to use correct locations
             val uri = Uri.parse("google.navigation:q=40.763500,-73.979305")
             val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
             directionsIntent.setPackage("com.google.android.apps.maps")
@@ -76,22 +88,113 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_test.setOnClickListener {
-            getRideInfo()
+            updateViews()
         }
+    }
 
+    private fun updateViews() {
+        mMap.clear()
+
+        if (requests.size > listIndex) {
+            for ((key, value) in requests[listIndex]) {
+                when (key) {
+                    "hospital" -> text_driverstatus_dropoffplace.text = value
+                    "name" -> text_driverstatus_name.text = value
+                    "phone" -> text_driverstatus_phone.text = value
+                    "price" -> text_driverstatus_fare.text = value
+                    "ride_id" -> rideId = value.toLong()
+                }
+            }
+        }
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val ride = ApiDao.getRideById(rideId)
+            if (ride != null) {
+                var latLng = toLatLng(ride.start)
+                if (latLng != null) {
+                    motherLatLng = latLng
+                }
+                latLng = toLatLng(ride.destination)
+                if (latLng != null) {
+                    destLatLng = latLng
+                }
+                withContext(Dispatchers.Main) {
+                    updateMap()
+                }
+            }
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-/*        var userLocation: Location? = user?.userData?.location
-        if (userLocation != null) {
-            setPoint(userLocation.asLatLng(), DriverViewRequestsActivity.PointType.PICKUP)
-        }
+        updateViews()
+    }
 
-        userLocation = user?.motherData?.destination
-        if (userLocation != null) {
-            setPoint(userLocation.asLatLng(), DriverViewRequestsActivity.PointType.DROPOFF)
-        }*/
+    private fun updateMap() {
+        if (::mMap.isInitialized) {
+            mMap.clear()
+            val markerPoints = ArrayList<LatLng>()
+
+            if (driverLatLng != null) {
+                setPoint(driverLatLng!!, PointType.START)
+                markerPoints.add(driverLatLng!!)
+            }
+            if (motherLatLng != null) {
+                setPoint(motherLatLng!!, PointType.PICKUP)
+                markerPoints.add(motherLatLng!!)
+            }
+            if (destLatLng != null) {
+                setPoint(destLatLng!!, PointType.PICKUP)
+                markerPoints.add(destLatLng!!)
+            }
+            if (driverLatLng != null && motherLatLng != null) {
+                drawDirections(driverLatLng!!, motherLatLng!!, Color.BLUE)
+            }
+            if (motherLatLng != null && destLatLng != null) {
+                drawDirections(motherLatLng!!, destLatLng!!, Color.RED)
+            }
+            if (markerPoints.size >= 2) {
+                val builder = LatLngBounds.Builder()
+                for (marker in markerPoints) {
+                    builder.include(marker)
+                }
+                val padding = (resources.displayMetrics.widthPixels * .2).toInt()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding))
+            }
+        }
+    }
+
+    private fun drawDirections(start: LatLng, end: LatLng, lineColor: Int) {
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            val path = ApiDao.getDirections(activity, start, end)
+            withContext(Dispatchers.Main) {
+                for (i in 0 until path.size) {
+                    mMap.addPolyline(
+                        PolylineOptions().addAll(path[i]).width(10f).color(
+                            lineColor
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun setPoint(latLng: LatLng, title: PointType) {
+        // Creating MarkerOptions
+        val options = MarkerOptions()
+        options.position(latLng).title(title.type)
+        when (title.type) {
+            PointType.START.type -> {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+            }
+            PointType.PICKUP.type -> {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            }
+            PointType.DROPOFF.type -> {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+            }
+        }
+        // Add new marker to the Google Map Android API V2
+        mMap.addMarker(options)
     }
 
     private fun updateStatus(status: ApiDao.StatusType) {
@@ -108,15 +211,5 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
                 }
             }
         }
-    }
-
-    fun getRideInfo() {
-//        rideId = 56
-        if (rideId != -1L) {
-            CoroutineScope(Dispatchers.IO + Job()).launch {
-                ApiDao.getRideById(rideId)
-            }
-        }
-
     }
 }
