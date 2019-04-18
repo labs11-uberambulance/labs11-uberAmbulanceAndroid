@@ -193,7 +193,7 @@ object ApiDao {
         }
     }
 
-    suspend fun getUserRides(userType: UserType):List<Ride> {
+    suspend fun getUserRides(userType: UserType):MutableList<Ride> {
         val tokenString = getToken()
         val (success, result) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/${userType.type}",
@@ -205,7 +205,7 @@ object ApiDao {
                 "Accept" to "application/json"
             )
         )
-        val rides = mutableListOf<Ride>()
+        var rides = mutableListOf<Ride>()
         if (success) {
             val jsonArray = JSONArray(result)
             for (i in 0 until jsonArray.length()) {
@@ -228,6 +228,7 @@ object ApiDao {
                 }
             }
         }
+        rides.sortByDescending { it.id  }
         return rides
     }
 
