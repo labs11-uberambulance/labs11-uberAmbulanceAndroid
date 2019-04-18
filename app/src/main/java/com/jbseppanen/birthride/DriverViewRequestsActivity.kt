@@ -318,6 +318,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     }
 
     fun refreshRequests() {
+        progress_driverview.visibility = View.VISIBLE
         driverLatLng = null
         motherLatLng = null
         destLatLng = null
@@ -378,6 +379,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                             }
                         }
                         toggleRequestVisibility(true)
+                        progress_driverview.visibility = View.INVISIBLE
                     }
                     val ride = ApiDao.getRideById(rideId)
                     if (ride != null) {
@@ -396,6 +398,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 } else {
                     withContext(Dispatchers.Main) {
                         toggleRequestVisibility(false)
+                        progress_driverview.visibility = View.INVISIBLE
                     }
 
                 }
