@@ -386,6 +386,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     }
 
                 }
+            } else {
+                progress_driverview.visibility = View.INVISIBLE
             }
         }
     }
