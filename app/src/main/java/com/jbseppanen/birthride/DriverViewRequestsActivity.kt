@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -159,7 +160,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                             DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
                             rideId
                         )
-                        startActivity(statusIntent)
+                        withContext(Dispatchers.Main) {
+                            refreshRequests()
+                            startActivity(statusIntent)
+                        }
                     } else {
                         message = "Failed to accept ride."
                     }
@@ -181,7 +185,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         )
                     if (success) {
                         requests.remove(mainHashMap)
-                        removeFromSharedPrefs(mainHashMap, context)
+                        removeFromSharedPrefs(rideId.toString(), context)
 //                        mainHashMap = HashMap<String, String>()
                     }
                     val message = if (success) {
@@ -299,25 +303,22 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     private fun setStatusButton(status: Boolean, context: Context) {
         if (status) {
-            button_driverview_togglestatus.setBackgroundColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.colorButtonGreen
+            button_driverview_togglestatus.backgroundTintList =
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.colorButtonGreen)
                 )
-            )
             button_driverview_togglestatus.text = getString(R.string.driver_status_true)
         } else {
-            button_driverview_togglestatus.setBackgroundColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.colorButtonRed
+            button_driverview_togglestatus.backgroundTintList =
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.colorButtonRed)
                 )
-            )
             button_driverview_togglestatus.text = getString(R.string.driver_status_false)
         }
     }
 
     fun refreshRequests() {
+        progress_driverview.visibility = View.VISIBLE
         driverLatLng = null
         motherLatLng = null
         destLatLng = null
@@ -355,11 +356,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                                     }
                                 } else {
                                     //remove if older than 10 minutes
-                                    removeFromSharedPrefs(request, context)
+                                    val removeId = request["ride_id"]
+                                    if (removeId != null) {
+                                        removeFromSharedPrefs(removeId, context)
+                                    }
                                 }
-                            } else {
-                                //remove if no timestamp found.  Should not happen.
-                                removeFromSharedPrefs(request, context)
                             }
                         }
                     }
@@ -378,6 +379,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                             }
                         }
                         toggleRequestVisibility(true)
+                        progress_driverview.visibility = View.INVISIBLE
                     }
                     val ride = ApiDao.getRideById(rideId)
                     if (ride != null) {
@@ -396,6 +398,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 } else {
                     withContext(Dispatchers.Main) {
                         toggleRequestVisibility(false)
+                        progress_driverview.visibility = View.INVISIBLE
                     }
 
                 }

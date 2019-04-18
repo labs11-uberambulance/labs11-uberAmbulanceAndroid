@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-//    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    //    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
     private lateinit var user: User
@@ -58,36 +58,6 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         CoroutineScope(Dispatchers.IO + Job()).launch {
             getUser()
         }
-
-
-/*        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) run {
-            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
-                .show()
-            return
-        } else {
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(
-//                    LatLng(location.latitude,location.longitude)
-                    Constants.defaultMapCenter //Todo remove this hardcoded location
-                ), 2000, object : GoogleMap.CancelableCallback {
-                    override fun onFinish() {
-                        mMap.animateCamera(
-                            CameraUpdateFactory.zoomTo(10f),
-                            2000,
-                            object : GoogleMap.CancelableCallback {
-                                override fun onFinish() {}
-                                override fun onCancel() {}
-                            })
-                    }
-                    override fun onCancel() {
-                    }
-                })
-            }
-        }*/
 
         button_requestconfirm_send.setOnClickListener {
             if (markerPoints.size != 2) {
@@ -246,10 +216,9 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         if (drivers.size - 1 >= driverIndex) {
             requestedDriver = drivers[driverIndex]
             text_requestconfirm_pickuptime.text = requestedDriver!!.duration.time
-            text_requestconfirm_fare.text =
-                "${requestedDriver!!.driver.price.toString()} USh"
-//            text_requestconfirm_waittime.text = "10 mins"
-            text_requestconfirm_waittime.text = requestedDriver!!.driver.name
+            val fare = "${requestedDriver!!.driver.price.toString()} USh"
+            text_requestconfirm_fare.text = fare
+            text_requestconfirm_drivername.text = requestedDriver!!.driver.name
         }
     }
 
@@ -311,23 +280,5 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 }
-
-
-/*    class MinutesPicker : DialogFragment() {
-  text_requestconfirm_waittime.setOnClickListener {
-        val fragment = MinutesPicker()
-        fragment.show(supportFragmentManager, "Minutes To Wait")
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view: NumberPicker = NumberPicker(context)
-        view.minValue = 0
-        view.maxValue = 60
-        return view
-    }
-}*/
 
 

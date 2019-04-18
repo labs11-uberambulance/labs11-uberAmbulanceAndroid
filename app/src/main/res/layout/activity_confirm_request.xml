@@ -16,53 +16,6 @@
         map:layout_constraintTop_toTopOf="parent"
         tools:context=".LocationSelectionActivity" />
 
-    <!--    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="16dp"
-            android:background="@drawable/radiused_rectangle_background"
-            android:backgroundTint="@color/colorPrimary"
-            android:orientation="vertical"
-            android:radius="10dp"
-            map:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:text="Pickup Location"
-                android:textSize="12sp" />
-
-            <EditText
-                android:id="@+id/edit_requestconfirm_userlocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:inputType="textPostalAddress" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:text="Destination Location"
-                android:textSize="12sp" />
-
-
-            <EditText
-                android:id="@+id/edit_requestconfirm_destination"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:inputType="textPostalAddress" />
-        </LinearLayout>-->
-
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_requestconfirm"
         android:layout_width="match_parent"
@@ -101,7 +54,7 @@
             android:text="Est. Fare: "
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
-            map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_waittime_label"
+            map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_drivername_label"
             map:layout_constraintStart_toStartOf="parent" />
 
         <TextView
@@ -111,41 +64,40 @@
             android:text=" -"
             android:textColor="@color/colorPrimary"
             android:textSize="24sp"
-            map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_waittime_label"
+            map:layout_constraintBottom_toTopOf="@+id/text_requestconfirm_drivername_label"
             map:layout_constraintStart_toEndOf="@id/text_requestconfirm_fare_label" />
 
         <TextView
-            android:id="@+id/text_requestconfirm_waittime_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wait for response: "
-            android:textAlignment="center"
-            android:textColor="@color/colorPrimary"
-            android:textSize="24sp"
-            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_prev"
-            map:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/text_requestconfirm_waittime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textColor="@color/colorPrimary"
-            android:textSize="24sp"
-            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_prev"
-            map:layout_constraintStart_toEndOf="@id/text_requestconfirm_waittime_label" />
-
-        <Button
-            android:id="@+id/button_requestconfirm_prev"
+            android:id="@+id/text_requestconfirm_drivername_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/radiused_rectangle_background"
-            android:backgroundTint="@color/colorButtonBrown"
-            android:enabled="false"
-            android:text="Previous"
-            android:textColor="@android:color/white"
+            android:text="Driver Name: "
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
             android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_details"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/text_requestconfirm_drivername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="-"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_details"
+            map:layout_constraintStart_toEndOf="@id/text_requestconfirm_drivername_label" />
+
+        <ImageButton
+            android:id="@+id/button_requestconfirm_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@android:color/transparent"
+            android:enabled="false"
+            android:src="@drawable/ic_prev"
             map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
             map:layout_constraintEnd_toStartOf="@+id/button_requestconfirm_details"
             map:layout_constraintStart_toEndOf="@+id/text_requestconfirm_fare_label"
@@ -159,24 +111,21 @@
             android:background="@drawable/radiused_rectangle_background"
             android:backgroundTint="@color/colorButtonBrown"
             android:enabled="false"
-            android:text="See Details"
+            android:text="See\nDetails"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="16sp"
             map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
             map:layout_constraintEnd_toStartOf="@+id/button_requestconfirm_next"
             map:layout_constraintStart_toEndOf="@+id/button_requestconfirm_prev" />
 
-        <Button
+        <ImageButton
             android:id="@+id/button_requestconfirm_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/radiused_rectangle_background"
-            android:backgroundTint="@color/colorButtonBrown"
+            android:layout_marginBottom="24dp"
+            android:background="@android:color/transparent"
             android:enabled="false"
-            android:text="Next"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:src="@drawable/ic_next"
             map:layout_constraintBottom_toTopOf="@+id/button_requestconfirm_send"
             map:layout_constraintEnd_toEndOf="parent"
             map:layout_constraintStart_toEndOf="@+id/button_requestconfirm_details" />

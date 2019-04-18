@@ -26,6 +26,17 @@
         android:textSize="24sp"
         map:layout_constraintTop_toTopOf="parent" />
 
+    <ProgressBar
+        android:id="@+id/progress_driverview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_marginBottom="16dp"
+        map:layout_constraintBottom_toBottomOf="@+id/map_driverview"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintHorizontal_bias=".5"
+        map:layout_constraintStart_toStartOf="parent" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_driverview_default"
         android:layout_width="match_parent"
@@ -40,21 +51,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="No new ride requests currently available"
+            android:layout_marginTop="36dp"
+            android:textSize="20sp"
+            android:text="No new ride requests available"
             android:textAlignment="center"
             android:textColor="@color/colorPrimary"
             map:layout_constraintTop_toTopOf="parent" />
-
-        <ProgressBar
-            android:id="@+id/progress_driverview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            map:layout_constraintBottom_toTopOf="@+id/button_driverview_refresh"
-            map:layout_constraintEnd_toEndOf="parent"
-            map:layout_constraintHorizontal_bias=".5"
-            map:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/button_driverview_refresh"
@@ -79,7 +81,7 @@
             android:layout_margin="16dp"
             android:background="@drawable/radiused_rectangle_background"
             android:backgroundTint="@color/colorButtonBrown"
-            android:text="View Accepted Rides"
+            android:text="View My Rides"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             map:layout_constraintBottom_toBottomOf="parent" />
@@ -225,7 +227,7 @@
             android:paddingRight="12dp"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
-            android:text="View Accepted\nRides"
+            android:text="View My\nRides"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             map:layout_constraintBottom_toBottomOf="parent"
