@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -299,20 +300,14 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     private fun setStatusButton(status: Boolean, context: Context) {
         if (status) {
-            button_driverview_togglestatus.setBackgroundColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.colorButtonGreen
+            button_driverview_togglestatus.backgroundTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorButtonGreen)
                 )
-            )
             button_driverview_togglestatus.text = getString(R.string.driver_status_true)
         } else {
-            button_driverview_togglestatus.setBackgroundColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.colorButtonRed
+            button_driverview_togglestatus.backgroundTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorButtonRed)
                 )
-            )
             button_driverview_togglestatus.text = getString(R.string.driver_status_false)
         }
     }
