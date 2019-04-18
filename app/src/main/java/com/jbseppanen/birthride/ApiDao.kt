@@ -229,7 +229,7 @@ object ApiDao {
                 }
             }
         }
-        rides.sortByDescending { it.id }
+        rides.sortByDescending { it.id  }
         return rides
     }
 
