@@ -37,9 +37,9 @@ class MotherRideStatusActivity : MainActivity() {
             withContext(Dispatchers.Main) {
                 progress_ridestatus.visibility = View.VISIBLE
             }
-            val userRides: ArrayList<Ride> = ApiDao.getUserRides(ApiDao.UserType.MOTHER)
+            val userRides:List<Ride> = ApiDao.getUserRides(ApiDao.UserType.MOTHER)
             var statusText = "No rides found"
-            if (userRides.size > 0) {
+            if (userRides.isNotEmpty()) {
                 val rides =
                     userRides.sortedWith(compareBy { it.id }).reversed() as ArrayList<Ride>
                 statusText = rides[0].ride_status.replace("_", " ").capitalize()

@@ -39,7 +39,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     private var destLatLng: LatLng? = null
     private var listIndex = 0
     private var rideId = -1L
-    private var rides = ArrayList<Ride>()
+    private var rides = listOf<Ride>()
     private var request = HashMap<String, String>()
 
 
@@ -86,8 +86,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         rideId = intent.getLongExtra(PushNotificationService.SERVICE_MESSAGE_KEY, -1)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            rides =
-                ApiDao.getUserRides(ApiDao.UserType.DRIVER).sortedWith(compareBy { it.id }).asReversed() as ArrayList<Ride>
+            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER).sortedWith(compareBy { it.id }).reversed()
             //Get index of requested item
             if (rideId != -1L) {
                 rides.forEachIndexed { index, r ->
@@ -97,8 +96,6 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
                 }
             }
         }
-
-
 
         button_driverstatus_pickup.setOnClickListener {
             updateStatus(ApiDao.StatusType.PICKUP)
@@ -139,11 +136,11 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }*/
 
         button_driverstatus_next.setOnClickListener {
-            if (rides.size < listIndex + 1) {
+            if (rides.size > listIndex + 1) {
                 ++listIndex
                 updateViews()
             }
-        }
+          }
 
         button_driverstatus_prev.setOnClickListener {
             if (listIndex > 0) {
@@ -159,7 +156,8 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             request = getSavedRequestById(context, rideId)
             text_driverstatus_dropoffplace.text = rides[listIndex].dest_name
             text_driverstatus_fare.text = rides[listIndex].price
-            text_driverstatus_status.text = rides[listIndex].ride_status.replace("_", " ").capitalize()
+            text_driverstatus_status.text =
+                rides[listIndex].ride_status.replace("_", " ").capitalize()
             if (request.isNotEmpty()) {
                 for ((key, value) in request) {
                     when (key) {
