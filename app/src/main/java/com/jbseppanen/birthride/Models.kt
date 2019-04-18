@@ -5,6 +5,8 @@ import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+//Commented out values are values that are available but not used.
+
 @Serializable
 data class User(
     @SerialName("user")
@@ -123,17 +125,6 @@ data class Driver(
     val photo_url: String
 )
 
-
-/*@Serializable
-@SerialName("data")
-data class RideRequestData(
-    val distance: String="",
-    val name: String="",
-    val hospital: String="",
-    val phone: String="",
-    val price: Int=0,
-    val ride_id: Long=-1L
-)*/
 
 interface ResultCallback {
     fun returnResult(result: String?)

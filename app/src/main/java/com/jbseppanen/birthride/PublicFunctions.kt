@@ -3,6 +3,7 @@ package com.jbseppanen.birthride
 import android.content.Context
 import android.preference.PreferenceManager
 import com.google.android.gms.maps.model.LatLng
+import kotlin.random.Random
 
 fun toLatLng(latLngString: String): LatLng? {
     var latLng: LatLng?
@@ -74,4 +75,10 @@ fun removeFromSharedPrefs(id: String, context: Context) {
                 idArray.toString().removePrefix("[").removeSuffix("]")
             ).apply()
     }
+}
+
+fun generateMockLocations():LatLng {
+    val lat = Random.nextDouble(Constants.mapBounds.southwest.latitude, Constants.mapBounds.northeast.latitude)
+    val lon = Random.nextDouble(Constants.mapBounds.southwest.longitude, Constants.mapBounds.northeast.longitude)
+    return LatLng(lat, lon)
 }

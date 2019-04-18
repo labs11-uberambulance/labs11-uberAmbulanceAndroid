@@ -112,6 +112,7 @@ object ApiDao {
         return success
     }
 
+
     suspend fun getDrivers(location: LatLng): ArrayList<RequestedDriver> {
         val tokenString = getToken()
         val json = "{\"location\":\"${location.latitude},${location.longitude}\"}"
@@ -170,7 +171,7 @@ object ApiDao {
         return path
     }
 
-    suspend fun getRideById(id: Long):Ride? {
+    suspend fun getRideById(id: Long): Ride? {
         val (success, response) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/$id",
             requestType = NetworkAdapter.GET,
@@ -182,8 +183,8 @@ object ApiDao {
             )
         )
         return if (success) {
-            val rides =  convertStringToRides(response)
-            if(rides.size>0) {
+            val rides = convertStringToRides(response)
+            if (rides.size > 0) {
                 rides[0]
             } else {
                 null
@@ -193,7 +194,7 @@ object ApiDao {
         }
     }
 
-    suspend fun getUserRides(userType: UserType):MutableList<Ride> {
+    suspend fun getUserRides(userType: UserType): MutableList<Ride> {
         val tokenString = getToken()
         val (success, result) = NetworkAdapter.httpRequest(
             stringUrl = "$baseUrl/rides/${userType.type}",
