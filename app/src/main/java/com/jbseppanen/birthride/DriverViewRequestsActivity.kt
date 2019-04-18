@@ -408,18 +408,13 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 driverLatLng = LatLng(location.latitude, location.longitude)
-//                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
-                driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
+               driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     if (user == null) {
                         user = ApiDao.getCurrentUser()
                     }
                     if (user != null) {
-                        user?.userData?.location = Location(
-                            "",
-                            "${driverLatLng!!.latitude},${driverLatLng!!.longitude}",
-                            ""
-                        )
+//                        user?.userData?.location = Location("","${driverLatLng!!.latitude},${driverLatLng!!.longitude}","" )//TODO enable this line to update locations
                         ApiDao.updateCurrentUser(user!!, false)
                     }
                 }
