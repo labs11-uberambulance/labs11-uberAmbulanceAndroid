@@ -4,12 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:backgroundTint="@color/colorPrimary"
     tools:context=".WelcomeActivity">
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="BirthRide"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <ImageView
+        android:id="@+id/image_welcome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/welcome"
+        android:src="@drawable/welcome_svg"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -18,7 +33,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="Welcome"
-        android:textColor="@android:color/black"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/textView3"
@@ -39,7 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginBottom="16dp" />
+         />
 
     <ProgressBar
         android:id="@+id/progress_welcome"
