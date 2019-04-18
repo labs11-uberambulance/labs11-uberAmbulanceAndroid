@@ -187,8 +187,6 @@ class EditAccountDetailsActivity : AppCompatActivity() {
             when (user.userData.user_type) {
                 UserTypeSelectionActivity.MOTHER -> {
                     user.motherData?.caretaker_name = edit_edituser_caregivername.text.toString()
-//                    user.motherData?.due_date = "${date_edituser_duedate.year}-${date_edituser_duedate.month + 1}-${date_edituser_duedate.dayOfMonth}"
-//                    user.motherData?.hospital = edit_edituser_hospitalname.text.toString()
                     updateUser()
                 }
                 UserTypeSelectionActivity.DRIVER -> {

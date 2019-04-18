@@ -40,7 +40,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     private var rideId = -1L
     private var rides = mutableListOf<Ride>()
     private var request = HashMap<String, String>()
-
+    private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,25 +63,6 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                WelcomeActivity.LOCATION_REQUEST_CODE
-            )
-            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                driverLatLng = LatLng(location.latitude, location.longitude)
-                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
-            }
-        }
-
         rideId = intent.getLongExtra(DRIVER_RIDE_STATUS_KEY, -1)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -98,12 +79,14 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverstatus_pickup.setOnClickListener {
             updateStatus(ApiDao.StatusType.PICKUP)
+            updateLocation()
         }
 
         button_driverstatus_dropoff.setOnClickListener {
             if (rides.size > listIndex) {
                 updateStatus(ApiDao.StatusType.DROPOFF)
                 removeFromSharedPrefs(rides[listIndex].id.toString(), context)
+                updateLocation()
                 updateViews()
             }
         }
@@ -143,6 +126,16 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        updateViews()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateLocation()
+    }
+
     private fun updateViews() {
         mMap.clear()
         if (rides.size > listIndex) {
@@ -169,11 +162,6 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             }
             updateMap()
         }
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        updateViews()
     }
 
     private fun updateMap() {
@@ -248,7 +236,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         if (rides.size > listIndex) {
             CoroutineScope(Dispatchers.IO + Job()).launch {
                 val success = ApiDao.updateRideStatus(rides[listIndex].id, status, null)
-                var message: String
+                val message: String
                 if (success) {
                     message = "Ride updated!"
                     val updatedRide = ApiDao.getRideById(rides[listIndex].id)
@@ -265,4 +253,40 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             }
         }
     }
+
+    private fun updateLocation() {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                WelcomeActivity.LOCATION_REQUEST_CODE
+            )
+            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                driverLatLng = LatLng(location.latitude, location.longitude)
+//                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
+                driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    if (user == null) {
+                        user = ApiDao.getCurrentUser()
+                    }
+                    if (user != null) {
+                        user?.userData?.location = Location(
+                            "",
+                            "${driverLatLng!!.latitude},${driverLatLng!!.longitude}",
+                            ""
+                        )
+                        ApiDao.updateCurrentUser(user!!, false)
+                    }
+                }
+            }
+        }
+    }
+
 }

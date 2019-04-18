@@ -98,38 +98,21 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                     )
             })
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                WelcomeActivity.LOCATION_REQUEST_CODE
-            )
-            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                driverLatLng = LatLng(location.latitude, location.longitude)
-                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
-            }
-        }
-
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            user = ApiDao.getCurrentUser()
-            if (user != null) {
-                val status = user!!.driverData?.active
-                if (status != null) {
-                    withContext(Dispatchers.Main) {
-                        setStatusButton(status, context)
+            if (user == null) {
+                user = ApiDao.getCurrentUser()
+                if (user != null) {
+                    val status = user!!.driverData?.active
+                    if (status != null) {
+                        withContext(Dispatchers.Main) {
+                            setStatusButton(status, context)
+                        }
                     }
                 }
             }
         }
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        updateLocation()
 
         button_driverview_togglestatus.setOnClickListener {
             if (user != null) {
@@ -230,6 +213,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Constants.defaultMapCenter, 6.0f))
         refreshRequests()
     }
 
@@ -401,6 +385,41 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         progress_driverview.visibility = View.INVISIBLE
                     }
 
+                }
+            }
+        }
+    }
+
+    private fun updateLocation() {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                WelcomeActivity.LOCATION_REQUEST_CODE
+            )
+            Toast.makeText(context, "Need to grant permission to use location.", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                driverLatLng = LatLng(location.latitude, location.longitude)
+//                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
+                driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    if (user == null) {
+                        user = ApiDao.getCurrentUser()
+                    }
+                    if (user != null) {
+                        user?.userData?.location = Location(
+                            "",
+                            "${driverLatLng!!.latitude},${driverLatLng!!.longitude}",
+                            ""
+                        )
+                        ApiDao.updateCurrentUser(user!!, false)
+                    }
                 }
             }
         }
