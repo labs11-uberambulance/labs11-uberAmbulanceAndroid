@@ -160,7 +160,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                             DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
                             rideId
                         )
-                        startActivity(statusIntent)
+                        withContext(Dispatchers.Main) {
+                            refreshRequests()
+                            startActivity(statusIntent)
+                        }
                     } else {
                         message = "Failed to accept ride."
                     }

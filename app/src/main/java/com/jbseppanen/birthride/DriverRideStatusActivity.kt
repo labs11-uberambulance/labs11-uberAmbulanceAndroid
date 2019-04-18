@@ -82,7 +82,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             }
         }
 
-        rideId = intent.getLongExtra(PushNotificationService.SERVICE_MESSAGE_KEY, -1)
+        rideId = intent.getLongExtra(DRIVER_RIDE_STATUS_KEY, -1)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
             rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER)
