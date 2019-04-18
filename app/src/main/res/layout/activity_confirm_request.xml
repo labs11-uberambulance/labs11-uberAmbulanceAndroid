@@ -16,53 +16,6 @@
         map:layout_constraintTop_toTopOf="parent"
         tools:context=".LocationSelectionActivity" />
 
-    <!--    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="16dp"
-            android:background="@drawable/radiused_rectangle_background"
-            android:backgroundTint="@color/colorPrimary"
-            android:orientation="vertical"
-            android:radius="10dp"
-            map:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:text="Pickup Location"
-                android:textSize="12sp" />
-
-            <EditText
-                android:id="@+id/edit_requestconfirm_userlocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:inputType="textPostalAddress" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:text="Destination Location"
-                android:textSize="12sp" />
-
-
-            <EditText
-                android:id="@+id/edit_requestconfirm_destination"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:inputType="textPostalAddress" />
-        </LinearLayout>-->
-
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_requestconfirm"
         android:layout_width="match_parent"
