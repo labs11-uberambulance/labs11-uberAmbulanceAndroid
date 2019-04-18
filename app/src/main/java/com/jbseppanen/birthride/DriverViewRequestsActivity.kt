@@ -201,6 +201,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             refreshRequests()
         }
 
+        button_driverview_rideignore.setOnClickListener {
+            startActivity(Intent(context, DriverRideStatusActivity::class.java))
+        }
+
         button_driverview_ridestatus.setOnClickListener {
             startActivity(Intent(context, DriverRideStatusActivity::class.java))
         }

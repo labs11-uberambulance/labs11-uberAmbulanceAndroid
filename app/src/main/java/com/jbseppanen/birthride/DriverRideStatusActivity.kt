@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -22,7 +21,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_driver_ride_status.*
-import kotlinx.android.synthetic.main.activity_driver_view_requests.*
 import kotlinx.coroutines.*
 
 class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
@@ -35,13 +33,14 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var context: Context
     private lateinit var activity: DriverRideStatusActivity
-
-    var rideId = -1L
-    var listIndex = 0
     private lateinit var requests: ArrayList<HashMap<String, String>>
     private var driverLatLng: LatLng? = null
     private var motherLatLng: LatLng? = null
     private var destLatLng: LatLng? = null
+    private var listIndex = 0
+    private var rideId = -1L
+    private var rides = ArrayList<Ride>()
+    private var request = HashMap<String, String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,37 +85,39 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         rideId = intent.getLongExtra(PushNotificationService.SERVICE_MESSAGE_KEY, -1)
 
-        requests = getSavedRequests(context)
-
-        //Get index of requested item
-        if (rideId != -1L) {
-            requests.forEachIndexed { index, request ->
-                val id = request["ride_id"]?.toLong()
-                if (id != null) {
-                    if (id == rideId) {
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            rides =
+                ApiDao.getUserRides(ApiDao.UserType.DRIVER).sortedWith(compareBy { it.id }).asReversed() as ArrayList<Ride>
+            //Get index of requested item
+            if (rideId != -1L) {
+                rides.forEachIndexed { index, r ->
+                    if (r.id == rideId) {
                         listIndex = index
                     }
                 }
             }
         }
 
+
+
         button_driverstatus_pickup.setOnClickListener {
             updateStatus(ApiDao.StatusType.PICKUP)
         }
 
         button_driverstatus_dropoff.setOnClickListener {
-            updateStatus(ApiDao.StatusType.DROPOFF)
-            if (requests.size > listIndex) {
-                removeFromSharedPrefs(requests[listIndex], context)
+            if (rideId != -1L) {
+                updateStatus(ApiDao.StatusType.DROPOFF)
+                removeFromSharedPrefs(request, context)
+                listIndex = 0
+                rideId = -1
+                updateViews()
             }
-            listIndex = 0
-            rideId = -1
-            updateViews()
         }
 
         button_driverstatus_startdirections.setOnClickListener {
             if (motherLatLng != null) {
-                val uri = Uri.parse("google.navigation:q=${motherLatLng!!.latitude},${motherLatLng!!.longitude}}")
+                val uri =
+                    Uri.parse("google.navigation:q=${motherLatLng!!.latitude},${motherLatLng!!.longitude}}")
                 val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
                 directionsIntent.setPackage("com.google.android.apps.maps")
                 startActivity(directionsIntent)
@@ -125,7 +126,8 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverstatus_enddirections.setOnClickListener {
             if (destLatLng != null) {
-                val uri = Uri.parse("google.navigation:q=${destLatLng!!.latitude},${destLatLng!!.longitude}}")
+                val uri =
+                    Uri.parse("google.navigation:q=${destLatLng!!.latitude},${destLatLng!!.longitude}}")
                 val directionsIntent = Intent(Intent.ACTION_VIEW, uri)
                 directionsIntent.setPackage("com.google.android.apps.maps")
                 startActivity(directionsIntent)
@@ -137,7 +139,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }*/
 
         button_driverstatus_next.setOnClickListener {
-            if (requests.size < listIndex + 1) {
+            if (rides.size < listIndex + 1) {
                 ++listIndex
                 updateViews()
             }
@@ -153,34 +155,32 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
     private fun updateViews() {
         mMap.clear()
+        if (rides.size > listIndex) {
+            request = getSavedRequestById(context, rideId)
+            text_driverstatus_dropoffplace.text = rides[listIndex].dest_name
+            text_driverstatus_fare.text = rides[listIndex].price
+            text_driverstatus_status.text = rides[listIndex].ride_status.replace("_", " ").capitalize()
+            if (request.isNotEmpty()) {
+                for ((key, value) in request) {
+                    when (key) {
+//                    "hospital" -> text_driverstatus_dropoffplace.text = value
+                        "name" -> text_driverstatus_name.text = value
+                        "phone" -> text_driverstatus_phone.text = value
+//                    "price" -> text_driverstatus_fare.text = value
+                    }
+                }
+            }
+        }
 
-        if (requests.size > listIndex) {
-            for ((key, value) in requests[listIndex]) {
-                when (key) {
-                    "hospital" -> text_driverstatus_dropoffplace.text = value
-                    "name" -> text_driverstatus_name.text = value
-                    "phone" -> text_driverstatus_phone.text = value
-                    "price" -> text_driverstatus_fare.text = value
-                    "ride_id" -> rideId = value.toLong()
-                }
-            }
+        var latLng = toLatLng(rides[listIndex].start)
+        if (latLng != null) {
+            motherLatLng = latLng
         }
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            val ride = ApiDao.getRideById(rideId)
-            if (ride != null) {
-                var latLng = toLatLng(ride.start)
-                if (latLng != null) {
-                    motherLatLng = latLng
-                }
-                latLng = toLatLng(ride.destination)
-                if (latLng != null) {
-                    destLatLng = latLng
-                }
-                withContext(Dispatchers.Main) {
-                    updateMap()
-                }
-            }
+        latLng = toLatLng(rides[listIndex].destination)
+        if (latLng != null) {
+            destLatLng = latLng
         }
+        updateMap()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
