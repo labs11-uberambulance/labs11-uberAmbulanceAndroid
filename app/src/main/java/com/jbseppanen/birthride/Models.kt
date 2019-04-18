@@ -124,7 +124,7 @@ data class Driver(
 )
 
 
-@Serializable
+/*@Serializable
 @SerialName("data")
 data class RideRequestData(
     val distance: String="",
@@ -133,8 +133,12 @@ data class RideRequestData(
     val phone: String="",
     val price: Int=0,
     val ride_id: Long=-1L
-)
+)*/
 
 interface ResultCallback {
     fun returnResult(result: String?)
+}
+
+enum class PointType(val type: String) {
+    START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
 }

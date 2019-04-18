@@ -45,10 +45,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private var motherLatLng: LatLng? = null
     private var destLatLng: LatLng? = null
 
-    enum class PointType(val type: String) {
-        START("Your Location"), PICKUP("Pickup Point"), DROPOFF("Drop Off Point")
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -93,6 +89,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         }
                     }
                 }
+
                 LocalBroadcastManager.getInstance(this)
                     .registerReceiver(
                         receiver,
@@ -118,23 +115,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 driverLatLng = LatLng(location.latitude, location.longitude)
                 driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
-/*                mMap.animateCamera(CameraUpdateFactory.newLatLng(
-//                    LatLng(location.latitude,location.longitude)
-                    Constants.defaultMapCenter //
-                ), 2000, object : GoogleMap.CancelableCallback {
-                    override fun onFinish() {
-                        mMap.animateCamera(
-                            CameraUpdateFactory.zoomTo(10f),
-                            2000,
-                            object : GoogleMap.CancelableCallback {
-                                override fun onFinish() {}
-                                override fun onCancel() {}
-                            })
-                    }
-
-                    override fun onCancel() {
-                    }
-                })*/
             }
         }
 
@@ -177,7 +157,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         val statusIntent = Intent(context, DriverRideStatusActivity::class.java)
                         statusIntent.putExtra(
                             DriverRideStatusActivity.DRIVER_RIDE_STATUS_KEY,
-                            mainHashMap
+                            rideId
                         )
                         startActivity(statusIntent)
                     } else {
@@ -219,10 +199,10 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
         button_driverview_refresh.setOnClickListener {
             refreshRequests()
-/*            CoroutineScope(Dispatchers.IO + Job()).launch {
-                ApiDao.getRideById(56)
-            }*/
+        }
 
+        button_driverview_rideignore.setOnClickListener {
+            startActivity(Intent(context, DriverRideStatusActivity::class.java))
         }
 
         button_driverview_ridestatus.setOnClickListener {
@@ -232,8 +212,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onResume() {
         super.onResume()
-/*        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(receiver, IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY))*/
         if (::mMap.isInitialized) {
             refreshRequests()
         }
@@ -248,15 +226,6 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        var userLocation: Location? = user?.userData?.location
-        if (userLocation != null) {
-            setPoint(userLocation.asLatLng(), PointType.PICKUP)
-        }
-
-        userLocation = user?.motherData?.destination
-        if (userLocation != null) {
-            setPoint(userLocation.asLatLng(), PointType.DROPOFF)
-        }
         refreshRequests()
     }
 

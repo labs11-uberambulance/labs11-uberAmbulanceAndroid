@@ -17,7 +17,7 @@ fun toLatLng(latLngString: String): LatLng? {
     return latLng
 }
 
-fun getSavedRequests(context: Context) : ArrayList<HashMap<String, String>>  {
+fun getSavedRequests(context: Context): ArrayList<HashMap<String, String>> {
     val requests = ArrayList<HashMap<String, String>>()
     val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
     val rideIdsAsString =
@@ -39,6 +39,23 @@ fun getSavedRequests(context: Context) : ArrayList<HashMap<String, String>>  {
     }
     return requests
 }
+
+fun getSavedRequestById(context: Context, requestId: Long): HashMap<String, String> {
+    val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+    val requestData = sharedPrefs.getString(requestId.toString(), null)
+    val map = HashMap<String, String>()
+    if (requestData != null) {
+        val requestArray = requestData.split(",") as MutableList<String>
+        requestArray.forEachIndexed { index, item ->
+            val itemArray = item.replace("{", "").replace("}", "").split("=")
+            map[itemArray[0].trim()] = itemArray[1]
+        }
+    }
+    return map
+}
+
+
+
 
 
 fun removeFromSharedPrefs(map: HashMap<String, String>, context: Context) {
