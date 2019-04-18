@@ -79,7 +79,7 @@
             android:layout_margin="16dp"
             android:background="@drawable/radiused_rectangle_background"
             android:backgroundTint="@color/colorButtonBrown"
-            android:text="View Accepted Rides"
+            android:text="View My Rides"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             map:layout_constraintBottom_toBottomOf="parent" />
@@ -225,7 +225,7 @@
             android:paddingRight="12dp"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
-            android:text="View Accepted\nRides"
+            android:text="View My\nRides"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             map:layout_constraintBottom_toBottomOf="parent"

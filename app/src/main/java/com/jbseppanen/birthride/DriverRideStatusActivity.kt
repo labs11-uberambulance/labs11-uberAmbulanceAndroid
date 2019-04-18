@@ -33,13 +33,12 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var context: Context
     private lateinit var activity: DriverRideStatusActivity
-    private lateinit var requests: ArrayList<HashMap<String, String>>
     private var driverLatLng: LatLng? = null
     private var motherLatLng: LatLng? = null
     private var destLatLng: LatLng? = null
     private var listIndex = 0
     private var rideId = -1L
-    private var rides = listOf<Ride>()
+    private var rides = mutableListOf<Ride>()
     private var request = HashMap<String, String>()
 
 
@@ -86,7 +85,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         rideId = intent.getLongExtra(PushNotificationService.SERVICE_MESSAGE_KEY, -1)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
-            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER).sortedWith(compareBy { it.id }).reversed()
+            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER)
             //Get index of requested item
             if (rideId != -1L) {
                 rides.forEachIndexed { index, r ->
@@ -102,11 +101,9 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         }
 
         button_driverstatus_dropoff.setOnClickListener {
-            if (rideId != -1L) {
+            if (rides.size > listIndex) {
                 updateStatus(ApiDao.StatusType.DROPOFF)
-                removeFromSharedPrefs(request, context)
-                listIndex = 0
-                rideId = -1
+                removeFromSharedPrefs(rides[listIndex].id.toString(), context)
                 updateViews()
             }
         }
@@ -131,16 +128,12 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             }
         }
 
-/*        button_test.setOnClickListener {
-            updateViews()
-        }*/
-
         button_driverstatus_next.setOnClickListener {
             if (rides.size > listIndex + 1) {
                 ++listIndex
                 updateViews()
             }
-          }
+        }
 
         button_driverstatus_prev.setOnClickListener {
             if (listIndex > 0) {
@@ -153,7 +146,7 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     private fun updateViews() {
         mMap.clear()
         if (rides.size > listIndex) {
-            request = getSavedRequestById(context, rideId)
+            request = getSavedRequestById(context, rides[listIndex].id)
             text_driverstatus_dropoffplace.text = rides[listIndex].dest_name
             text_driverstatus_fare.text = rides[listIndex].price
             text_driverstatus_status.text =
@@ -161,24 +154,21 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
             if (request.isNotEmpty()) {
                 for ((key, value) in request) {
                     when (key) {
-//                    "hospital" -> text_driverstatus_dropoffplace.text = value
                         "name" -> text_driverstatus_name.text = value
                         "phone" -> text_driverstatus_phone.text = value
-//                    "price" -> text_driverstatus_fare.text = value
                     }
                 }
             }
+            var latLng = toLatLng(rides[listIndex].start)
+            if (latLng != null) {
+                motherLatLng = latLng
+            }
+            latLng = toLatLng(rides[listIndex].destination)
+            if (latLng != null) {
+                destLatLng = latLng
+            }
+            updateMap()
         }
-
-        var latLng = toLatLng(rides[listIndex].start)
-        if (latLng != null) {
-            motherLatLng = latLng
-        }
-        latLng = toLatLng(rides[listIndex].destination)
-        if (latLng != null) {
-            destLatLng = latLng
-        }
-        updateMap()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -255,16 +245,22 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
     }
 
     private fun updateStatus(status: ApiDao.StatusType) {
-        if (rideId != -1L) {
+        if (rides.size > listIndex) {
             CoroutineScope(Dispatchers.IO + Job()).launch {
-                val success = ApiDao.updateRideStatus(rideId, status, null)
-                val message = if (success) {
-                    "Ride updated!"
+                val success = ApiDao.updateRideStatus(rides[listIndex].id, status, null)
+                var message: String
+                if (success) {
+                    message = "Ride updated!"
+                    val updatedRide = ApiDao.getRideById(rides[listIndex].id)
+                    if (updatedRide != null) {
+                        rides[listIndex] = updatedRide
+                    }
                 } else {
-                    "Failed to update ride status."
+                    message = "Failed to update ride status."
                 }
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    updateViews()
                 }
             }
         }

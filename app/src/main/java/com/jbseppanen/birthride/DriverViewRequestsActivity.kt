@@ -182,7 +182,7 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         )
                     if (success) {
                         requests.remove(mainHashMap)
-                        removeFromSharedPrefs(mainHashMap, context)
+                        removeFromSharedPrefs(rideId.toString(), context)
 //                        mainHashMap = HashMap<String, String>()
                     }
                     val message = if (success) {
@@ -301,12 +301,14 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
     private fun setStatusButton(status: Boolean, context: Context) {
         if (status) {
             button_driverview_togglestatus.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorButtonGreen)
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.colorButtonGreen)
                 )
             button_driverview_togglestatus.text = getString(R.string.driver_status_true)
         } else {
             button_driverview_togglestatus.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorButtonRed)
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.colorButtonRed)
                 )
             button_driverview_togglestatus.text = getString(R.string.driver_status_false)
         }
@@ -350,11 +352,11 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                                     }
                                 } else {
                                     //remove if older than 10 minutes
-                                    removeFromSharedPrefs(request, context)
+                                    val removeId = request["ride_id"]
+                                    if (removeId != null) {
+                                        removeFromSharedPrefs(removeId, context)
+                                    }
                                 }
-                            } else {
-                                //remove if no timestamp found.  Should not happen.
-                                removeFromSharedPrefs(request, context)
                             }
                         }
                     }

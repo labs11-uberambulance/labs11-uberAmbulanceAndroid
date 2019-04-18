@@ -55,12 +55,9 @@ fun getSavedRequestById(context: Context, requestId: Long): HashMap<String, Stri
 }
 
 
-
-
-
-fun removeFromSharedPrefs(map: HashMap<String, String>, context: Context) {
+fun removeFromSharedPrefs(id: String, context: Context) {
     val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-    val id = map["ride_id"] as String
+
     sharedPrefs.edit().remove(id).apply()
     val rideIds = sharedPrefs.getString(PushNotificationService.STORED_REQUESTS_KEY, null)
     if (rideIds != null) {
