@@ -34,7 +34,6 @@ class DriverDetailsActivity : AppCompatActivity() {
                 .apply(RequestOptions().centerCrop())
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-//                                    Toast.makeText(applicationContext, e?.localizedMessage, Toast.LENGTH_LONG).show()
                         return false
                     }
                     override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {

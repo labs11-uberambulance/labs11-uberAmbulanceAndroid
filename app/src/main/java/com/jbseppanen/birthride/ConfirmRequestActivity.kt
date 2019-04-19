@@ -21,7 +21,6 @@ import kotlinx.serialization.json.Json
 class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    //    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var markerPoints = ArrayList<LatLng>()
     private lateinit var activity: ConfirmRequestActivity
     private lateinit var user: User
@@ -30,9 +29,6 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
     var driverIndex = 0
     private lateinit var context: Context
 
-    companion object {
-        const val LOCATION_REQUEST_CODE = 11
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +49,6 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         activity = this
         context = this
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
             getUser()
@@ -131,8 +126,6 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
         }
 
         mMap.setOnMapClickListener {
-            /* latLng ->
-                        setPoint(latLng)*/
             val requestIntent = Intent(context, LocationSelectionActivity::class.java)
             var userLocation: Location? = user.userData.location
             if (userLocation != null) {

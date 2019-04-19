@@ -45,10 +45,7 @@ class PushNotificationService : FirebaseMessagingService() {
         // and data payloads are treated as notification messages. The Firebase console always sends notification
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
         // [END_EXCLUDE]
-
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: ${remoteMessage?.from}")
+        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ )
 
         // Check if message contains a data payload.
         remoteMessage?.data?.isNotEmpty()?.let {
@@ -113,24 +110,7 @@ class PushNotificationService : FirebaseMessagingService() {
         // Instance ID token to your app server.
         sendRegistrationToServer(token)
     }
-    // [END on_new_token]
 
-    /**
-     * Schedule async work using WorkManager.
-     */
-/*    private fun scheduleJob() {
-        // [START dispatch_job]
-        val work = OneTimeWorkRequest.Builder(MyWorker::class.java).build()
-        WorkManager.getInstance().beginWith(work).enqueue()
-        // [END dispatch_job]
-    }*/
-
-    /**
-     * Handle time allotted to BroadcastReceivers.
-     */
-/*    private fun handleNow() {
-        Log.d(TAG, "Short lived task is done.")
-    }*/
 
     /**
      * Persist token to third-party servers.
@@ -187,15 +167,6 @@ class PushNotificationService : FirebaseMessagingService() {
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
     }
 
-
-/*    @Throws(IOException::class)
-    private fun serialize(o: Serializable): String {
-        val baos = ByteArrayOutputStream()
-        val oos = ObjectOutputStream(baos)
-        oos.writeObject(o)
-        oos.close()
-        return baos.toString()
-    }*/
 
 
     companion object {

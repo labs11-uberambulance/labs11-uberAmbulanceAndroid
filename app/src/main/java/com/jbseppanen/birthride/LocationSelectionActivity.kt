@@ -89,7 +89,6 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             override fun onError(status: Status) {
-                // TODO: Handle the error.
             }
         })
 
@@ -259,7 +258,6 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 locLatLng = LatLng(location.latitude, location.longitude)
-//                locLatLng = Constants.defaultMapCenter  // For debugging.
             }
         }
     }
