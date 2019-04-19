@@ -208,33 +208,13 @@ object ApiDao {
         )
         var rides = mutableListOf<Ride>()
         if (success) {
-            val jsonArray = JSONArray(result)
-            for (i in 0 until jsonArray.length()) {
-                val jsonObject = jsonArray.getJSONObject(i)
-                try {
-
-                    val ride: Ride = Json.nonstrict.parse(
-                        Ride.serializer(),
-                        jsonObject.toString()
-                    )
-                    if (!ride.ride_status.contains(
-                            "complete",
-                            true
-                        ) || !ride.ride_status.contains("cancel", true)
-                    ) {
-                        rides.add(ride)
-                    }
-                } catch (e: SerializationException) {
-                    e.printStackTrace()
-                }
-            }
+            rides = convertStringToRides(result)
         }
-        rides.sortByDescending { it.id  }
         return rides
     }
 
-    fun convertStringToRides(input: String): ArrayList<Ride> {
-        val rides = ArrayList<Ride>()
+    private fun convertStringToRides(input: String): MutableList<Ride> {
+        val rides = mutableListOf<Ride>()
         val jsonArray = JSONArray(input)
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
@@ -244,17 +224,14 @@ object ApiDao {
                     Ride.serializer(),
                     jsonObject.toString()
                 )
-                if (!ride.ride_status.contains(
-                        "complete",
-                        true
-                    ) || !ride.ride_status.contains("cancel", true)
-                ) {
+//                if (!ride.ride_status.contains("complete",true) || !ride.ride_status.contains("cancel", true)) {
                     rides.add(ride)
-                }
+//                }
             } catch (e: SerializationException) {
                 e.printStackTrace()
             }
         }
+        rides.sortByDescending { it.id }
         return rides
     }
 

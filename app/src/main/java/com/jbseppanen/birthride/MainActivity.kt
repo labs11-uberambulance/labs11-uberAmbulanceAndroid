@@ -12,7 +12,6 @@ import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import java.lang.Thread.sleep
 
 
 open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -20,13 +19,6 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     private lateinit var context: Context
 
     protected fun onCreateDrawer() {
-//        setContentView(R.layout.activity_main)
-
-/*        AuthUI.getInstance().signOut(this).addOnCompleteListener {
-            //TODO remove this line after testing.  Currently forces login each time.
-            startActivity(Intent(this, WelcomeActivity::class.java))
-        }*/
-//        startActivity(Intent(this, WelcomeActivity::class.java))
 
         context = this
 
@@ -49,10 +41,6 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         nav_view.setNavigationItemSelectedListener(this)
     }
 
-/*    override fun setContentView(layoutResID: Int) {
-        super.setContentView(layoutResID)
-        onCreateDrawer()
-    }*/
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {

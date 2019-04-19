@@ -50,7 +50,6 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:1.1.0'
     implementation 'com.google.firebase:firebase-messaging:17.6.0'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-    //    implementation 'com.github.bumptech.glide:compiler:4.9.0'
     implementation 'com.hbb20:ccp:2.2.7'  //Dropdown phone country code selector.
     //Coroutine dependencies
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
@@ -58,14 +57,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.2.0-alpha-2'
 }
 
-/*apply plugin: 'kotlin-kapt'
-
-dependencies {
-    //Glide implementation
-    implementation 'com.github.bumptech.glide:annotations:4.9.0'
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
-    kapt 'com.github.bumptech.glide:compiler:4.9.0'
-}*/
 
 //code below required for kotlin serialization
 buildscript {
@@ -73,7 +64,6 @@ buildscript {
     repositories { jcenter() }
 
     dependencies {
-//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
@@ -82,7 +72,6 @@ apply plugin: 'kotlinx-serialization'
 
 repositories {
     jcenter()
-    // artifacts are published to this repository
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 

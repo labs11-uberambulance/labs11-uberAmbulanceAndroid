@@ -35,7 +35,6 @@ object NetworkAdapter {
             connection.readTimeout = TIMEOUT
             connection.connectTimeout = TIMEOUT
             connection.requestMethod = requestType
-//            connection.setRequestProperty("Content-Type", "application/json")  //Already in network request
 
             if (headerProperties != null) {
                 for ((key, value) in headerProperties) {
@@ -52,8 +51,7 @@ object NetworkAdapter {
                     outputStream.close()
                 }
             }
-            val message = connection.responseMessage
-            val response = connection.responseCode
+//            val connectionTest = "${connection.responseMessage} ${connection.responseCode}"
             if (connection.responseCode == HttpURLConnection.HTTP_OK || connection.responseCode == HttpURLConnection.HTTP_CREATED) {
                 stream = connection.inputStream
                 if (stream != null) {

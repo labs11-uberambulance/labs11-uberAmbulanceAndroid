@@ -57,14 +57,14 @@ data class DriverData(
 
 @Serializable
 data class Location(
-    var descr: String?,
+    var descr: String?="",
     var latlng: String,
-    var name: String?
+    var name: String?=""
 ) {
     fun asLatLng() : LatLng {
         return LatLng(
-        latlng.split(",")[0].toDouble(),
-        latlng.split(",")[1].toDouble()
+            latlng.split(",")[0].toDouble(),
+            latlng.split(",")[1].toDouble()
         )
     }
 
@@ -77,9 +77,9 @@ data class Ride(
     val driver_id: String,
     val mother_id: String,
     val start: String,
-    val start_name: String,
+    val start_name: String?,
     val destination: String,
-    val dest_name: String,
+    val dest_name: String?,
     val price: String,
 //    val rejected_drivers: Any? = null,
     val ride_status: String

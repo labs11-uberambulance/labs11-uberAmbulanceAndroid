@@ -65,18 +65,6 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         rideId = intent.getLongExtra(DRIVER_RIDE_STATUS_KEY, -1)
 
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER)
-            //Get index of requested item
-            if (rideId != -1L) {
-                rides.forEachIndexed { index, r ->
-                    if (r.id == rideId) {
-                        listIndex = index
-                    }
-                }
-            }
-        }
-
         button_driverstatus_pickup.setOnClickListener {
             updateStatus(ApiDao.StatusType.PICKUP)
             updateLocation()
@@ -128,7 +116,21 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        updateViews()
+
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER)
+            //Get index of requested item
+            if (rideId != -1L) {
+                rides.forEachIndexed { index, r ->
+                    if (r.id == rideId) {
+                        listIndex = index
+                    }
+                }
+            }
+            withContext(Dispatchers.Main) {
+                updateViews()
+            }
+        }
     }
 
     override fun onResume() {
@@ -270,18 +272,13 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 driverLatLng = LatLng(location.latitude, location.longitude)
-//                driverLatLng = Constants.defaultMapCenter //Todo remove this hardcoded location
                 driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     if (user == null) {
                         user = ApiDao.getCurrentUser()
                     }
                     if (user != null) {
-                        user?.userData?.location = Location(
-                            "",
-                            "${driverLatLng!!.latitude},${driverLatLng!!.longitude}",
-                            ""
-                        )
+                        //user?.userData?.location = Location("","${driverLatLng!!.latitude},${driverLatLng!!.longitude}","" )//TODO enable this line to update locations
                         ApiDao.updateCurrentUser(user!!, false)
                     }
                 }

@@ -12,7 +12,7 @@ fun toLatLng(latLngString: String): LatLng? {
             latLngString.split(",")[0].toDouble(),
             latLngString.split(",")[1].toDouble()
         )
-    } catch (e: IndexOutOfBoundsException) {
+    } catch (e: Exception) {
         latLng = null
     }
     return latLng
