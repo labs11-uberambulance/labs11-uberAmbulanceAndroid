@@ -65,18 +65,6 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
         rideId = intent.getLongExtra(DRIVER_RIDE_STATUS_KEY, -1)
 
-        CoroutineScope(Dispatchers.IO + Job()).launch {
-            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER)
-            //Get index of requested item
-            if (rideId != -1L) {
-                rides.forEachIndexed { index, r ->
-                    if (r.id == rideId) {
-                        listIndex = index
-                    }
-                }
-            }
-        }
-
         button_driverstatus_pickup.setOnClickListener {
             updateStatus(ApiDao.StatusType.PICKUP)
             updateLocation()
@@ -128,7 +116,21 @@ class DriverRideStatusActivity : MainActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        updateViews()
+
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            rides = ApiDao.getUserRides(ApiDao.UserType.DRIVER)
+            //Get index of requested item
+            if (rideId != -1L) {
+                rides.forEachIndexed { index, r ->
+                    if (r.id == rideId) {
+                        listIndex = index
+                    }
+                }
+            }
+            withContext(Dispatchers.Main) {
+                updateViews()
+            }
+        }
     }
 
     override fun onResume() {

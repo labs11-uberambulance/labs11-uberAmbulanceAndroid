@@ -64,10 +64,14 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
                 Toast.makeText(context, "Select start and end points on map.", Toast.LENGTH_LONG)
                     .show()
             } else {
-                user.motherData?.start?.latlng =
-                    "${markerPoints[0].latitude},${markerPoints[0].longitude}"
-                user.motherData?.destination?.latlng =
-                    "${markerPoints[1].latitude},${markerPoints[1].longitude}"
+                user.motherData?.start = Location(
+                    "",
+                    "${markerPoints[0].latitude},${markerPoints[0].longitude}",
+                    "")
+                user.motherData?.destination = Location(
+                    "",
+                    "${markerPoints[1].latitude},${markerPoints[1].longitude}",
+                    "")
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     val success =
                         ApiDao.postRideRequest(user, requestedDriver?.driver?.firebase_id!!)
@@ -130,7 +134,6 @@ class ConfirmRequestActivity : MainActivity(), OnMapReadyCallback {
             /* latLng ->
                         setPoint(latLng)*/
             val requestIntent = Intent(context, LocationSelectionActivity::class.java)
-            val markerPoints = ArrayList<LatLng>()
             var userLocation: Location? = user.userData.location
             if (userLocation != null) {
                 markerPoints.add(userLocation.asLatLng())

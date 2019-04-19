@@ -80,23 +80,17 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                         ApiDao.updateFcmToken(token)
                     }
                 }
+            })
 
-                receiver = object : BroadcastReceiver() {
-                    override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
-                        when (receivedIntent?.action) {
-                            PushNotificationService.SERVICE_BROADCAST_KEY -> {
-                                refreshRequests()
-                            }
-                        }
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(contxt: Context?, receivedIntent: Intent?) {
+                when (receivedIntent?.action) {
+                    PushNotificationService.SERVICE_BROADCAST_KEY -> {
+                        refreshRequests()
                     }
                 }
-
-                LocalBroadcastManager.getInstance(this)
-                    .registerReceiver(
-                        receiver,
-                        IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY)
-                    )
-            })
+            }
+        }
 
         CoroutineScope(Dispatchers.IO + Job()).launch {
             if (user == null) {
@@ -195,6 +189,15 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
         button_driverview_ridestatus.setOnClickListener {
             startActivity(Intent(context, DriverRideStatusActivity::class.java))
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(
+                receiver,
+                IntentFilter(PushNotificationService.SERVICE_BROADCAST_KEY)
+            )
     }
 
     override fun onResume() {
