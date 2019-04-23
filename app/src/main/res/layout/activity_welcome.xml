@@ -91,6 +91,7 @@
         android:text="For demo purposes only.  Not currently intended for actual use."
         android:textAlignment="center"
         android:textSize="20sp"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="@+id/image_welcome" />
 
 </android.support.constraint.ConstraintLayout>
