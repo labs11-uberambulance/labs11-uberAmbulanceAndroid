@@ -410,8 +410,8 @@ class DriverViewRequestsActivity : MainActivity(), OnMapReadyCallback {
                 .show()
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                driverLatLng = LatLng(location.latitude, location.longitude)
-               driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
+//                driverLatLng = LatLng(location.latitude, location.longitude) //TODO enable this line to update locations
+//               driverLatLng = generateMockLocations() //Todo remove this line that uses mock data.
                 CoroutineScope(Dispatchers.IO + Job()).launch {
                     if (user == null) {
                         user = ApiDao.getCurrentUser()

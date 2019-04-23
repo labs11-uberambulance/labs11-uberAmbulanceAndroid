@@ -33,20 +33,27 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
+							  
+					 
+		  
         "appinvite_service": {
-          "status": 2,
+					  
           "other_platform_oauth_client": [
             {
               "client_id": "211505911643-q9h2sdtij38hmueht3e7106ucenkgm8b.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "211505911643-t6425mt1llj0kopm8f05a5ph5r5ul1gp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.AustinCole.BirthRide-"
+              }
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
+		  
+						
+					 
         }
       }
     }

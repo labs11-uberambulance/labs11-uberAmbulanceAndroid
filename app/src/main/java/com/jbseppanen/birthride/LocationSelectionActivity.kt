@@ -173,7 +173,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap = googleMap
         mMap.setLatLngBoundsForCameraTarget(Constants.mapBounds)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.defaultMapCenter, 12.0f))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.defaultMapCenter, 6.0f))
         mMap.setOnMapClickListener { latLng ->
             addPoint(latLng)
         }
@@ -210,7 +210,7 @@ class LocationSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
             options.position(latLng)
             if (markerPoints.size == 1) {
 //                options.title("Start")
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8.0f))
             } else if (markerPoints.size == 2) {
                 options.title("End")
             }

@@ -57,8 +57,10 @@ data class DriverData(
 
 @Serializable
 data class Location(
+    @Optional
     var descr: String?="",
     var latlng: String,
+    @Optional
     var name: String?=""
 ) {
     fun asLatLng() : LatLng {
